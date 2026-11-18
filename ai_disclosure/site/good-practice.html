@@ -29,7 +29,11 @@
     <p class="toc-title" id="toc-title">On this page</p>
     <ol>
       <li><a href="#why">Why it matters</a></li>
-      <li><a href="#everybody">For those who use AI, and for those who do not</a></li>
+      <li><a href="#everybody">For those who use AI, and for those who do not</a>
+        <ol>
+          <li><a href="#merit">Judged on merit: the OCaml guidelines</a></li>
+        </ol>
+      </li>
       <li><a href="#trailer">The <code>Co-Authored-By</code> trailer</a></li>
       <li><a href="#reliability">Without the trailer, these pages say little</a></li>
       <li><a href="#files">Four files that make it a habit</a>
@@ -66,9 +70,22 @@
     <ul>
       <li><strong>No one has to use AI.</strong> People refuse these tools for many reasons, and they do not owe an explanation. They deserve support, not only tolerance: the documentation, the review and the help of the project stay there for someone working without an AI tool.</li>
       <li><strong>No one is asked to.</strong> A maintainer who uses AI does not ask a contributor to do the same, and a contribution written by hand is reviewed like any other.</li>
-      <li><strong>No one is turned away for using it.</strong> Declaring AI use never counts against a contribution. The <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md">guidelines of OCaml</a> say it in one line: "We strive to evaluate contributions based on their merit, not their authors."</li>
+      <li><strong>No one is turned away for using it.</strong> Declaring AI use never counts against a contribution. OCaml calls this <a href="#merit">judging on merit</a>.</li>
     </ul>
     <p>Declaring is what makes both possible. When AI use is said, those who avoid it can see where it is, and those who use it have nothing to hide. The Software Freedom Conservancy puts these two points first in its <a href="https://sfconservancy.org/llm-gen-ai/llm-backed-generative-ai-recommendations.html" target="_blank" rel="noreferrer">recommendations on LLM-backed generative AI</a>: support those who reject these systems, and let every contributor decide for themselves.</p>
+
+    <h3 id="merit">Judged on merit: the OCaml guidelines</h3>
+    <p>The OCaml compiler states this idea better than we do. Its <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md">guidelines for AI-assisted contributions</a>, in the repository since November 2025, are six short rules, and the first one is:</p>
+    <blockquote><p>We strive to evaluate contributions based on their merit, not their authors.</p></blockquote>
+    <p>A change is judged on what it is: correct or not, understood or not, worth a reviewer's time or not. Who or what wrote it is not the test. So there is no ban and no separate track: a good change written with a model is accepted, and a bad one is refused because it is bad.</p>
+    <p>Merit alone would be an empty word. The other rules are what make it work:</p>
+    <ul>
+      <li><strong>The contributor answers for all of it.</strong> "We ask that you have either written, or read and reviewed yourself, every part of your contribution. You are responsible for its quality."</li>
+      <li><strong>AI use is disclosed, like any other help.</strong> A significant AI-generated part "must be disclosed, stating which tool was used and for what", because reviewing it "can require a different approach". The same rule adds that an acknowledgement is owed "even if another <em>human</em> contributor did some of the work".</li>
+      <li><strong>The reviewer's time is what is protected.</strong> It "is a scarce resource", and contributions, "whether human- or AI-authored", should conserve it.</li>
+      <li><strong>There is a floor.</strong> Never acceptable: "low-effort productions of code that contributors do not understand", plagiarised works, hallucinated security reports.</li>
+    </ul>
+    <p>What we take from it is the sentence that introduces the rules: they "also apply, or have a direct counterpart, with entirely human-produced content". Nothing is asked of a person who uses AI that is not asked of everyone. Declaring is then information for the review, never a verdict on the author, and that is what lets a project ask for it without shaming anyone.</p>
   </section>
 
   <section id="trailer">

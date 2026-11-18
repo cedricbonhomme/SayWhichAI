@@ -255,3 +255,6 @@ section > .sub.after { margin: 12px 0 0; }
 .policies th:nth-child(5) { width: 21%; }
 .prose .policies code { white-space: normal; word-break: break-word; overflow-wrap: anywhere; font-size: 12px; }
 .policies td:first-child small { display: block; color: var(--muted); }
+
+.prose blockquote { margin: 12px 0; padding: 2px 0 2px 16px; border-left: 3px solid var(--axis); color: var(--ink); font-size: 17px; }
+.prose blockquote p { margin: 0; }
