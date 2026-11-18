@@ -225,3 +225,6 @@ html { scroll-behavior: smooth; }
   .with-toc .toc-body { grid-column: 1; grid-row: 1; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.prose h2 .state { font-weight: 500; vertical-align: middle; margin-left: 6px; }
+.prose table { margin-bottom: 14px; }
+.prose td code { white-space: nowrap; }

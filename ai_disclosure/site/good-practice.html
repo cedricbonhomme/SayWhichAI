@@ -42,6 +42,8 @@
       </li>
       <li><a href="#not">What it is not</a></li>
       <li><a href="#adopt">Adopt it</a></li>
+      <li><a href="#taxonomy">Where does a project stand? (draft)</a></li>
+      <li><a href="#related">Related work</a></li>
     </ol>
   </nav>
   <div class="toc-body">
@@ -158,6 +160,41 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
     </ol>
     <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md">AI transparency charter</a>.</p>
+  </section>
+  <section id="taxonomy">
+    <h2>Where does a project stand? <span class="state">draft</span></h2>
+    <p>Before contributing, people want to know what a project accepts. Most projects do not say. We are drafting a small set of labels that a project could state about itself, from the most closed to the most open:</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Label</th><th>What the project says</th></tr></thead>
+        <tbody>
+          <tr><td><code>ai-prohibited</code></td><td>Contributions written with an AI tool are refused.</td></tr>
+          <tr><td><code>ai-not-welcome</code></td><td>Not forbidden, but the project prefers contributions written without AI, and may decline the others.</td></tr>
+          <tr><td><code>ai-assisted</code></td><td>AI help is welcome when a person has read, understood and tested the change, and answers for it.</td></tr>
+          <tr><td><code>ai-generated</code></td><td>The project also accepts changes written largely or entirely by a model.</td></tr>
+          <tr><td><code>ai-unspecified</code></td><td>The project states nothing. This is not a position, and it is the most common case today.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>The label is what a project states</strong>, in its own files. The charts of this site show what its commits declare. The two can differ, and seeing both is the point.</li>
+      <li><strong>Asking for disclosure is a separate question.</strong> A project can carry any of these labels and require the trailer, or not.</li>
+      <li><strong>No label is the right one.</strong> A project that refuses AI and a project that welcomes it both help contributors by saying so.</li>
+    </ul>
+    <p>This is a draft: the names and their meaning may change, and the labels are not shown on the project pages yet.</p>
+  </section>
+
+  <section id="related">
+    <h2>Related work</h2>
+    <p>The <strong>Software Freedom Conservancy</strong> has published recommendations on LLM-backed generative AI for free and open source software, written with a group of volunteers. Several of them meet what is described on this page:</p>
+    <ul>
+      <li>support those who reject these systems, and let every contributor decide for themselves;</li>
+      <li>do not shun contributors who use them;</li>
+      <li>review and understand a contribution before submitting it;</li>
+      <li>disclose which system was used and its version, in a machine-readable form in the commit log;</li>
+      <li>submit contributions that no human has vetted only where a project explicitly asks for them.</li>
+    </ul>
+    <p>Their recommendations go further on subjects this page does not cover, such as copyright and licensing, keeping a record of prompts, and the use of proprietary tools. The <code>Co-Authored-By</code> trailer is one concrete way to do the disclosure they call for.</p>
   </section>
   </div>
   </div>
