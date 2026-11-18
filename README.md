@@ -136,6 +136,7 @@ Optional, and needs `gource` and `ffmpeg`:
 ```bash
 ai-disclosure video                 # every project, into .cache/video/
 ai-disclosure video misp --max-age 7  # one project, unless its video is under a week old
+ai-disclosure video --max-age 7 --due # only list the projects whose video would be rendered
 ai-disclosure build                 # publishes the videos it finds in .cache/video/
 ```
 

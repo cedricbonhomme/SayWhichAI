@@ -121,6 +121,17 @@ def video(args: argparse.Namespace) -> int:
     unknown = (set(local) | set(args.slug)) - {project.slug for project in projects}
     if unknown:
         raise ConfigError(f"no project file is named: {', '.join(sorted(unknown))}")
+
+    def recent(project) -> bool:
+        output = args.cache / "video" / f"{project.slug}.mp4"
+        return output.exists() and time.time() - output.stat().st_mtime < args.max_age * 86400
+
+    if args.due:
+        # Only say which videos would be rendered: gource and ffmpeg are not needed.
+        for project in projects:
+            if (not args.slug or project.slug in args.slug) and not recent(project):
+                print(project.slug)
+        return 0
     missing = [tool for tool in (os.environ.get("GOURCE", "gource"), "ffmpeg") if not shutil.which(tool)]
     if missing:
         raise ConfigError(f"not installed: {', '.join(missing)}")
@@ -130,7 +141,7 @@ def video(args: argparse.Namespace) -> int:
         if args.slug and project.slug not in args.slug:
             continue
         output = args.cache / "video" / f"{project.slug}.mp4"
-        if output.exists() and time.time() - output.stat().st_mtime < args.max_age * 86400:
+        if recent(project):
             _log(f"{project.name}: the video is recent enough, kept")
             continue
         _log(f"{project.name}: reading the history of {project.repository}")
@@ -188,6 +199,8 @@ def main(argv: list[str] | None = None) -> int:
                          help="read this project from an existing clone instead of cloning it")
     command.add_argument("--max-age", type=float, default=0, metavar="DAYS",
                          help="keep a video rendered less than this many days ago")
+    command.add_argument("--due", action="store_true",
+                         help="only print the projects whose video is missing or too old")
     command.add_argument("--size", default="1280x720", help="size of the video")
     command.add_argument("--no-github", action="store_true", help="do not download profile pictures")
     command.set_defaults(run=video)

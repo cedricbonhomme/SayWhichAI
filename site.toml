@@ -10,6 +10,7 @@
 [site]
 projects = [
     "vulnerability-lookup",
+    "vulntrain",
     "misp",
     "ail-framework",
     "flowintel",

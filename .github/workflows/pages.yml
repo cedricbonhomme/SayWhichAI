@@ -38,6 +38,11 @@ jobs:
         continue-on-error: true
         timeout-minutes: 40
         run: |
+          # Installing the packages can take longer than rendering: only when needed.
+          if [ -z "$(ai-disclosure video --projects projects --max-age 7 --due)" ]; then
+            echo "Every video is recent enough."
+            exit 0
+          fi
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends gource ffmpeg xvfb
           xvfb-run -a -s "-screen 0 1280x720x24" ai-disclosure video --projects projects --max-age 7
