@@ -2,7 +2,7 @@
 
 AI transparency for Open Source projects.
 
-A [charter](AI_CHARTER.md) (version 1.0) for projects that want to be open about the use of AI tools
+A [charter](AI_CHARTER.md) (version 1.1) for projects that want to be open about the use of AI tools
 in their development, and a tool that publishes what a project's contributors
 declare: it reads the commits and pull requests of a project and builds a static
 page of charts.

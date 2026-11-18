@@ -1,15 +1,16 @@
 # AI transparency charter
 
-Version 1.0, 18 November 2026
+Version 1.1, 18 November 2026
 
 A short charter that a software project can adopt to say how AI tools are used in
 its development. It was first written for
 [Vulnerability-Lookup](https://github.com/vulnerability-lookup/vulnerability-lookup).
 
-The charter is about **transparency, not judgement**. Using an AI tool is welcome,
-whatever your experience, including when you could not have written the change
-without it. What the project asks is that it is said, and that a person stands
-behind every contribution.
+The charter is about **transparency, not judgement**, and it is meant for
+everybody. Using an AI tool is welcome, whatever your experience, including when
+you could not have written the change without it. Not using one is just as
+welcome, whatever your reasons. What the project asks is that AI use is said, and
+that a person stands behind every contribution.
 
 ## The commitments
 
@@ -43,6 +44,12 @@ behind every contribution.
    contribution. The figures a project publishes about it describe what is
    declared; they are not a score.
 
+7. **No one has to use AI.** People who choose not to use AI tools are supported,
+   not merely tolerated. The project never requires an AI tool to contribute: its
+   documentation, its review and its help remain there for someone working
+   without one. Their contributions are reviewed in the same way, and a
+   maintainer who uses AI does not ask a contributor to do the same.
+
 ## What "no AI declared" means
 
 A commit without a trailer is a commit where no AI is declared. It may have been
@@ -72,7 +79,7 @@ The first is a fact about the change. The second is the author's own statement,
 and only they tick it.
 
 A project that adopts the charter says which version, for example in its
-`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.0."
+`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.1."
 
 ## What is published
 
@@ -88,9 +95,10 @@ held to a rule that did not exist.
 ## Versions
 
 The charter is versioned so that a project knows what it adopted. A change of
-wording that keeps the commitments raises the second number; a change to the
-commitments raises the first, and projects choose when to move to it.
+wording that keeps the commitments, or adds one, raises the second number; changing or removing a
+commitment raises the first, and projects choose when to move to it.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.1 | 18 November 2026 | Added "No one has to use AI", after the first two recommendations of the Software Freedom Conservancy on LLM-backed generative AI |
 | 1.0 | 18 November 2026 | First version, from the rules of Vulnerability-Lookup |
