@@ -1,0 +1,24 @@
+[project]
+name = "AI disclosure"
+repository = "cedricbonhomme/ai-disclosure"
+
+[policy]
+url = "https://github.com/cedricbonhomme/ai-disclosure/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
+# The first commits of the project were written with an AI tool and carry no
+# trailer: the rule applies from this date only.
+trailer_since = "2026-11-18"
+
+[[policy.checkbox]]
+id = "ai"
+label = "AI-generated"
+match = ["generated with an AI tool"]
+since = "2026-11-18"
+
+[[policy.checkbox]]
+id = "human"
+label = "Read and tested"
+match = ["read, understood and tested"]
+since = "2026-11-18"
+
+[identities]
+bots = []
