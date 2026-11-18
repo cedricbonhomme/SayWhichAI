@@ -40,6 +40,7 @@
           <li><a href="#template">Pull request template</a></li>
         </ol>
       </li>
+      <li><a href="#limits">The limits, said plainly</a></li>
       <li><a href="#not">What it is not</a></li>
       <li><a href="#adopt">Adopt it</a></li>
       <li><a href="#taxonomy">Where does a project stand? (draft)</a></li>
@@ -90,7 +91,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
   <section id="reliability">
     <h2>Without the trailer, these pages say little</h2>
     <p>Everything this site shows is read from what contributors declare. A commit without a trailer is counted as <em>no AI declared</em>, and nothing in a repository can tell a commit written by hand from a generated one whose trailer is missing.</p>
-    <p>So the figures of a project are as reliable as its habit of declaring. In a project that asks for the trailer, and where agents are told to add it, "no AI declared" comes close to "written by a person". In a project that asks for nothing, a low share of AI commits may only mean that nobody says it.</p>
+    <p>So the figures of a project are as reliable as its habit of declaring. In a project that asks for the trailer, and where agents are told to add it, "no AI declared" comes close to "written by a person". In a project that asks for nothing, a low share of AI commits may only mean that nobody says it. In both cases the figures are a lower bound.</p>
     <p>This is the reason to adopt the practice below: it makes the declaration the default, instead of leaving it to each contributor's memory.</p>
   </section>
 
@@ -139,6 +140,19 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
 <pre><code>- [ ] Was a significant part of it generated with an AI tool? (If so, the commits carry a `Co-Authored-By` trailer naming the model.)
 - [ ] I have read, understood and tested every change in this pull request, and I can explain it.</code></pre>
     <p>The first is a fact about the change, and it can be checked against the commits. The second is the author's own statement: an AI tool that drafts the description leaves it unticked, and the author ticks it once it is true.</p>
+  </section>
+
+  <section id="limits">
+    <h2>The limits, said plainly</h2>
+    <p>The trailer and the four files are the best we have today. They are also a weak system, and it is better to say so.</p>
+    <ul>
+      <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a rebase or a squash can drop it. Nothing signs it and nothing verifies it.</li>
+      <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer.</li>
+      <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
+      <li><strong>The rules are requests.</strong> <code>AGENTS.md</code> and <code>CONTRIBUTING.md</code> ask; they cannot oblige. An agent may not read the file or may not follow it, and the person behind the agent is free to remove the trailer, or to tick a box without having read the change. A project can check that the boxes and the trailers agree. It cannot check that they are true.</li>
+    </ul>
+    <p>So the whole practice rests on good faith, and this has two consequences. The figures of this site are a lower bound: they count what was declared, never more. And declaring must cost nothing, because people only say what they are not blamed for.</p>
+    <p>Stronger systems may come, where a tool attests what it produced and the forge records it. Until then, a plain line that people agree to write is far better than silence.</p>
   </section>
 
   <section id="not">
