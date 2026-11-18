@@ -224,13 +224,13 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <p>Before contributing, people want to know what a project accepts. Most projects do not say. We are drafting a small set of labels that a project could state about itself, from the most closed to the most open:</p>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Label</th><th>What the project says</th></tr></thead>
+        <thead><tr><th>Label</th><th>What the project says</th><th>Among <a href="#others">those we read</a></th></tr></thead>
         <tbody>
-          <tr><td><code>ai-prohibited</code></td><td>Contributions written with an AI tool are refused.</td></tr>
-          <tr><td><code>ai-not-welcome</code></td><td>Not forbidden, but the project prefers contributions written without AI, and may decline the others.</td></tr>
-          <tr><td><code>ai-assisted</code></td><td>AI help is welcome when a person has read, understood and tested the change, and answers for it.</td></tr>
-          <tr><td><code>ai-generated</code></td><td>The project also accepts changes written largely or entirely by a model.</td></tr>
-          <tr><td><code>ai-unspecified</code></td><td>The project states nothing. This is not a position, and it is the most common case today.</td></tr>
+          <tr><td><code>ai-prohibited</code></td><td>Contributions written with an AI tool are refused.</td><td>SourceHut, for the projects it hosts.</td></tr>
+          <tr><td><code>ai-not-welcome</code></td><td>Not forbidden, but the project prefers contributions written without AI, and may decline the others.</td><td>None.</td></tr>
+          <tr><td><code>ai-assisted</code></td><td>AI help is welcome when a person has read, understood and tested the change, and answers for it.</td><td>CPython, NumPy, pandas, pip, Kubernetes, the Linux kernel.</td></tr>
+          <tr><td><code>ai-generated</code></td><td>The project also accepts changes written largely or entirely by a model.</td><td>Mesa, Fedify, the Apache Software Foundation.</td></tr>
+          <tr><td><code>ai-unspecified</code></td><td>The project states nothing. This is not a position, and it is the most common case today.</td><td>Most of the <a href="./">projects followed here</a>, as far as we could find.</td></tr>
         </tbody>
       </table>
     </div>
@@ -238,6 +238,14 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li><strong>The label is what a project states</strong>, in its own files. The charts of this site show what its commits declare. The two can differ, and seeing both is the point.</li>
       <li><strong>Asking for disclosure is a separate question.</strong> A project can carry any of these labels and require the trailer, or not.</li>
       <li><strong>No label is the right one.</strong> A project that refuses AI and a project that welcomes it both help contributors by saying so.</li>
+    </ul>
+    <p>The labels in the last column are ours: none of these projects uses them. Placing real projects was a test of the draft, and it shows where the labels are too coarse:</p>
+    <ul>
+      <li><strong>The line between assisted and generated is a matter of degree.</strong> We placed Mesa under <code>ai-generated</code> because it has a trailer for a change where "almost all the code" was generated, and NumPy under <code>ai-assisted</code> because it turns away code that is "fully or mostly generated" and below its standards. Neither project draws the line in these words.</li>
+      <li><strong>Size is a rule of its own.</strong> Kubernetes accepts AI help and refuses large generated pull requests. The label says the first and loses the second.</li>
+      <li><strong>The label says nothing about declaring.</strong> NumPy and pip are both <code>ai-assisted</code>. NumPy rejects a pull request that does not disclose; pip closes one that names a model as co-author. A statement needs both answers: what is accepted, and how it is said.</li>
+      <li><strong>A forge can decide for its projects.</strong> SourceHut's rule applies to the original content of every project it hosts. A project there has a label it did not choose, so the label has two levels: the project and the place where it lives.</li>
+      <li><strong>The second label has no example.</strong> Among the rules we read, none says "we would rather not" without forbidding. It may be a position that projects hold and do not write down.</li>
     </ul>
     <p>This is a draft: the names and their meaning may change, and the labels are not shown on the project pages yet.</p>
   </section>
