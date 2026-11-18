@@ -83,7 +83,20 @@ match = ["read, understood and tested"]
 since = "2026-11-04"
 ```
 
-With several project files, the site opens on an overview of the projects, and each
+[site.toml](site.toml) lists the projects the site publishes, in the order of its
+overview page:
+
+```toml
+[site]
+projects = ["vulnerability-lookup", "misp", "newspipe"]
+```
+
+A project file that is not listed is neither read nor published. Another site, with
+another selection, has its own file: `ai-disclosure build --site other-site.toml`
+(and the same option for `ai-disclosure video`). Without any site file, every
+project of `projects/` is published.
+
+With several projects, the site opens on an overview of the projects, and each
 project has its own page (`?project=<file name>`), reachable from a selector too.
 
 A co-author the built-in rules do not recognise as a model can be declared:

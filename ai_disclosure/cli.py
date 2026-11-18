@@ -21,12 +21,25 @@ from .gource import build_story, render, write_story
 from .report import build_report
 
 
+DEFAULT_SITE = Path("site.toml")
+SITE_HELP = "the file listing the projects to publish (default: site.toml if it exists, else every project)"
+
+
 def _log(message: str) -> None:
     print(message, file=sys.stderr)
 
 
+def _site_file(args: argparse.Namespace) -> Path | None:
+    """The site file asked for, else site.toml when there is one, else none: every project."""
+    if args.site:
+        if not args.site.is_file():
+            raise ConfigError(f"{args.site}: no such site file")
+        return args.site
+    return DEFAULT_SITE if DEFAULT_SITE.is_file() else None
+
+
 def build(args: argparse.Namespace) -> int:
-    projects = load_projects(args.projects)
+    projects = load_projects(args.projects, _site_file(args))
     local = dict(item.split("=", 1) for item in args.local)
     unknown = set(local) - {project.slug for project in projects}
     if unknown:
@@ -103,7 +116,7 @@ def build(args: argparse.Namespace) -> int:
 
 
 def video(args: argparse.Namespace) -> int:
-    projects = load_projects(args.projects)
+    projects = load_projects(args.projects, _site_file(args))
     local = dict(item.split("=", 1) for item in args.local)
     unknown = (set(local) | set(args.slug)) - {project.slug for project in projects}
     if unknown:
@@ -155,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--projects", type=Path, default=Path("projects"), help="directory of project files")
     command.add_argument("--output", type=Path, default=Path("_site"), help="where to write the site")
     command.add_argument("--cache", type=Path, default=Path(".cache"), help="where the clones are kept")
+    command.add_argument("--site", type=Path, metavar="FILE", help=SITE_HELP)
     command.add_argument(
         "--local",
         action="append",
@@ -169,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("slug", nargs="*", help="only these projects (file names without .toml)")
     command.add_argument("--projects", type=Path, default=Path("projects"), help="directory of project files")
     command.add_argument("--cache", type=Path, default=Path(".cache"), help="where clones and videos are kept")
+    command.add_argument("--site", type=Path, metavar="FILE", help=SITE_HELP)
     command.add_argument("--local", action="append", default=[], metavar="SLUG=PATH",
                          help="read this project from an existing clone instead of cloning it")
     command.add_argument("--max-age", type=float, default=0, metavar="DAYS",

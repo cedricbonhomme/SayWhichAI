@@ -69,7 +69,8 @@ the GitHub account of each commit author are cached in `.cache/`.
 - `ai_disclosure/models.py`: recognises a model in a `Co-Authored-By` trailer
   (vendor, family, version). A person must never be taken for a model: add a test in
   `tests/test_models.py` with every new rule.
-- `ai_disclosure/config.py`: the project files of `projects/*.toml`.
+- `ai_disclosure/config.py`: the project files of `projects/*.toml`, and `site.toml`,
+  the list of the projects a site publishes (`--site` selects another list).
 - `ai_disclosure/gitlog.py`, `ai_disclosure/github.py`: reading the commits, the
   GitHub accounts and the pull requests.
 - `ai_disclosure/report.py`: builds the published JSON of a project.

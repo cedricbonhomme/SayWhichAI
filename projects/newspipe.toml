@@ -1,0 +1,6 @@
+[project]
+name = "Newspipe"
+repository = "cedricbonhomme/newspipe"
+
+# This project states no rule on AI-assisted contributions yet: the page shows what
+# its commits declare. See vulnerability-lookup.toml for the [policy] settings.

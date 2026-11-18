@@ -100,8 +100,27 @@ def load_project(path: Path) -> Project:
     )
 
 
-def load_projects(directory: Path) -> list[Project]:
+def load_site(path: Path) -> list[str]:
+    """The names of the projects a site publishes, in the order of its overview."""
+    with path.open("rb") as handle:
+        names = tomllib.load(handle).get("site", {}).get("projects")
+    if not isinstance(names, list) or not names or not all(isinstance(name, str) for name in names):
+        raise ConfigError(f"{path}: [site] projects must be a list of project names")
+    if len(set(names)) != len(names):
+        raise ConfigError(f"{path}: a project is listed twice")
+    return names
+
+
+def load_projects(directory: Path, site: Path | None = None) -> list[Project]:
+    """Every project file of the directory, or only those a site file lists."""
     paths = sorted(directory.glob("*.toml"))
     if not paths:
         raise ConfigError(f"no project file (*.toml) in {directory}")
-    return [load_project(path) for path in paths]
+    if site is None:
+        return [load_project(path) for path in paths]
+    known = {path.stem: path for path in paths}
+    names = load_site(site)
+    unknown = [name for name in names if name not in known]
+    if unknown:
+        raise ConfigError(f"{site}: no project file in {directory} for {', '.join(unknown)}")
+    return [load_project(known[name]) for name in names]

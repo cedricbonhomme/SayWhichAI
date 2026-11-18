@@ -1,0 +1,19 @@
+# The projects this site publishes, in the order of the overview page.
+#
+# Each name is a file of projects/, without ".toml". A project file that is not
+# listed here is kept for another site and is neither read nor published.
+#
+# Another site (another server, another selection) has its own file:
+#     ai-disclosure build --site /path/to/other-site.toml
+# Without any site file, every project of projects/ is published.
+
+[site]
+projects = [
+    "vulnerability-lookup",
+    "misp",
+    "ail-framework",
+    "flowintel",
+    "rulezet-core",
+    "newspipe",
+    "ai-disclosure",
+]
