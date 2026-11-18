@@ -20,7 +20,6 @@ from .gitlog import mirror, read_changes, read_commits
 from .gource import build_story, render, write_story
 from .report import build_report
 
-
 DEFAULT_SITE = Path("site.toml")
 SITE_HELP = "the file listing the projects to publish (default: site.toml if it exists, else every project)"
 
@@ -56,7 +55,8 @@ def build(args: argparse.Namespace) -> int:
     site = resources.files("ai_disclosure") / "site"
     for entry in site.iterdir():
         if entry.is_file():
-            shutil.copyfile(entry, output / entry.name)
+            # Not a path when the package is installed as an archive: copy the content.
+            (output / entry.name).write_bytes(entry.read_bytes())
 
     index = []
     for project in projects:

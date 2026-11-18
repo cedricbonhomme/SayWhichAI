@@ -6,7 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "ai-disclosure"
 version = "0.1.0"
 description = "Charts of the AI use a project declares in its commits and pull requests"
+authors = [
+    {name = "Cédric Bonhomme", email = "cedric@cedricbonhomme.org"}
+]
 readme = "README.md"
+keywords = ["OpenSource", "AI", "Transparency"]
 license = "GPL-3.0-only"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
@@ -22,4 +26,26 @@ packages = ["ai_disclosure"]
 ai_disclosure = ["site/*"]
 
 [tool.pytest.ini_options]
+# The project is normally run from a checkout rather than installed, so make
+# the repository root importable for the test modules.
+pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.mypy]
+# The oldest Python the project supports (requires-python).
+python_version = "3.11"
+check_untyped_defs = true
+ignore_errors = false
+ignore_missing_imports = true
+strict_optional = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+
+show_error_context = true
+pretty = true
+
+[tool.isort]
+profile = "black"

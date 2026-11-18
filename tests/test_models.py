@@ -43,4 +43,5 @@ def test_trailers_are_read_whatever_their_case():
     found = co_authors(message)
     assert [author.name for author in found] == ["Ada Lovelace", "Claude Opus 5.5"]
     assert found[0].model is None
+    assert found[1].model is not None
     assert found[1].model.label == "Claude Opus 5.5"
