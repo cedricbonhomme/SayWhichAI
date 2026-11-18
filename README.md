@@ -122,7 +122,7 @@ pytest
 
 ## License
 
-[AI disclosure](https://github.com/vulnerability-lookup/MirageSight) is licensed under
+[AI disclosure](https://github.com/cedricbonhomme/ai-disclosure) is licensed under
 [GNU General Public License version 3](https://www.gnu.org/licenses/gpl-3.0.html)
 
 
