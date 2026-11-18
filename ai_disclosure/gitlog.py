@@ -65,3 +65,25 @@ def read_commits(repository: Path, branch: str = "") -> list[Commit]:
         sha, name, email, date, message = record.split(_FIELD, 4)
         commits.append(Commit(sha, name, email, date, message))
     return commits
+
+
+def read_changes(repository: Path, branch: str = "") -> dict[str, list[tuple[str, str]]]:
+    """The files each non-merge commit adds (A), changes (M) or deletes (D).
+
+    Comparing trees needs no file content, so a clone without it is enough.
+    """
+    ref = branch or default_branch(repository)
+    output = _git(
+        "-c", "core.quotePath=false", "log", "--no-merges", "--no-renames", "--name-status",
+        f"--format={_RECORD}%H", ref, "--", cwd=repository,
+    )
+    changes = {}
+    for record in output.split(_RECORD)[1:]:
+        sha, _, body = record.partition("\n")
+        files = []
+        for line in body.splitlines():
+            status, tab, path = line.partition("\t")
+            if tab:
+                files.append(({"A": "A", "D": "D"}.get(status[:1], "M"), path))
+        changes[sha.strip()] = files
+    return changes

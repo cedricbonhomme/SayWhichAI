@@ -474,6 +474,18 @@
           : el("p", { class: "empty", text: "No pull request opened since that date." })));
   }
 
+  function film(report) {
+    if (!report.video) return null;
+    const video = el("video", { class: "film", controls: "", preload: "none", playsinline: "" });
+    video.src = report.video.file;
+    if (report.video.poster) video.poster = report.video.poster;
+    return el("section", { id: "film" },
+      el("h2", { text: "The history, in motion" }),
+      el("p", { class: "sub", text: "Every commit of the project, drawn with Gource. Each person works on the files of their commits; when a commit names a model, the model family works on the same files beside them." }),
+      el("div", { class: "card" }, video),
+      el("p", { class: "sub film-note", text: "A file keeps the colour of its type, whoever changed it: a trailer says that a model took part in a commit, not how much of a file it wrote. Automated accounts are left out." }));
+  }
+
   function reading(report) {
     const since = report.project.trailer_since;
     return el("section", { id: "reading" },
@@ -492,9 +504,9 @@
   function render(report) {
     const palette = colours(report);
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
-    root.replaceChildren(
+    root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette), models(report, palette),
-      contributors(report, palette), pulls(report), reading(report));
+      contributors(report, palette), pulls(report), film(report), reading(report)].filter(Boolean));
     document.getElementById("footer").textContent =
       `Built on ${day(report.generated_at.slice(0, 10))} from the public history of ${report.project.repository}.`;
   }

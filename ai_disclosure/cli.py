@@ -4,16 +4,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from importlib import resources
 from pathlib import Path
 
 from . import __version__
 from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
-from .gitlog import mirror, read_commits
+from .gitlog import mirror, read_changes, read_commits
+from .gource import build_story, render, write_story
 from .report import build_report
 
 
@@ -61,6 +65,15 @@ def build(args: argparse.Namespace) -> int:
                 pulls = github.pull_requests(project.repository, since)
 
         report = build_report(project, commits, logins, pulls)
+        # A video rendered earlier by "ai-disclosure video" is published with the page.
+        video = args.cache / "video" / f"{project.slug}.mp4"
+        if video.exists():
+            (output / "video").mkdir(exist_ok=True)
+            shutil.copyfile(video, output / "video" / video.name)
+            report["video"] = {"file": f"video/{video.name}", "poster": ""}
+            if video.with_suffix(".jpg").exists():
+                shutil.copyfile(video.with_suffix(".jpg"), output / "video" / f"{project.slug}.jpg")
+                report["video"]["poster"] = f"video/{project.slug}.jpg"
         (data / f"{project.slug}.json").write_text(
             json.dumps(report, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
         )
@@ -84,6 +97,50 @@ def build(args: argparse.Namespace) -> int:
     return 0
 
 
+def video(args: argparse.Namespace) -> int:
+    projects = load_projects(args.projects)
+    local = dict(item.split("=", 1) for item in args.local)
+    unknown = (set(local) | set(args.slug)) - {project.slug for project in projects}
+    if unknown:
+        raise ConfigError(f"no project file is named: {', '.join(sorted(unknown))}")
+    missing = [tool for tool in (os.environ.get("GOURCE", "gource"), "ffmpeg") if not shutil.which(tool)]
+    if missing:
+        raise ConfigError(f"not installed: {', '.join(missing)}")
+
+    failed = False
+    for project in projects:
+        if args.slug and project.slug not in args.slug:
+            continue
+        output = args.cache / "video" / f"{project.slug}.mp4"
+        if output.exists() and time.time() - output.stat().st_mtime < args.max_age * 86400:
+            _log(f"{project.name}: the video is recent enough, kept")
+            continue
+        _log(f"{project.name}: reading the history of {project.repository}")
+        repository = Path(local[project.slug]) if project.slug in local else mirror(project, args.cache)
+        commits = read_commits(repository, project.branch)
+        changes = read_changes(repository, project.branch)
+        # The accounts found by an earlier "build": no call to the GitHub API here.
+        known = args.cache / f"{project.slug}-accounts.json"
+        logins = json.loads(known.read_text(encoding="utf-8")) if known.exists() else {}
+        story = build_story(project, commits, changes, logins)
+        if not story.log:
+            _log(f"{project.name}: no commit to show")
+            continue
+        with tempfile.TemporaryDirectory() as work:
+            write_story(story, Path(work), None if args.no_github else args.cache / "avatars")
+            _log(f"{project.name}: rendering {story.seconds} seconds of video at most")
+            started = time.time()
+            try:
+                render(story, Path(work), project.name, output, args.size)
+            except subprocess.CalledProcessError as error:
+                # One project must not keep the others from having their video.
+                _log(f"{project.name}: no video, {error.cmd[0]} failed. {(error.stderr or '').strip()}")
+                failed = True
+                continue
+        _log(f"{project.name}: {output} written in {round(time.time() - started)} s")
+    return 1 if failed else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ai-disclosure", description=__doc__)
     parser.add_argument("--version", action="version", version=__version__)
@@ -102,6 +159,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     command.add_argument("--no-github", action="store_true", help="do not call the GitHub API")
     command.set_defaults(run=build)
+
+    command = commands.add_parser("video", help="render a Gource video of each project (needs gource and ffmpeg)")
+    command.add_argument("slug", nargs="*", help="only these projects (file names without .toml)")
+    command.add_argument("--projects", type=Path, default=Path("projects"), help="directory of project files")
+    command.add_argument("--cache", type=Path, default=Path(".cache"), help="where clones and videos are kept")
+    command.add_argument("--local", action="append", default=[], metavar="SLUG=PATH",
+                         help="read this project from an existing clone instead of cloning it")
+    command.add_argument("--max-age", type=float, default=0, metavar="DAYS",
+                         help="keep a video rendered less than this many days ago")
+    command.add_argument("--size", default="1280x720", help="size of the video")
+    command.add_argument("--no-github", action="store_true", help="do not download profile pictures")
+    command.set_defaults(run=video)
 
     args = parser.parse_args(argv)
     try:

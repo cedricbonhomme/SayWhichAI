@@ -28,6 +28,11 @@ describes what is declared without ranking anyone.
   (AI-generated part; "read, understood and tested"), the commits naming a model,
   and whether the box and the commits agree.
 
+- **The history, in motion**: an optional [Gource](https://gource.io/) video of the
+  project, where each model family named in a trailer works beside the person who
+  made the commit. Files keep the colour of their type: the video does not say who
+  wrote a file.
+
 The site also has a **Good practice** page
 ([ai_disclosure/site/good-practice.html](ai_disclosure/site/good-practice.html)): why
 declaring matters, the `Co-Authored-By` trailer, and the four files (`CONTRIBUTING.md`,
@@ -107,10 +112,25 @@ no profile pictures and no pull requests.
 The clones and the GitHub account of each commit author are kept in `.cache/`, so
 that a later build only asks for the new commits.
 
+## Render the videos
+
+Optional, and needs `gource` and `ffmpeg`:
+
+```bash
+ai-disclosure video                 # every project, into .cache/video/
+ai-disclosure video misp --max-age 7  # one project, unless its video is under a week old
+ai-disclosure build                 # publishes the videos it finds in .cache/video/
+```
+
+Gource draws with OpenGL and needs a display. On a server, run it under
+`xvfb-run -a`. `GOURCE=/path/to/gource` selects another binary. The video lasts one
+to three minutes depending on the number of commits, in 1280x720 (`--size`).
+
 ## Publish with GitHub Pages
 
 [.github/workflows/pages.yml](.github/workflows/pages.yml) builds the site on every
-push to `main` and once a day, and deploys it to GitHub Pages. In the repository
+push to `main` and once a day, and deploys it to GitHub Pages. The videos are rendered
+again once a week and kept in the workflow's cache in between. In the repository
 settings, set **Pages → Source** to **GitHub Actions**.
 
 ## Tests

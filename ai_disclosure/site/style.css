@@ -228,3 +228,7 @@ html { scroll-behavior: smooth; }
 .prose h2 .state { font-weight: 500; vertical-align: middle; margin-left: 6px; }
 .prose table { margin-bottom: 14px; }
 .prose td code { white-space: nowrap; }
+
+/* ---------- Video ---------- */
+.film { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #0d0d0d; border-radius: 6px; }
+section > .film-note { margin: 12px 0 0; }

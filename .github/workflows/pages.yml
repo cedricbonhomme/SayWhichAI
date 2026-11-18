@@ -32,6 +32,15 @@ jobs:
           restore-keys: clones-
       - run: pip install . pytest
       - run: pytest -q
+      - name: Render the videos that are more than a week old
+        # Kept in .cache with the clones. The site is published without a video
+        # when this step fails or takes too long.
+        continue-on-error: true
+        timeout-minutes: 40
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends gource ffmpeg xvfb
+          xvfb-run -a -s "-screen 0 1280x720x24" ai-disclosure video --projects projects --max-age 7
       - name: Build the site
         run: ai-disclosure build --projects projects --output _site
         env:

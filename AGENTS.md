@@ -72,6 +72,10 @@ the GitHub account of each commit author are cached in `.cache/`.
 - `ai_disclosure/gitlog.py`, `ai_disclosure/github.py`: reading the commits, the
   GitHub accounts and the pull requests.
 - `ai_disclosure/report.py`: builds the published JSON of a project.
+- `ai_disclosure/gource.py`: the optional Gource video of a project (`ai-disclosure
+  video`, needs `gource` and `ffmpeg`). Models appear as users; a file is never
+  coloured after who changed it, because a trailer does not say how much of a file a
+  model wrote.
 - `ai_disclosure/cli.py`: the `ai-disclosure` command.
 - `ai_disclosure/site/`: the static site (`index.html`, `app.js`, `style.css`,
   `good-practice.html`), copied as is to the output.
