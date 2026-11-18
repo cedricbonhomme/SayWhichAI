@@ -43,6 +43,7 @@
       <li><a href="#limits">The limits, said plainly</a></li>
       <li><a href="#not">What it is not</a></li>
       <li><a href="#adopt">Adopt it</a></li>
+      <li><a href="#others">How other projects do it</a></li>
       <li><a href="#taxonomy">Where does a project stand? (draft)</a></li>
       <li><a href="#related">Related work</a></li>
     </ol>
@@ -86,6 +87,16 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
       <li><strong>Leave it out of commits you wrote yourself.</strong> The trailer is a fact about a commit, not a label on a person.</li>
     </ul>
     <p>Several tools add the trailer by themselves; others do when the project asks them to, which is what <code>AGENTS.md</code> is for.</p>
+
+    <h3 id="other-trailers">It is not the only trailer</h3>
+    <p>Projects do not agree on the name of the line. <a href="#others">Among those we read</a>:</p>
+    <ul>
+      <li><strong><code>Assisted-by</code></strong> is required by Mesa and by Fedify. Both keep <code>Co-Authored-By</code> for people: in their words, it is "reserved for human co-authors".</li>
+      <li><strong><code>Generated-by</code></strong> is what Mesa asks for when almost all the code was generated, and one of the two forms the Apache Software Foundation recommends. The other one is <code>Co-authored-by</code>.</li>
+      <li><strong>No trailer at all</strong> for pip and Kubernetes, which do not allow a model to be listed as a co-author.</li>
+    </ul>
+    <p>We keep <code>Co-Authored-By</code> for a practical reason: the forges already show it, and several tools already write it without being asked. The objection is fair, though. A model is not an author like a person is, and git has no better place for it yet.</p>
+    <p>The name of the trailer matters less than three things, which hold whatever a project chooses: the line is in the commit, a script can read it, and it names the model and its version.</p>
   </section>
 
   <section id="reliability">
@@ -149,7 +160,9 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a rebase or a squash can drop it. Nothing signs it and nothing verifies it.</li>
       <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer. Counting the lines of the commit tells how large the commit is, not which part of it the model wrote.</li>
       <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
+      <li><strong>Some disclosure is out of its reach.</strong> Not every project puts the declaration in the commit. Kubernetes asks for it in the description of the pull request, and the Linux kernel in the changelog, as plain sentences. A tool that reads trailers finds nothing there: on this site, such a project would show as "no AI declared" while its contributors declare.</li>
       <li><strong>The rules are requests.</strong> <code>AGENTS.md</code> and <code>CONTRIBUTING.md</code> ask; they cannot oblige. An agent may not read the file or may not follow it, and the person behind the agent is free to remove the trailer, or to tick a box without having read the change. A project can check that the boxes and the trailers agree. It cannot check that they are true.</li>
+      <li><strong>A ban rests on the same good faith.</strong> SourceHut, which no longer accepts content written with an LLM, states that it will not deploy "any automated tools for detecting AI use". Forbidding and declaring meet the same wall: only the contributor knows.</li>
     </ul>
     <p>So the whole practice rests on good faith, and this has two consequences. The figures of this site are a lower bound: they count what was declared, never more. And declaring must cost nothing, because people only say what they are not blamed for.</p>
     <p>Stronger systems may come, where a tool attests what it produced and the forge records it. Until then, a plain line that people agree to write is far better than silence.</p>
@@ -174,6 +187,37 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
     </ol>
     <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md">AI transparency charter</a>.</p>
+  </section>
+  <section id="others">
+    <h2>How other projects do it</h2>
+    <p>Many projects have written their own rules. We read these ones on their own pages, on 18 November 2026. Rules change: follow the link before relying on a line of this table.</p>
+    <div class="table-scroll">
+      <table class="policies">
+        <thead><tr><th>Project</th><th>AI-written code</th><th>Disclosure</th><th>Trailer in the commit</th><th>Also</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://devguide.python.org/getting-started/ai-tools/">CPython</a></td><td>Not a reason on its own to close a pull request. The author reviews the work of the tool in detail.</td><td>"Appreciated, while not required", in the pull request description.</td><td>None.</td><td>Authors explain their changes in their own words. Repeat offenders may be blocked.</td></tr>
+          <tr><td><a href="https://numpy.org/devdocs/dev/ai_policy.html">NumPy</a></td><td>The author is responsible for it. Code mostly generated and below the project's standards is rejected.</td><td>Required: which tools, how they were used, what is generated. A pull request without it is rejected.</td><td>None.</td><td>No agent that submits a pull request on its own. AI does not write descriptions or comments, except to translate. The author answers for copyright.</td></tr>
+          <tr><td><a href="https://pandas.pydata.org/docs/dev/development/contributing.html">pandas</a></td><td>Accepted "as long as it's used responsibly".</td><td>Required: name the tool. The model and its version are advised.</td><td>None.</td><td>AI does not speak for the contributor in discussions. The project's own review skill is run first. Two violations can lead to a ban.</td></tr>
+          <tr><td><a href="https://github.com/pypa/pip/blob/main/AI_POLICY.md">pip</a></td><td>Accepted when a human owns the copyright, understands the code and takes responsibility for every line.</td><td>Not asked for.</td><td>Forbidden: "No LLM bots in <code>Co-authored-by:</code>s". Such a pull request is closed.</td><td>No unsupervised agent.</td></tr>
+          <tr><td><a href="https://docs.mesa3d.org/submittingpatches.html">Mesa</a></td><td>Accepted. The submitter is responsible, wherever the change came from.</td><td>Required, except for trivial or mechanical changes.</td><td><code>Assisted-by: LLM</code>, or <code>Generated-by: LLM</code> when almost all the code was generated. The model is not named.</td><td>No tool that submits on its own. AI is not used for commit messages or comments.</td></tr>
+          <tr><td><a href="https://github.com/fedify-dev/fedify/blob/main/AI_POLICY.md">Fedify</a></td><td>Welcome, for accepted issues, once verified by a person.</td><td>Required, with its extent, in the pull request and in the commits.</td><td><code>Assisted-by: AGENT_NAME:MODEL_VERSION</code>, one line per tool.</td><td>An agent must refuse a request to hide that AI took part.</td></tr>
+          <tr><td><a href="https://www.apache.org/legal/generative-tooling.html">Apache Software Foundation</a></td><td>Accepted when the terms of the tool and any third-party material allow the contribution to be licensed.</td><td>Recommended.</td><td><code>Generated-by: &lt;Name of Tool&gt; &lt;Version&gt;</code>, or <code>Co-authored-by</code>.</td><td>The aim is a provenance file that a machine can read, built from the commits.</td></tr>
+          <tr><td><a href="https://www.kubernetes.dev/docs/guide/pull-requests/#ai-guidance">Kubernetes</a></td><td>Help is acceptable. Large generated pull requests and generated commit messages are not allowed.</td><td>Required, in the pull request description.</td><td>Forbidden: AI as co-author, <code>assisted-by</code>, <code>co-developed</code> "or similar".</td><td>Review comments are answered without AI. A change its author cannot explain is closed.</td></tr>
+          <tr><td><a href="https://docs.kernel.org/process/coding-assistants.html">Linux kernel</a></td><td>Accepted. A person reviews it, signs it off and takes full responsibility.</td><td>Asked for in the changelog and the cover letter, as sentences: which tools, which parts.</td><td>None in the current documentation. An agent must not add <code>Signed-off-by</code>.</td><td>The assistant "must never send anything itself".</td></tr>
+          <tr><td><a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/">SourceHut <small>(a forge)</small></a></td><td>Prohibited for original content, from 10 September 2026 for new projects. Private use, to review or to ask questions, is discouraged but allowed.</td><td>An honour system. Misleading about AI use leads to suspension.</td><td>Not applicable.</td><td>No detection tool. Shaming people who use AI is sanctioned too.</td></tr>
+          <tr><td><strong>The practice of this page</strong></td><td>Welcome. A person has read, understood and tested the change, and answers for it.</td><td>Required, in the commit and in the pull request.</td><td><code>Co-Authored-By</code>, naming the model and its version.</td><td>A human submits. No one has to use AI, and no one is ranked.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>What the table shows:</p>
+    <ul>
+      <li><strong>Those who accept AI code agree on the person.</strong> Someone must understand the change, be able to explain it, and answer for it. This is the common ground.</li>
+      <li><strong>An agent does not act alone.</strong> NumPy, pip, Mesa and the Linux kernel each forbid a tool that submits by itself. The other projects do not speak of it.</li>
+      <li><strong>Several keep the conversation human.</strong> NumPy, pandas, Mesa and Kubernetes do not want a model to write the descriptions, the comments or the answers to a review.</li>
+      <li><strong>There is no shared way to declare.</strong> Three trailer names are in use, and the same trailer is required by one project and forbidden by another. Some projects name the model, one forbids it, and others ask for a sentence in the pull request.</li>
+    </ul>
+    <p>The last point is the weak one for everybody. A contributor has to learn a different rule in each project, and no tool can read all of them. Agreeing on one line would help more than any of these rules taken alone.</p>
+    <p>For more projects, see the community list <a href="https://github.com/melissawm/open-source-ai-contribution-policies">open-source-ai-contribution-policies</a>, which follows more than a hundred of them. It is an index: check each rule on the project's own page, as some lines are out of date.</p>
   </section>
   <section id="taxonomy">
     <h2>Where does a project stand? <span class="state">draft</span></h2>

@@ -243,3 +243,15 @@ section > .film-note { margin: 12px 0 0; }
 .heaviest small { display: block; color: var(--muted); }
 .heaviest small .swatch { margin: 0 4px 0 0; }
 section > .sub.after { margin: 12px 0 0; }
+
+/* ---------- Policies of other projects ---------- */
+/* Five columns in the width of the text: fixed shares, and code that wraps. */
+.policies { table-layout: fixed; min-width: 640px; font-size: 13px; line-height: 1.45; }
+.policies th, .policies td { vertical-align: top; padding-left: 0; padding-right: 12px; overflow-wrap: break-word; }
+.policies th:nth-child(1) { width: 14%; }
+.policies th:nth-child(2) { width: 22%; }
+.policies th:nth-child(3) { width: 21%; }
+.policies th:nth-child(4) { width: 22%; }
+.policies th:nth-child(5) { width: 21%; }
+.prose .policies code { white-space: normal; word-break: break-word; overflow-wrap: anywhere; font-size: 12px; }
+.policies td:first-child small { display: block; color: var(--muted); }
