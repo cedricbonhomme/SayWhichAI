@@ -58,6 +58,7 @@
     <h2>Why it matters</h2>
     <ul>
       <li><strong>Reviewers read differently.</strong> Generated code fails in its own ways: plausible but wrong, wider than the task, confident about things nobody checked. A reviewer who knows which model wrote a change knows where to look.</li>
+      <li><strong>The cost has moved to the reviewer.</strong> Writing a change has become cheap; reading one has not. A maintainer who is free to ignore what they do not want to read can live with any number of pull requests. Many are not: they feel they owe every contributor an answer, and their time is what a project runs on. A declared change tells them at once what kind of reading it needs.</li>
       <li><strong>Responsibility stays with a person.</strong> A model cannot answer a review, fix a regression in six months, or be asked why. Saying that an AI wrote the change, and that you read, understood and tested it, keeps a human answerable.</li>
       <li><strong>The history stays honest.</strong> A repository is also a record of who did what. When a model is named, the project can later find what a given model or version wrote, for example after a class of defects is discovered.</li>
       <li><strong>Nobody has to hide.</strong> When declaring AI use is the normal thing, a newcomer who could not have written the change alone can say so, and ask for the review they need. Silence helps no one, and shame is what produces silence.</li>
@@ -86,6 +87,7 @@
       <li><strong>There is a floor.</strong> Never acceptable: "low-effort productions of code that contributors do not understand", plagiarised works, hallucinated security reports.</li>
     </ul>
     <p>What we take from it is the sentence that introduces the rules: they "also apply, or have a direct counterpart, with entirely human-produced content". Nothing is asked of a person who uses AI that is not asked of everyone. Declaring is then information for the review, never a verdict on the author, and that is what lets a project ask for it without shaming anyone.</p>
+    <p>Judging on merit does not mean that the way a change was made is of no interest. It matters to the person who reviews it, and to anyone who later asks where the code came from. It means that the origin is said, and then not held against the author.</p>
   </section>
 
   <section id="trailer">
@@ -303,6 +305,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <ul>
       <li><strong>The statement is what a project says</strong>, in its own files. The charts of this site show what its commits declare. The two can differ, and seeing both is the point.</li>
       <li><strong>No statement is the right one.</strong> A project that refuses AI and a project that welcomes it both help contributors by saying so.</li>
+      <li><strong>Choosing one is the project's freedom.</strong> The freedoms of free software protect the people who run, study, change and share a program. They do not say how a contribution has to be made, and they give no contributor a right to have their way of working accepted. A project that accepts <code>human-only</code> and a project that accepts <code>ai-assisted</code> use the same freedom: to decide what they take. What a contributor keeps, in every case, is the freedom to fork.</li>
       <li><strong>The values are the W3C group's, the statements are ours.</strong> None of the projects in the last column describes itself this way. Placing real projects was the test of the draft, and it changed it.</li>
       <li><strong>Nothing says "largely generated".</strong> An earlier draft of ours had a label for it. No project we read draws that line as a rule of acceptance, and the W3C report dropped it too: what counts is whether a person reviewed the change, not how much of it a model wrote. A project that wants to say more can do it in the declaration, as Mesa does with two trailers.</li>
       <li><strong>Nothing says "we would rather not".</strong> An earlier draft of ours had a label for it. Among the rules we read, none says it without forbidding. It may be a position that projects hold and do not write down.</li>
