@@ -286,7 +286,7 @@
           series.map((id) => el("td", { class: "num", text: number.format(month.values[id] || 0) })),
           el("td", { class: "num", text: number.format(month.total) })))));
 
-    const section = el("section", {},
+    const section = el("section", { id: "commits" },
       el("h2", { text: "Commits per month" }),
       el("p", { class: "sub", text: "Each commit is counted under the model its Co-Authored-By trailer names, or as “no AI declared”. Commits by dependency-update bots are left out." }),
       el("div", { class: "card" },
@@ -322,7 +322,7 @@
           el("div", { class: "bar", style: `width:${(100 * model.commits) / peak}%;background:${palette.get(model.family)}` })),
       ];
     });
-    return el("section", {},
+    return el("section", { id: "models" },
       el("h2", { text: "Models and versions" }),
       el("p", { class: "sub", text: "Commits naming each model, with the months it was in use and the number of people who named it. Spellings of one model are counted together." }),
       el("div", { class: "card" }, rows.length ? el("div", { class: "bars" }, rows) : el("p", { class: "empty", text: "No commit names a model yet." })));
@@ -385,7 +385,7 @@
           ".")
       : null;
 
-    return el("section", {},
+    return el("section", { id: "contributors" },
       el("h2", { text: "Contributors" }),
       el("p", { class: "sub", text: "Who declares which model. “No AI declared” means that no commit of the person names a model: it does not show that no AI tool was used." }),
       el("div", { class: "card" },
@@ -429,7 +429,7 @@
   function pulls(report) {
     const data = report.pulls;
     if (!data) {
-      return el("section", {},
+      return el("section", { id: "pulls" },
         el("h2", { text: "Pull requests" }),
         el("p", { class: "empty", text: report.github
           ? "No box of the pull request template is followed for this project."
@@ -456,7 +456,7 @@
         el("td", {}, el("span", { class: "reading " + kind }, el("span", { class: "mark", "aria-hidden": "true", text: mark }), label)));
     });
 
-    return el("section", {},
+    return el("section", { id: "pulls" },
       el("h2", { text: "Pull requests" }),
       el("p", { class: "sub", text: `Pull requests opened by people since ${day(data.since)}, when the template started to ask about AI. ` +
         "The boxes of each description are compared with the trailers of its commits." +
@@ -507,6 +507,18 @@
     root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette), models(report, palette),
       contributors(report, palette), pulls(report), film(report), reading(report)].filter(Boolean));
+    // The sections did not exist when the browser looked for the anchor of the address.
+    const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target) {
+      // The page keeps changing height for a moment (the chart is drawn, the font
+      // arrives): follow it, until the reader starts to scroll.
+      const follow = new ResizeObserver(() => target.scrollIntoView({ behavior: "instant" }));
+      const stop = () => follow.disconnect();
+      ["wheel", "touchstart", "keydown", "mousedown"].forEach((kind) =>
+        addEventListener(kind, stop, { once: true, passive: true }));
+      setTimeout(stop, 5000);
+      follow.observe(root);
+    }
     document.getElementById("footer").textContent =
       `Built on ${day(report.generated_at.slice(0, 10))} from the public history of ${report.project.repository}.`;
   }
