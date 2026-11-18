@@ -205,3 +205,23 @@ td small { color: var(--muted); font-size: 12px; }
 .prose code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--grid); border-radius: 4px; padding: 1px 5px; }
 .prose pre { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 0 0 12px; line-height: 1.45; }
 .prose pre code { background: none; padding: 0; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Table of contents of a text page */
+html { scroll-behavior: smooth; }
+.prose section, .prose h3 { scroll-margin-top: 16px; }
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-top: 28px; font-size: 14px; }
+.toc-title { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.06em; }
+.prose .toc ol { margin: 0; padding-left: 20px; }
+.prose .toc ol ol { margin-top: 6px; list-style: none; padding-left: 4px; font-size: 13px; }
+.prose .toc li { margin-bottom: 6px; }
+.prose .toc li:last-child { margin-bottom: 0; }
+.toc a { color: var(--ink-2); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--ink); text-decoration: underline; }
+.toc code { background: none; padding: 0; }
+.toc-body > section:first-child { margin-top: 28px; }
+@media (min-width: 960px) {
+  .with-toc { display: grid; grid-template-columns: minmax(0, 74ch) minmax(220px, 280px); gap: 0 56px; align-items: start; }
+  .with-toc .toc { grid-column: 2; grid-row: 1; position: sticky; top: 16px; }
+  .with-toc .toc-body { grid-column: 1; grid-row: 1; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

@@ -24,7 +24,28 @@
     <p>AI tools now write a large part of the code that reaches Open Source projects. That is welcome. What a project needs is to know it: one line at the end of each commit, and a person who answers for the change.</p>
   </div>
 
-  <section>
+  <div class="with-toc">
+  <nav class="toc" aria-labelledby="toc-title">
+    <p class="toc-title" id="toc-title">On this page</p>
+    <ol>
+      <li><a href="#why">Why it matters</a></li>
+      <li><a href="#everybody">For those who use AI, and for those who do not</a></li>
+      <li><a href="#trailer">The <code>Co-Authored-By</code> trailer</a></li>
+      <li><a href="#reliability">Without the trailer, these pages say little</a></li>
+      <li><a href="#files">Four files that make it a habit</a>
+        <ol>
+          <li><a href="#contributing"><code>CONTRIBUTING.md</code></a></li>
+          <li><a href="#agents"><code>AGENTS.md</code></a></li>
+          <li><a href="#claude"><code>CLAUDE.md</code></a></li>
+          <li><a href="#template">Pull request template</a></li>
+        </ol>
+      </li>
+      <li><a href="#not">What it is not</a></li>
+      <li><a href="#adopt">Adopt it</a></li>
+    </ol>
+  </nav>
+  <div class="toc-body">
+  <section id="why">
     <h2>Why it matters</h2>
     <ul>
       <li><strong>Reviewers read differently.</strong> Generated code fails in its own ways: plausible but wrong, wider than the task, confident about things nobody checked. A reviewer who knows which model wrote a change knows where to look.</li>
@@ -34,7 +55,7 @@
     </ul>
   </section>
 
-  <section>
+  <section id="everybody">
     <h2>For those who use AI, and for those who do not</h2>
     <p>This practice is meant to help everybody. A project can use AI tools every day and still be a good place for people who do not want to.</p>
     <ul>
@@ -45,7 +66,7 @@
     <p>Declaring is what makes both possible. When AI use is said, those who avoid it can see where it is, and those who use it have nothing to hide. The Software Freedom Conservancy puts these two points first in its recommendations on LLM-backed generative AI: support those who reject these systems, and let every contributor decide for themselves.</p>
   </section>
 
-  <section>
+  <section id="trailer">
     <h2>The <code>Co-Authored-By</code> trailer</h2>
     <p>A commit that was not written by a human ends with a trailer naming the model and its version:</p>
 <pre><code>fix: [website] Forms no longer drawn inside a grey box
@@ -64,18 +85,18 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
     <p>Several tools add the trailer by themselves; others do when the project asks them to, which is what <code>AGENTS.md</code> is for.</p>
   </section>
 
-  <section>
+  <section id="reliability">
     <h2>Without the trailer, these pages say little</h2>
     <p>Everything this site shows is read from what contributors declare. A commit without a trailer is counted as <em>no AI declared</em>, and nothing in a repository can tell a commit written by hand from a generated one whose trailer is missing.</p>
     <p>So the figures of a project are as reliable as its habit of declaring. In a project that asks for the trailer, and where agents are told to add it, "no AI declared" comes close to "written by a person". In a project that asks for nothing, a low share of AI commits may only mean that nobody says it.</p>
     <p>This is the reason to adopt the practice below: it makes the declaration the default, instead of leaving it to each contributor's memory.</p>
   </section>
 
-  <section>
+  <section id="files">
     <h2>Four files that make it a habit</h2>
     <p>This is what <a href="https://github.com/vulnerability-lookup/vulnerability-lookup">Vulnerability-Lookup</a> did. Each file speaks to a different reader.</p>
 
-    <h3>1. <code>CONTRIBUTING.md</code>, for people</h3>
+    <h3 id="contributing">1. <code>CONTRIBUTING.md</code>, for people</h3>
     <p>The reference. It states the rules in the project's own words, and the two files below repeat them. The rules of Vulnerability-Lookup, in short:</p>
     <ul>
       <li><strong>Check what you submit.</strong> Every change is read, understood and tested by its author before the pull request is opened, whoever or whatever wrote it.</li>
@@ -86,7 +107,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
     </ul>
     <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools">Read the full section in Vulnerability-Lookup</a>.</p>
 
-    <h3>2. <code>AGENTS.md</code>, for AI agents</h3>
+    <h3 id="agents">2. <code>AGENTS.md</code>, for AI agents</h3>
     <p>Coding agents read this file before they work. It turns the rules into instructions, so that the trailer is added without anyone having to remember it:</p>
 <pre><code>- **Say so.** End every commit you author with a `Co-Authored-By` trailer
   naming the model, for example:
@@ -102,7 +123,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
   change": it is the human's own statement, leave it for them.</code></pre>
     <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/AGENTS.md">The full AGENTS.md of Vulnerability-Lookup</a>.</p>
 
-    <h3>3. <code>CLAUDE.md</code> and other tool files, pointing to it</h3>
+    <h3 id="claude">3. <code>CLAUDE.md</code> and other tool files, pointing to it</h3>
     <p>Some tools read their own file. Keep one set of rules and make those files import it, so that the rules never drift apart:</p>
 <pre><code># CLAUDE.md
 
@@ -111,14 +132,14 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
 @AGENTS.md
 @CONTRIBUTING.md</code></pre>
 
-    <h3>4. <code>.github/PULL_REQUEST_TEMPLATE.md</code>, at the moment of submitting</h3>
+    <h3 id="template">4. <code>.github/PULL_REQUEST_TEMPLATE.md</code>, at the moment of submitting</h3>
     <p>Two boxes, at the end of the template:</p>
 <pre><code>- [ ] Was a significant part of it generated with an AI tool? (If so, the commits carry a `Co-Authored-By` trailer naming the model.)
 - [ ] I have read, understood and tested every change in this pull request, and I can explain it.</code></pre>
     <p>The first is a fact about the change, and it can be checked against the commits. The second is the author's own statement: an AI tool that drafts the description leaves it unticked, and the author ticks it once it is true.</p>
   </section>
 
-  <section>
+  <section id="not">
     <h2>What it is not</h2>
     <ul>
       <li><strong>Not an obligation.</strong> Nothing here asks anyone to use an AI tool.</li>
@@ -128,7 +149,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     </ul>
   </section>
 
-  <section>
+  <section id="adopt">
     <h2>Adopt it</h2>
     <ol>
       <li>Add the rules to <code>CONTRIBUTING.md</code>, with the date they apply from.</li>
@@ -138,6 +159,8 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     </ol>
     <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md">AI transparency charter</a>.</p>
   </section>
+  </div>
+  </div>
 </main>
 
 <footer class="wrap footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure">Source code</a>.</footer>
