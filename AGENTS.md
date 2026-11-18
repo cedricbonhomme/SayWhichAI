@@ -11,7 +11,8 @@ mandatory. Read CONTRIBUTING.md too: it is the reference, and it wins if the two
 files ever disagree.
 
 - **Keep the spirit of the project.** Describe, do not judge: write "no AI declared",
-  never "does not use AI", and do not rank people. Never write an e-mail address to
+  never "does not use AI", write "lines changed in commits naming a model", never
+  "lines written by AI", and do not rank people. Never write an e-mail address to
   the published data. Python uses the standard library only; the site is plain HTML,
   CSS and browser-native JavaScript, with no framework and no build step. Insert text
   that comes from a repository with `textContent`, never as HTML. Add no dependency
@@ -56,7 +57,7 @@ builds a static site of charts from what their contributors declare.
 pip install -e . pytest        # in a virtual environment
 pytest                         # the tests
 ai-disclosure build            # reads projects/, writes _site/
-ai-disclosure build --no-github  # from git alone: no profiles, no pull requests
+ai-disclosure build --no-github  # from git alone: no profiles, no lines, no pull requests
 python3 -m http.server -d _site
 ```
 

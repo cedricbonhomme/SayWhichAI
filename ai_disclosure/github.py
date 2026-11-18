@@ -10,6 +10,7 @@ import urllib.error
 import urllib.request
 
 API = "https://api.github.com/graphql"
+PAGE = 100
 
 
 class GitHubError(RuntimeError):
@@ -62,29 +63,47 @@ class GitHub:
             return payload["data"]
         raise GitHubError("GitHub API: too many failed attempts")
 
-    def commit_logins(self, repository: str, ref: str, known: dict[str, str] | None = None) -> dict[str, str]:
-        """The GitHub account of the author of each commit, by commit id ("" for none).
+    def commit_facts(
+        self,
+        repository: str,
+        ref: str,
+        logins: dict[str, str] | None = None,
+        lines: dict[str, list[int]] | None = None,
+    ) -> tuple[dict[str, str], dict[str, list[int]]]:
+        """What GitHub knows of each commit, by commit id: the account of its author
+        ("" for none), and the lines it adds and deletes.
 
         The history is read from the most recent commit, and the reading stops at the
-        first page that brings nothing new: with the accounts already known from a
+        first page that brings nothing new: with what is already known from a
         previous run, only the new commits are asked for.
         """
         owner, name = repository.split("/")
-        logins = dict(known or {})
+        logins, lines = dict(logins or {}), dict(lines or {})
         cursor = None
+        size = PAGE
         while True:
-            data = self.query(_COMMITS, owner=owner, name=name, ref=ref, cursor=cursor)
+            try:
+                data = self.query(_COMMITS, owner=owner, name=name, ref=ref, cursor=cursor, size=size)
+            except GitHubError:
+                # Counting the lines of very large commits can take GitHub too long:
+                # ask for fewer commits at a time.
+                if size <= 10:
+                    raise
+                size //= 2
+                continue
             target = (data["repository"] or {}).get("object")
             if not target:
                 raise GitHubError(f"{repository}: branch {ref!r} not found")
             history = target["history"]
             new = 0
             for node in history["nodes"]:
-                new += node["oid"] not in logins
+                new += node["oid"] not in logins or node["oid"] not in lines
                 logins[node["oid"]] = ((node["author"] or {}).get("user") or {}).get("login", "")
+                lines[node["oid"]] = [node["additions"], node["deletions"]]
             if not new or not history["pageInfo"]["hasNextPage"]:
-                return logins
+                return logins, lines
             cursor = history["pageInfo"]["endCursor"]
+            size = PAGE
 
     def pull_requests(self, repository: str, since: str) -> list[dict]:
         """The pull requests opened from the date on, most recent first."""
@@ -104,13 +123,13 @@ class GitHub:
 
 
 _COMMITS = """
-query($owner: String!, $name: String!, $ref: String!, $cursor: String) {
+query($owner: String!, $name: String!, $ref: String!, $cursor: String, $size: Int!) {
   repository(owner: $owner, name: $name) {
     object(expression: $ref) {
       ... on Commit {
-        history(first: 100, after: $cursor) {
+        history(first: $size, after: $cursor) {
           pageInfo { hasNextPage endCursor }
-          nodes { oid author { user { login } } }
+          nodes { oid additions deletions author { user { login } } }
         }
       }
     }

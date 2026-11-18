@@ -75,3 +75,33 @@ def test_pull_requests_are_compared_with_their_commits():
         "consistent-ai", "box-without-trailer", "trailer-without-box", "consistent-none", "template-missing",
     ]
     assert report["pulls"]["items"][0]["boxes"] == {"ai": "ticked", "human": "ticked"}
+
+
+def test_lines_changed_follow_the_commits():
+    commits = [
+        commit("a", "Ada", "ada@example.org", "2026-10-01", "one"),
+        commit("b", "Ada", "ada@example.org", "2026-11-05", "two" + CLAUDE),
+        commit("e", "dependabot[bot]", "49699333+dependabot[bot]@users.noreply.github.com", "2026-11-07", "bump"),
+        commit("f", "Bob", "bob@example.org", "2026-11-08", "five"),
+    ]
+    lines = {"a": [10, 5], "b": [300, 100], "e": [9000, 9000]}  # nothing known of f
+    report = build_report(PROJECT, commits, {}, None, lines)
+
+    assert report["lines"]["changed"] == 415
+    assert report["lines"]["named"] == 400
+    assert (report["lines"]["since_changed"], report["lines"]["since_named"]) == (400, 400)
+    assert report["lines"]["unknown_commits"] == 1
+    # The heaviest commits: bots are left out, as in the chart.
+    assert [(item["sha"], item["lines"], item["family"]) for item in report["lines"]["heaviest"]] == [
+        ("b", 400, "Claude Opus"), ("a", 15, ""),
+    ]
+    assert report["months"][-1]["lines"] == {"none": 0, "families": {"Claude Opus": 400}}
+    assert report["models"][0]["lines"] == 400
+    ada = report["contributors"][0]
+    assert (ada["lines"], ada["ai_lines"]) == (415, 400)
+
+
+def test_no_lines_without_github():
+    report = build_report(PROJECT, [commit("a", "Ada", "ada@example.org", "2026-10-01", "one")], None, None)
+    assert report["lines"] is None
+    assert "lines" not in report["months"][0]

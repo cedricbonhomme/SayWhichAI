@@ -33,6 +33,8 @@ present the use of an AI tool, or its absence, as a quality or a fault.
 
 - Write "no AI declared", never "does not use AI": a repository cannot prove that a
   commit was written without an AI tool.
+- Lines are "lines changed in commits naming a model", never "lines written by AI":
+  a trailer does not say who wrote each line.
 - The figures are a lower bound. Do not word a chart or a sentence as if they were
   a measure.
 

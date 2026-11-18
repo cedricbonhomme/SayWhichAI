@@ -20,6 +20,7 @@ from .models import Model, co_authors, identify
 NOREPLY_RE = re.compile(r"^(?:\d+\+)?(?P<login>[^@]+)@users\.noreply\.github\.com$", re.I)
 CHECKBOX_RE = re.compile(r"^\s*[-*+]\s*\[(?P<mark>[ xX])\]\s*(?P<text>.*)$", re.M)
 MAX_FAMILIES = 7
+HEAVIEST = 5
 OTHER = "Other models"
 
 
@@ -34,6 +35,10 @@ class Person:
     ai_commits: int = 0
     since_commits: int = 0
     since_ai_commits: int = 0
+    lines: int = 0
+    ai_lines: int = 0
+    since_lines: int = 0
+    since_ai_lines: int = 0
     first: str = ""
     last: str = ""
     families: Counter = field(default_factory=Counter)
@@ -124,8 +129,13 @@ def build_report(
     commits: list[Commit],
     logins: dict[str, str] | None,
     pulls: list[dict] | None,
+    lines: dict[str, list[int]] | None = None,
 ) -> dict:
-    """The whole report of a project. logins and pulls are None without GitHub access."""
+    """The whole report of a project. logins, pulls and lines are None without GitHub access.
+
+    lines gives the lines each commit adds and deletes. They are the lines changed
+    by a commit that names a model or not, never the lines "written by" a model.
+    """
     identities = Identities(project, commits, logins or {})
     since = project.trailer_since
 
@@ -134,6 +144,8 @@ def build_report(
     model_stats: dict[Model, dict] = {}
     family_commits: Counter = Counter()
     family_vendor: dict[str, str] = {}
+    weights: list[tuple[int, Commit, str]] = []  # lines changed, commit, family named
+    unknown = 0  # commits GitHub gave no figure for
 
     for commit in commits:
         credit = identities.credit(
@@ -150,27 +162,42 @@ def build_report(
         person.since_commits += in_policy
         person.first = min(person.first or day, day)
         person.last = max(person.last, day)
+        changed = sum((lines or {}).get(commit.sha, ())[:2])
+        unknown += lines is not None and commit.sha not in lines
+        person.lines += changed
+        person.since_lines += changed * in_policy
 
-        month = months.setdefault(day[:7], {"none": 0, "bots": 0, "families": Counter()})
+        month = months.setdefault(
+            day[:7],
+            {"none": 0, "bots": 0, "families": Counter(), "lines_none": 0, "lines_families": Counter()},
+        )
         if credit.kind == "bot" and not credit.models:
             month["bots"] += 1
             continue
+        weights.append((changed, commit, credit.models[0].family if credit.models else ""))
         if not credit.models:
             month["none"] += 1
+            month["lines_none"] += changed
             continue
 
         person.ai_commits += 1
         person.since_ai_commits += in_policy
+        person.ai_lines += changed
+        person.since_ai_lines += changed * in_policy
         # A commit that names two models counts once in the totals, under the first one.
         primary = credit.models[0].family
         month["families"][primary] += 1
+        month["lines_families"][primary] += changed
         family_commits[primary] += 1
         person.families[primary] += 1
         for model in credit.models:
             family_vendor[model.family] = model.vendor
             person.models[model.label] += 1
-            stats = model_stats.setdefault(model, {"commits": 0, "first": day, "last": day, "people": set()})
+            stats = model_stats.setdefault(
+                model, {"commits": 0, "lines": 0, "first": day, "last": day, "people": set()}
+            )
             stats["commits"] += 1
+            stats["lines"] += changed
             stats["first"] = min(stats["first"], day)
             stats["last"] = max(stats["last"], day)
             if credit.kind == "human":
@@ -230,6 +257,11 @@ def build_report(
                 "none": values["none"],
                 "bots": values["bots"],
                 "families": fold(values["families"]),
+                **(
+                    {"lines": {"none": values["lines_none"], "families": fold(values["lines_families"])}}
+                    if lines is not None
+                    else {}
+                ),
             }
             for month, values in sorted(months.items())
         ],
@@ -239,6 +271,7 @@ def build_report(
                 "vendor": model.vendor,
                 "family": OTHER if model.family in folded else model.family,
                 "commits": stats["commits"],
+                "lines": stats["lines"],
                 "first": stats["first"],
                 "last": stats["last"],
                 "people": len(stats["people"]),
@@ -253,7 +286,31 @@ def build_report(
             for person in _ranked([person for person in people.values() if person.kind != "human"])
         ],
         "pulls": None,
+        "lines": None,
     }
+    if lines is not None:
+        weights.sort(key=lambda item: (-item[0], item[1].sha))
+        report["lines"] = {
+            "changed": sum(person.lines for person in humans),
+            "named": sum(person.ai_lines for person in humans),
+            "since_changed": sum(person.since_lines for person in humans),
+            "since_named": sum(person.since_ai_lines for person in humans),
+            # Every commit that is not a bot's, with or without a human behind it:
+            # what the months add up to.
+            "charted": sum(changed for changed, _, _ in weights),
+            "unknown_commits": unknown,
+            "heaviest": [
+                {
+                    "sha": commit.sha,
+                    "title": commit.message.strip().split("\n", 1)[0][:120],
+                    "date": commit.date[:10],
+                    "lines": changed,
+                    "family": OTHER if family in folded else family,
+                }
+                for changed, commit, family in weights[:HEAVIEST]
+                if changed
+            ],
+        }
     if pulls is not None and project.checkboxes:
         report["pulls"] = pull_report(project, identities, pulls)
     return report
@@ -272,6 +329,8 @@ def _person(person: Person, fold) -> dict:
         "ai_commits": person.ai_commits,
         "since_commits": person.since_commits,
         "since_ai_commits": person.since_ai_commits,
+        "lines": person.lines,
+        "ai_lines": person.ai_lines,
         "first": person.first,
         "last": person.last,
         "families": fold(person.families),

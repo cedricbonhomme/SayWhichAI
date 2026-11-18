@@ -147,7 +147,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <p>The trailer and the four files are the best we have today. They are also a weak system, and it is better to say so.</p>
     <ul>
       <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a rebase or a squash can drop it. Nothing signs it and nothing verifies it.</li>
-      <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer.</li>
+      <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer. Counting the lines of the commit tells how large the commit is, not which part of it the model wrote.</li>
       <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
       <li><strong>The rules are requests.</strong> <code>AGENTS.md</code> and <code>CONTRIBUTING.md</code> ask; they cannot oblige. An agent may not read the file or may not follow it, and the person behind the agent is free to remove the trailer, or to tick a box without having read the change. A project can check that the boxes and the trailers agree. It cannot check that they are true.</li>
     </ul>

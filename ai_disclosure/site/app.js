@@ -7,6 +7,7 @@
   const SVG = "http://www.w3.org/2000/svg";
   const NONE = "No AI declared";
   const number = new Intl.NumberFormat("en");
+  const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
   const root = document.getElementById("report");
   const tooltip = document.getElementById("tooltip");
 
@@ -152,6 +153,11 @@
         el("div", { class: "label", text: "Over the whole history" }),
         el("div", { class: "value", text: percent(totals.ai_commits, totals.human_commits) }),
         el("div", { class: "note", text: `${number.format(totals.ai_commits)} of ${number.format(totals.human_commits)} commits by people declare a model` })),
+      report.lines ? el("div", { class: "tile" },
+        el("div", { class: "label", text: "Lines changed, in commits declaring a model" }),
+        el("div", { class: "value", text: percent(report.lines.named, report.lines.changed) }),
+        el("div", { class: "note", text: `${compact.format(report.lines.named)} of ${compact.format(report.lines.changed)} lines changed by people` +
+          (since && report.lines.since_changed ? ` · ${percent(report.lines.since_named, report.lines.since_changed)} since ${day(since)}` : "") })) : null,
       el("div", { class: "tile" },
         el("div", { class: "label", text: "Contributors" }),
         el("div", { class: "value", text: number.format(totals.humans) }),
@@ -173,10 +179,26 @@
       el("div", { class: "note", text: `opened by people since ${day(pulls.since)}` }));
   }
 
-  function timeline(report, palette) {
+  const COMMITS = {
+    id: "commits", title: "Commits per month", unit: "Commits", total: "commits in all",
+    aria: "Commits per month, by declared model family. The table below gives the same figures.",
+    sub: "Each commit is counted under the model its Co-Authored-By trailer names, or as “no AI declared”. Commits by dependency-update bots are left out.",
+    pick: (month) => month,
+  };
+
+  const LINES = {
+    id: "lines", title: "Lines changed per month", unit: "Lines", total: "lines in all", compact: true,
+    aria: "Lines changed per month, by the model family the commits name. The table below gives the same figures.",
+    sub: "The lines each commit adds and deletes, counted under the model its trailer names, or as “no AI declared”. These are the lines of commits that name a model, not lines written by a model: a person may have written part of such a commit, or all of it.",
+    pick: (month) => month.lines,
+  };
+
+  // The same chart for commits and for lines: what is counted comes from the configuration.
+  function timeline(report, palette, config, after) {
     const series = [...report.families.map((family) => family.id), NONE];
     const months = report.months.map((month) => {
-      const values = { ...month.families, [NONE]: month.none };
+      const counted = config.pick(month);
+      const values = { ...counted.families, [NONE]: counted.none };
       const total = series.reduce((sum, id) => sum + (values[id] || 0), 0);
       return { key: month.month, values, total };
     });
@@ -197,12 +219,12 @@
       const y = (value) => margin.top + plotH - (value / top) * plotH;
 
       const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, role: "img",
-        "aria-label": "Commits per month, by declared model family. The table below gives the same figures." });
+        "aria-label": config.aria });
 
       for (let tick = 0; tick <= top + 1e-9; tick += step) {
         chart.append(svg("line", { class: tick ? "grid" : "axis", x1: margin.left, x2: width - margin.right, y1: y(tick), y2: y(tick) }));
         const label = svg("text", { x: margin.left - 8, y: y(tick) + 4, "text-anchor": "end" });
-        label.textContent = mode === "share" ? tick + "%" : number.format(tick);
+        label.textContent = mode === "share" ? tick + "%" : (config.compact ? compact : number).format(tick);
         chart.append(label);
       }
 
@@ -247,7 +269,7 @@
               colour: palette.get(id), name: id,
               value: number.format(month.values[id]) + (mode === "share" ? ` · ${percent(month.values[id], month.total)}` : ""),
             })),
-            { name: "commits in all", value: number.format(month.total) },
+            { name: config.total, value: number.format(month.total) },
           ]);
         });
         hit.addEventListener("pointerleave", () => { hit.classList.remove("active"); hideTooltip(); });
@@ -269,7 +291,7 @@
       holder.replaceChildren(chart);
     }
 
-    const buttons = [["count", "Commits"], ["share", "Share"]].map(([value, label]) =>
+    const buttons = [["count", config.unit], ["share", "Share"]].map(([value, label]) =>
       el("button", {
         type: "button", "aria-pressed": String(value === mode), text: label,
         onclick: () => {
@@ -286,18 +308,38 @@
           series.map((id) => el("td", { class: "num", text: number.format(month.values[id] || 0) })),
           el("td", { class: "num", text: number.format(month.total) })))));
 
-    const section = el("section", { id: "commits" },
-      el("h2", { text: "Commits per month" }),
-      el("p", { class: "sub", text: "Each commit is counted under the model its Co-Authored-By trailer names, or as “no AI declared”. Commits by dependency-update bots are left out." }),
+    const section = el("section", { id: config.id },
+      el("h2", { text: config.title }),
+      el("p", { class: "sub", text: config.sub }),
       el("div", { class: "card" },
         el("div", { class: "chart-head" },
           el("ul", { class: "legend" }, series.map((id) => el("li", {}, swatch(palette.get(id)), id))),
           el("div", { class: "toggle", role: "group", "aria-label": "Unit" }, buttons)),
         holder,
-        el("details", { class: "table-view" }, el("summary", { text: "Show as a table" }), el("div", { class: "table-scroll" }, table))));
+        el("details", { class: "table-view" }, el("summary", { text: "Show as a table" }), el("div", { class: "table-scroll" }, table))),
+      after || null);
 
     new ResizeObserver(draw).observe(holder);
     return section;
+  }
+
+  function lines(report, palette) {
+    const data = report.lines;
+    if (!data) return null;
+    const weight = data.heaviest.reduce((sum, item) => sum + item.lines, 0);
+    const heaviest = data.heaviest.length ? el("div", { class: "heaviest" },
+      el("p", { text: `A few commits can weigh a lot: a data file, a library copied into the project, a renamed directory. ` +
+        `The ${data.heaviest.length === 1 ? "largest commit makes" : data.heaviest.length + " largest commits make"} up ${percent(weight, data.charted)} of all the lines above.` }),
+      el("ol", {}, data.heaviest.map((item) =>
+        el("li", {},
+          el("span", { class: "num", text: number.format(item.lines) }),
+          el("span", {},
+            el("a", { href: `${report.project.url}/commit/${item.sha}`, text: item.title || item.sha.slice(0, 10) }),
+            el("small", {}, ` ${day(item.date)} · `, swatch(palette.get(item.family || NONE)), item.family || NONE)))))) : null;
+    const unknown = data.unknown_commits
+      ? el("p", { class: "sub after", text: `GitHub gave no figure for ${plural(data.unknown_commits, "commit")}: counted as no line.` })
+      : null;
+    return timeline(report, palette, LINES, [heaviest, unknown]);
   }
 
   function niceStep(raw) {
@@ -312,7 +354,8 @@
       const period = model.first.slice(0, 7) === model.last.slice(0, 7)
         ? day(model.first.slice(0, 7))
         : `${day(model.first.slice(0, 7))} – ${day(model.last.slice(0, 7))}`;
-      const title = `${model.label}: ${plural(model.commits, "commit")}`;
+      const title = `${model.label}: ${plural(model.commits, "commit")}` +
+        (report.lines ? `, ${plural(model.lines, "line")} changed` : "");
       return [
         el("div", { class: "name" }, swatch(palette.get(model.family)),
           el("span", {}, model.label, el("small", { text: `${model.vendor} · ${period}` }))),
@@ -353,7 +396,8 @@
             el("span", {},
               person.login ? el("a", { href: profile(person.login), text: person.name }) : el("strong", { text: person.name }),
               el("small", { text: person.login ? "@" + person.login : "no GitHub account matched" })))),
-          el("td", { class: "num", text: number.format(person.commits) }),
+          el("td", { class: "num", text: number.format(person.commits),
+            title: report.lines ? `${plural(person.lines, "line")} changed, ${number.format(person.ai_lines)} in commits declaring a model` : null }),
           el("td", { class: "num" }, number.format(person.ai_commits), " ", el("small", { text: percent(person.ai_commits, person.commits) })),
           el("td", {}, split(person, palette, families)),
           since ? el("td", { class: "num" }, person.since_commits
@@ -493,6 +537,7 @@
       el("ul", { class: "notes" },
         el("li", { text: "A commit “declares a model” when a Co-Authored-By trailer of its message names an AI model, or when an AI agent is its author. A commit authored by an agent is credited to the person named as its co-author." }),
         el("li", { text: "“No AI declared” is exactly that. Nothing here can show that a commit was written without an AI tool." }),
+        report.lines ? el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line, and a generated file or a data file counts like any other." }) : null,
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
@@ -505,7 +550,7 @@
     const palette = colours(report);
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
     root.replaceChildren(...[
-      intro(report), tiles(report), timeline(report, palette), models(report, palette),
+      intro(report), tiles(report), timeline(report, palette, COMMITS), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), reading(report)].filter(Boolean));
     // The sections did not exist when the browser looked for the anchor of the address.
     const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));

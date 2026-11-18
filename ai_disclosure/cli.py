@@ -51,20 +51,25 @@ def build(args: argparse.Namespace) -> int:
         repository = Path(local[project.slug]) if project.slug in local else mirror(project, args.cache)
         commits = read_commits(repository, project.branch)
 
-        logins = pulls = None
+        logins = lines = pulls = None
         if github:
             branch = project.branch or "HEAD"
             _log(f"{project.name}: asking GitHub for accounts and pull requests")
-            known_path = args.cache / f"{project.slug}-accounts.json"
-            known = json.loads(known_path.read_text(encoding="utf-8")) if known_path.exists() else {}
-            logins = github.commit_logins(project.repository, branch, known)
+            known = {}
+            for kind in ("accounts", "lines"):
+                path = args.cache / f"{project.slug}-{kind}.json"
+                known[kind] = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+            logins, lines = github.commit_facts(project.repository, branch, known["accounts"], known["lines"])
             args.cache.mkdir(parents=True, exist_ok=True)
-            known_path.write_text(json.dumps(logins), encoding="utf-8")
+            (args.cache / f"{project.slug}-accounts.json").write_text(json.dumps(logins), encoding="utf-8")
+            (args.cache / f"{project.slug}-lines.json").write_text(
+                json.dumps(lines, separators=(",", ":")), encoding="utf-8"
+            )
             since = min((box.since for box in project.checkboxes if box.since), default="")
             if since:
                 pulls = github.pull_requests(project.repository, since)
 
-        report = build_report(project, commits, logins, pulls)
+        report = build_report(project, commits, logins, pulls, lines)
         # A video rendered earlier by "ai-disclosure video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"
         if video.exists():
