@@ -1,0 +1,569 @@
+/* AI disclosure: draws the report of a project from data/<slug>.json.
+   Plain browser JavaScript, no dependency. Every text coming from the data is
+   inserted with textContent. */
+(function () {
+  "use strict";
+
+  const SVG = "http://www.w3.org/2000/svg";
+  const NONE = "No AI declared";
+  const number = new Intl.NumberFormat("en");
+  const root = document.getElementById("report");
+  const tooltip = document.getElementById("tooltip");
+
+  function el(tag, attributes, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attributes || {})) {
+      if (value === null || value === undefined || value === false) continue;
+      if (key === "class") node.className = value;
+      else if (key === "text") node.textContent = value;
+      else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : value);
+    }
+    for (const child of children.flat()) {
+      if (child === null || child === undefined || child === false) continue;
+      node.append(child);
+    }
+    return node;
+  }
+
+  function svg(tag, attributes) {
+    const node = document.createElementNS(SVG, tag);
+    for (const [key, value] of Object.entries(attributes || {})) node.setAttribute(key, value);
+    return node;
+  }
+
+  function percent(part, whole) {
+    if (!whole) return "–";
+    const value = (100 * part) / whole;
+    return (value > 0 && value < 1 ? "<1" : String(Math.round(value))) + "%";
+  }
+
+  function day(iso) {
+    if (!iso) return "";
+    const [year, month, date] = iso.split("-").map(Number);
+    return new Date(Date.UTC(year, month - 1, date || 1)).toLocaleDateString("en-GB", {
+      day: date ? "numeric" : undefined, month: "short", year: "numeric", timeZone: "UTC",
+    });
+  }
+
+  function monthName(key) {
+    const [year, month] = key.split("-").map(Number);
+    return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("en-GB", {
+      month: "long", year: "numeric", timeZone: "UTC",
+    });
+  }
+
+  function plural(count, one, many) {
+    return number.format(count) + " " + (count === 1 ? one : many || one + "s");
+  }
+
+  // Colours follow the model families, in the order of the report, in every chart.
+  function colours(report) {
+    const map = new Map();
+    report.families.forEach((family, index) => map.set(family.id, `var(--series-${Math.min(index, 7) + 1})`));
+    map.set(NONE, "var(--none)");
+    return map;
+  }
+
+  function swatch(colour) {
+    return el("span", { class: "swatch", style: `background:${colour}` });
+  }
+
+  function avatar(person, small) {
+    const cls = "avatar" + (small ? " small" : "");
+    if (person.login) {
+      return el("img", {
+        class: cls, alt: "", loading: "lazy", width: small ? 20 : 32, height: small ? 20 : 32,
+        src: `https://github.com/${encodeURIComponent(person.login)}.png?size=64`,
+      });
+    }
+    const initials = (person.name || "?").split(/\s+/).map((word) => word[0]).slice(0, 2).join("").toUpperCase();
+    return el("span", { class: cls + " initials", "aria-hidden": "true", text: initials });
+  }
+
+  function profile(login) {
+    return `https://github.com/${encodeURIComponent(login)}`;
+  }
+
+  /* ---------- Tooltip ---------- */
+
+  function showTooltip(event, title, rows) {
+    tooltip.replaceChildren(
+      el("div", { class: "tt-title", text: title }),
+      ...rows.map((row) =>
+        el("div", { class: "tt-row" },
+          row.colour ? el("span", { class: "key", style: `background:${row.colour}` }) : null,
+          el("span", { class: "v", text: row.value }),
+          el("span", { class: "n", text: row.name }))),
+    );
+    tooltip.hidden = false;
+    const box = tooltip.getBoundingClientRect();
+    let x = event.clientX + 14;
+    if (x + box.width > window.innerWidth - 8) x = event.clientX - box.width - 14;
+    const y = Math.min(Math.max(8, event.clientY - box.height / 2), window.innerHeight - box.height - 8);
+    tooltip.style.left = Math.max(8, x) + "px";
+    tooltip.style.top = y + "px";
+  }
+
+  function hideTooltip() {
+    tooltip.hidden = true;
+  }
+
+  /* ---------- Sections ---------- */
+
+  function intro(report) {
+    const project = report.project;
+    const totals = report.totals;
+    return el("div", { class: "intro" },
+      el("h1", { text: project.name }),
+      el("p", {
+        text: `What the contributors of ${project.name} declare about their use of AI tools, ` +
+          `read from ${number.format(totals.commits)} commits` +
+          (report.pulls ? ` and ${plural(report.pulls.items.length, "pull request")}` : "") +
+          `, from ${day(totals.first)} to ${day(totals.last)}.`,
+      }),
+      el("div", { class: "links" },
+        el("a", { href: project.url, text: project.repository }),
+        project.policy_url ? el("a", { href: project.policy_url, text: "The project's rules on AI-assisted contributions" }) : null,
+        el("a", { href: "#reading", text: "How to read these figures" })),
+    );
+  }
+
+  function tiles(report) {
+    const totals = report.totals;
+    const since = report.project.trailer_since;
+    const vendors = new Set(report.models.map((model) => model.vendor)).size;
+    const hero = since
+      ? {
+          label: `Commits declaring an AI model since ${day(since)}`,
+          part: totals.since_ai_commits, whole: totals.since_commits,
+          note: "by people, since the trailer is required",
+        }
+      : { label: "Commits declaring an AI model", part: totals.ai_commits, whole: totals.human_commits, note: "by people" };
+
+    return el("div", { class: "tiles" },
+      el("div", { class: "tile hero" },
+        el("div", { class: "label", text: hero.label }),
+        el("div", { class: "value", text: percent(hero.part, hero.whole) }),
+        el("div", { class: "note", text: `${number.format(hero.part)} of ${plural(hero.whole, "commit")} ${hero.note}` }),
+        el("div", { class: "meter", role: "img", "aria-label": `${percent(hero.part, hero.whole)} of commits` },
+          el("span", { style: `width:${hero.whole ? (100 * hero.part) / hero.whole : 0}%` }))),
+      el("div", { class: "tile" },
+        el("div", { class: "label", text: "Over the whole history" }),
+        el("div", { class: "value", text: percent(totals.ai_commits, totals.human_commits) }),
+        el("div", { class: "note", text: `${number.format(totals.ai_commits)} of ${number.format(totals.human_commits)} commits by people declare a model` })),
+      el("div", { class: "tile" },
+        el("div", { class: "label", text: "Contributors" }),
+        el("div", { class: "value", text: number.format(totals.humans) }),
+        el("div", { class: "note", text: `${number.format(totals.humans_with_ai)} declared a model at least once` })),
+      el("div", { class: "tile" },
+        el("div", { class: "label", text: "Models named" }),
+        el("div", { class: "value", text: number.format(totals.models) }),
+        el("div", { class: "note", text: `from ${plural(vendors, "vendor")}` })),
+      report.pulls ? pullTile(report.pulls) : null,
+    );
+  }
+
+  function pullTile(pulls) {
+    const judged = pulls.items.filter((item) => item.boxes.human !== undefined && item.boxes.human !== "not-yet");
+    const ticked = judged.filter((item) => item.boxes.human === "ticked").length;
+    return el("div", { class: "tile" },
+      el("div", { class: "label", text: "Pull requests stating “read, understood and tested”" }),
+      el("div", { class: "value", text: `${number.format(ticked)} of ${number.format(judged.length)}` }),
+      el("div", { class: "note", text: `opened by people since ${day(pulls.since)}` }));
+  }
+
+  function timeline(report, palette) {
+    const series = [...report.families.map((family) => family.id), NONE];
+    const months = report.months.map((month) => {
+      const values = { ...month.families, [NONE]: month.none };
+      const total = series.reduce((sum, id) => sum + (values[id] || 0), 0);
+      return { key: month.month, values, total };
+    });
+    let mode = "count";
+    const holder = el("div", { class: "chart" });
+
+    function draw() {
+      const width = Math.max(320, Math.floor(holder.clientWidth || 960));
+      const height = 300;
+      const margin = { top: 26, right: 8, bottom: 26, left: 40 };
+      const plotW = width - margin.left - margin.right;
+      const plotH = height - margin.top - margin.bottom;
+      const peak = mode === "share" ? 100 : Math.max(1, ...months.map((month) => month.total));
+      const step = niceStep(peak / 4);
+      const top = mode === "share" ? 100 : Math.ceil(peak / step) * step;
+      const band = plotW / months.length;
+      const barW = Math.max(2, Math.min(24, band - 2));
+      const y = (value) => margin.top + plotH - (value / top) * plotH;
+
+      const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, role: "img",
+        "aria-label": "Commits per month, by declared model family. The table below gives the same figures." });
+
+      for (let tick = 0; tick <= top + 1e-9; tick += step) {
+        chart.append(svg("line", { class: tick ? "grid" : "axis", x1: margin.left, x2: width - margin.right, y1: y(tick), y2: y(tick) }));
+        const label = svg("text", { x: margin.left - 8, y: y(tick) + 4, "text-anchor": "end" });
+        label.textContent = mode === "share" ? tick + "%" : number.format(tick);
+        chart.append(label);
+      }
+
+      // A year label under each January, or under the first month.
+      const everyYear = band * 12 >= 34;
+      months.forEach((month, index) => {
+        const [year, mm] = month.key.split("-");
+        if (mm !== "01" && index !== 0) return;
+        if (index === 0 && mm !== "01" && (12 - Number(mm) + 1) * band < 34) return;
+        if (!everyYear && Number(year) % 2) return;
+        const label = svg("text", { x: margin.left + index * band + band / 2, y: height - 8, "text-anchor": "middle" });
+        label.textContent = year;
+        chart.append(label);
+      });
+
+      const bands = [];
+      months.forEach((month, index) => {
+        const x = margin.left + index * band + (band - barW) / 2;
+        let base = 0;
+        const present = series.filter((id) => month.values[id]);
+        present.forEach((id, position) => {
+          const value = mode === "share" ? (100 * month.values[id]) / month.total : month.values[id];
+          const y0 = y(base);
+          const y1 = y(base + value);
+          base += value;
+          const last = position === present.length - 1;
+          const gap = last || y0 - y1 < 4 ? 0 : 2; // the surface shows between two segments
+          const h = Math.max(0.5, y0 - y1 - gap);
+          const r = last ? Math.min(4, barW / 2, h) : 0;
+          const yTop = y0 - h;
+          chart.append(svg("path", {
+            fill: palette.get(id),
+            d: `M${x},${y0}V${yTop + r}q0,${-r} ${r},${-r}h${barW - 2 * r}q${r},0 ${r},${r}V${y0}Z`,
+          }));
+        });
+
+        const hit = svg("rect", { class: "band", x: margin.left + index * band, y: margin.top, width: band, height: plotH });
+        hit.addEventListener("pointermove", (event) => {
+          bands.forEach((other) => other.classList.toggle("active", other === hit));
+          showTooltip(event, monthName(month.key), [
+            ...series.filter((id) => month.values[id]).reverse().map((id) => ({
+              colour: palette.get(id), name: id,
+              value: number.format(month.values[id]) + (mode === "share" ? ` · ${percent(month.values[id], month.total)}` : ""),
+            })),
+            { name: "commits in all", value: number.format(month.total) },
+          ]);
+        });
+        hit.addEventListener("pointerleave", () => { hit.classList.remove("active"); hideTooltip(); });
+        bands.push(hit);
+      });
+
+      const since = report.project.trailer_since;
+      const start = months.findIndex((month) => month.key === (since || "").slice(0, 7));
+      if (start >= 0) {
+        const days = new Date(Date.UTC(Number(since.slice(0, 4)), Number(since.slice(5, 7)), 0)).getUTCDate();
+        const x = margin.left + start * band + (band * (Number(since.slice(8, 10)) - 1)) / days;
+        chart.append(svg("line", { class: "marker", x1: x, x2: x, y1: margin.top - 8, y2: margin.top + plotH }));
+        const label = svg("text", { class: "marker-label", x: x - 6, y: margin.top - 12, "text-anchor": "end" });
+        label.textContent = `Trailer required from ${day(since)}`;
+        chart.append(label);
+      }
+
+      bands.forEach((hit) => chart.append(hit));
+      holder.replaceChildren(chart);
+    }
+
+    const buttons = [["count", "Commits"], ["share", "Share"]].map(([value, label]) =>
+      el("button", {
+        type: "button", "aria-pressed": String(value === mode), text: label,
+        onclick: () => {
+          mode = value;
+          buttons.forEach((button, index) => button.setAttribute("aria-pressed", String(["count", "share"][index] === mode)));
+          draw();
+        },
+      }));
+
+    const table = el("table", {},
+      el("thead", {}, el("tr", {}, el("th", { text: "Month" }), series.map((id) => el("th", { class: "num", text: id })), el("th", { class: "num", text: "All" }))),
+      el("tbody", {}, [...months].reverse().map((month) =>
+        el("tr", {}, el("td", { text: monthName(month.key) }),
+          series.map((id) => el("td", { class: "num", text: number.format(month.values[id] || 0) })),
+          el("td", { class: "num", text: number.format(month.total) })))));
+
+    const section = el("section", {},
+      el("h2", { text: "Commits per month" }),
+      el("p", { class: "sub", text: "Each commit is counted under the model its Co-Authored-By trailer names, or as “no AI declared”. Commits by dependency-update bots are left out." }),
+      el("div", { class: "card" },
+        el("div", { class: "chart-head" },
+          el("ul", { class: "legend" }, series.map((id) => el("li", {}, swatch(palette.get(id)), id))),
+          el("div", { class: "toggle", role: "group", "aria-label": "Unit" }, buttons)),
+        holder,
+        el("details", { class: "table-view" }, el("summary", { text: "Show as a table" }), el("div", { class: "table-scroll" }, table))));
+
+    new ResizeObserver(draw).observe(holder);
+    return section;
+  }
+
+  function niceStep(raw) {
+    const power = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1))));
+    const unit = raw / power;
+    return Math.max(1, (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 5 ? 5 : 10) * power);
+  }
+
+  function models(report, palette) {
+    const peak = Math.max(1, ...report.models.map((model) => model.commits));
+    const rows = report.models.flatMap((model) => {
+      const period = model.first.slice(0, 7) === model.last.slice(0, 7)
+        ? day(model.first.slice(0, 7))
+        : `${day(model.first.slice(0, 7))} – ${day(model.last.slice(0, 7))}`;
+      const title = `${model.label}: ${plural(model.commits, "commit")}`;
+      return [
+        el("div", { class: "name" }, swatch(palette.get(model.family)),
+          el("span", {}, model.label, el("small", { text: `${model.vendor} · ${period}` }))),
+        el("div", { class: "figure" }, number.format(model.commits),
+          el("small", { text: model.people ? ` · ${plural(model.people, "person", "people")}` : "" })),
+        el("div", { class: "track", title },
+          el("div", { class: "bar", style: `width:${(100 * model.commits) / peak}%;background:${palette.get(model.family)}` })),
+      ];
+    });
+    return el("section", {},
+      el("h2", { text: "Models and versions" }),
+      el("p", { class: "sub", text: "Commits naming each model, with the months it was in use and the number of people who named it. Spellings of one model are counted together." }),
+      el("div", { class: "card" }, rows.length ? el("div", { class: "bars" }, rows) : el("p", { class: "empty", text: "No commit names a model yet." })));
+  }
+
+  function split(person, palette, families) {
+    const parts = [...families.filter((id) => person.families[id]).map((id) => [id, person.families[id]]),
+      [NONE, person.commits - person.ai_commits]].filter(([, count]) => count > 0);
+    const description = parts.map(([id, count]) => `${id}: ${number.format(count)}`).join(", ");
+    return el("div", { class: "split", role: "img", "aria-label": description, title: description },
+      parts.map(([id, count]) => el("span", { style: `flex:${count} 1 0;background:${palette.get(id)}` })));
+  }
+
+  function contributors(report, palette) {
+    const since = report.project.trailer_since;
+    const families = report.families.map((family) => family.id);
+    let filter = "all";
+    const body = el("tbody");
+    const count = el("span", { class: "empty" });
+
+    function fill() {
+      const people = report.contributors.filter((person) =>
+        filter === "all" || (filter === "ai") === (person.ai_commits > 0));
+      count.textContent = plural(people.length, "contributor");
+      body.replaceChildren(...people.map((person) =>
+        el("tr", {},
+          el("td", {}, el("div", { class: "person" }, avatar(person),
+            el("span", {},
+              person.login ? el("a", { href: profile(person.login), text: person.name }) : el("strong", { text: person.name }),
+              el("small", { text: person.login ? "@" + person.login : "no GitHub account matched" })))),
+          el("td", { class: "num", text: number.format(person.commits) }),
+          el("td", { class: "num" }, number.format(person.ai_commits), " ", el("small", { text: percent(person.ai_commits, person.commits) })),
+          el("td", {}, split(person, palette, families)),
+          since ? el("td", { class: "num" }, person.since_commits
+            ? `${number.format(person.since_ai_commits)} of ${number.format(person.since_commits)}`
+            : el("small", { text: "no commit" })) : null,
+          el("td", { class: "models-used", text: person.models.length
+            ? person.models.map((model) => `${model.label} (${number.format(model.commits)})`).join(", ")
+            : NONE }),
+          el("td", {}, el("small", { text: `${person.first.slice(0, 4)}${person.first.slice(0, 4) === person.last.slice(0, 4) ? "" : "–" + person.last.slice(0, 4)}` })))));
+    }
+
+    const options = [["all", "Everyone"], ["ai", "Declared a model"], ["none", NONE]];
+    const buttons = options.map(([value, label]) =>
+      el("button", {
+        type: "button", "aria-pressed": String(value === filter), text: label,
+        onclick: () => {
+          filter = value;
+          buttons.forEach((button, index) => button.setAttribute("aria-pressed", String(options[index][0] === filter)));
+          fill();
+        },
+      }));
+    fill();
+
+    const others = report.others.length
+      ? el("p", { class: "empty", style: "margin:16px 0 0" },
+          "Not people: ",
+          report.others.map((other) =>
+            `${other.name} (${plural(other.commits, "commit")}, ${other.kind === "agent" ? "an AI agent with no human co-author" : "automation"})`).join("; "),
+          ".")
+      : null;
+
+    return el("section", {},
+      el("h2", { text: "Contributors" }),
+      el("p", { class: "sub", text: "Who declares which model. “No AI declared” means that no commit of the person names a model: it does not show that no AI tool was used." }),
+      el("div", { class: "card" },
+        el("div", { class: "filters" }, el("div", { class: "toggle", role: "group", "aria-label": "Contributors shown" }, buttons), count),
+        el("div", { class: "table-scroll" },
+          el("table", {},
+            el("thead", {}, el("tr", {},
+              el("th", { text: "Contributor" }),
+              el("th", { class: "num", text: "Commits" }),
+              el("th", { class: "num", text: "Declaring a model" }),
+              el("th", { text: "Split" }),
+              since ? el("th", { class: "num", text: `Since ${day(since)}` }) : null,
+              el("th", { text: "Models named" }),
+              el("th", { text: "Active" }))),
+            body)),
+        others));
+  }
+
+  const BOX = {
+    ticked: ["✓", "ticked"],
+    unticked: ["☐", "not ticked"],
+    missing: ["–", "box removed"],
+    "not-yet": ["", "not asked yet"],
+  };
+
+  const READING = {
+    "consistent-ai": ["ok", "✓", "Box and commits agree"],
+    "consistent-none": ["ok", "✓", NONE],
+    "box-without-trailer": ["check", "!", "Box ticked, no model named"],
+    "trailer-without-box": ["check", "!", "Model named, box not ticked"],
+    "template-missing": ["check", "!", "Template not filled in"],
+    trailers: ["ok", "·", "Commits name a model"],
+    none: ["ok", "·", NONE],
+  };
+
+  function box(state) {
+    const [mark, label] = BOX[state] || BOX.missing;
+    return el("span", { class: "box " + state }, el("span", { class: "mark", "aria-hidden": "true", text: mark }), label);
+  }
+
+  function pulls(report) {
+    const data = report.pulls;
+    if (!data) {
+      return el("section", {},
+        el("h2", { text: "Pull requests" }),
+        el("p", { class: "empty", text: report.github
+          ? "No box of the pull request template is followed for this project."
+          : "This report was built without access to GitHub: pull requests were not read." }));
+    }
+    const items = data.items;
+    const agree = items.filter((item) => READING[item.disclosure][0] === "ok").length;
+    const boxes = data.checkboxes;
+
+    const rows = items.map((item) => {
+      const [kind, mark, label] = READING[item.disclosure];
+      const commits = item.model_commits
+        ? `${number.format(item.model_commits)} of ${number.format(item.commits_read)}`
+        : `0 of ${number.format(item.commits_read)}`;
+      return el("tr", {},
+        el("td", { class: "pr-title" }, el("a", { href: item.url, text: `#${item.number}` }), " ", item.title,
+          " ", el("span", { class: "state", text: item.state })),
+        el("td", {}, el("div", { class: "person", style: "min-width:0" }, avatar({ login: item.author, name: item.author }, true),
+          item.author ? el("a", { href: profile(item.author), text: item.author }) : "unknown")),
+        el("td", { class: "num", text: day(item.opened) }),
+        boxes.map((entry) => el("td", {}, box(item.boxes[entry.id]))),
+        el("td", {}, commits, item.models.length ? el("small", { text: " · " + item.models.join(", ") }) : null,
+          item.commits > item.commits_read ? el("small", { text: ` (first ${item.commits_read} of ${item.commits})` }) : null),
+        el("td", {}, el("span", { class: "reading " + kind }, el("span", { class: "mark", "aria-hidden": "true", text: mark }), label)));
+    });
+
+    return el("section", {},
+      el("h2", { text: "Pull requests" }),
+      el("p", { class: "sub", text: `Pull requests opened by people since ${day(data.since)}, when the template started to ask about AI. ` +
+        "The boxes of each description are compared with the trailers of its commits." +
+        (data.skipped_bots ? ` ${plural(data.skipped_bots, "pull request")} opened by bots left out.` : "") }),
+      el("div", { class: "card" },
+        items.length
+          ? [el("p", { class: "empty", style: "margin:0 0 12px", text: `In ${number.format(agree)} of ${plural(items.length, "pull request")}, the description and the commits tell the same story.` }),
+             el("div", { class: "table-scroll" },
+               el("table", {},
+                 el("thead", {}, el("tr", {},
+                   el("th", { text: "Pull request" }), el("th", { text: "Author" }), el("th", { class: "num", text: "Opened" }),
+                   boxes.map((entry) => el("th", { text: "Box: " + entry.label })),
+                   el("th", { text: "Commits naming a model" }), el("th", { text: "Box and commits" }))),
+                 el("tbody", {}, rows)))]
+          : el("p", { class: "empty", text: "No pull request opened since that date." })));
+  }
+
+  function reading(report) {
+    const since = report.project.trailer_since;
+    return el("section", { id: "reading" },
+      el("h2", { text: "How to read these figures" }),
+      el("ul", { class: "notes" },
+        el("li", { text: "A commit “declares a model” when a Co-Authored-By trailer of its message names an AI model, or when an AI agent is its author. A commit authored by an agent is credited to the person named as its co-author." }),
+        el("li", { text: "“No AI declared” is exactly that. Nothing here can show that a commit was written without an AI tool." }),
+        since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
+        el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
+        el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
+        el("li", { text: "Using an AI tool is welcome in this project. This page exists so that it is said, not to rank anyone." })));
+  }
+
+  /* ---------- Loading ---------- */
+
+  function render(report) {
+    const palette = colours(report);
+    document.title = `${report.project.name} · AI transparency for Open Source projects`;
+    root.replaceChildren(
+      intro(report), tiles(report), timeline(report, palette), models(report, palette),
+      contributors(report, palette), pulls(report), reading(report));
+    document.getElementById("footer").textContent =
+      `Built on ${day(report.generated_at.slice(0, 10))} from the public history of ${report.project.repository}.`;
+  }
+
+  async function json(path) {
+    const response = await fetch(path, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`${path}: ${response.status}`);
+    return response.json();
+  }
+
+  async function load(slug) {
+    try {
+      render(await json(`data/${encodeURIComponent(slug)}.json`));
+    } catch (error) {
+      root.replaceChildren(el("p", { class: "error", text: "The report could not be loaded. " + error.message }));
+    }
+  }
+
+  function overview(index) {
+    document.title = "AI transparency for Open Source projects";
+    root.replaceChildren(
+      el("div", { class: "intro" },
+        el("h1", { text: "AI transparency for Open Source projects" }),
+        el("p", { text: "What the contributors of each project declare about their use of AI tools, read from the Co-Authored-By trailers of its commits and from its pull requests." })),
+      el("div", { class: "projects" }, index.map((project) => {
+        const totals = project.totals;
+        const since = project.trailer_since;
+        const part = since ? totals.since_ai_commits : totals.ai_commits;
+        const whole = since ? totals.since_commits : totals.human_commits;
+        return el("a", { class: "project-card", href: "?project=" + encodeURIComponent(project.slug) },
+          el("h2", { text: project.name }),
+          el("div", { class: "repo", text: project.repository }),
+          el("div", { class: "value", text: percent(part, whole) }),
+          el("div", { class: "label", text: `of commits declare an AI model${since ? " since " + day(since) : ""} (${number.format(part)} of ${number.format(whole)})` }),
+          el("div", { class: "meter", role: "presentation" }, el("span", { style: `width:${whole ? (100 * part) / whole : 0}%` })),
+          el("p", { class: "facts", text: `${plural(totals.humans, "contributor")}, ${number.format(totals.humans_with_ai)} declared a model · ${plural(totals.models, "model")} named` }));
+      })));
+    document.getElementById("footer").textContent = "Built from the public history of each project.";
+  }
+
+  async function start() {
+    let index;
+    try {
+      index = await json("data/index.json");
+    } catch (error) {
+      root.replaceChildren(el("p", { class: "error", text: "No report has been built yet. " + error.message }));
+      return;
+    }
+    const wanted = new URLSearchParams(location.search).get("project");
+    const found = index.find((project) => project.slug === wanted);
+    const current = found || (index.length === 1 ? index[0] : null);
+    if (index.length > 1) {
+      const select = document.getElementById("project-select");
+      select.replaceChildren(
+        el("option", { value: "", selected: !current, text: "All projects" }),
+        ...index.map((project) =>
+          el("option", { value: project.slug, selected: current && project.slug === current.slug, text: project.name })));
+      select.addEventListener("change", () => {
+        location.href = select.value ? "?project=" + encodeURIComponent(select.value) : "./";
+      });
+      select.closest("label").hidden = false;
+    }
+    if (current) load(current.slug);
+    else {
+      document.querySelector('.nav a[href="./"]').setAttribute("aria-current", "page");
+      overview(index);
+    }
+  }
+
+  window.addEventListener("scroll", hideTooltip, { passive: true });
+  start();
+})();

@@ -1,0 +1,366 @@
+"""Turn commits and pull requests into the figures the site draws.
+
+Wording matters here. A commit without a trailer naming a model is a commit
+with "no AI declared": nothing proves that no AI tool was used.
+
+E-mail addresses are used to recognise people and never written to the report.
+"""
+
+from __future__ import annotations
+
+import re
+from collections import Counter
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+
+from .config import Checkbox, Project
+from .gitlog import Commit
+from .models import Model, co_authors, identify
+
+NOREPLY_RE = re.compile(r"^(?:\d+\+)?(?P<login>[^@]+)@users\.noreply\.github\.com$", re.I)
+CHECKBOX_RE = re.compile(r"^\s*[-*+]\s*\[(?P<mark>[ xX])\]\s*(?P<text>.*)$", re.M)
+MAX_FAMILIES = 7
+OTHER = "Other models"
+
+
+@dataclass
+class Person:
+    """Someone (or something) commits are credited to."""
+
+    kind: str  # "human", "agent" (an AI agent with no human co-author) or "bot"
+    name: str
+    login: str = ""
+    commits: int = 0
+    ai_commits: int = 0
+    since_commits: int = 0
+    since_ai_commits: int = 0
+    first: str = ""
+    last: str = ""
+    families: Counter = field(default_factory=Counter)
+    models: Counter = field(default_factory=Counter)
+
+
+@dataclass(frozen=True)
+class Credit:
+    key: str
+    kind: str
+    name: str
+    login: str
+    models: tuple[Model, ...]
+
+
+class Identities:
+    """Who a name and an e-mail address are, with the help of GitHub accounts."""
+
+    def __init__(self, project: Project, commits: list[Commit], logins: dict[str, str]):
+        self.project = project
+        self.by_email: dict[str, str] = {}
+        names: dict[str, set[str]] = {}
+        for commit in commits:
+            login = logins.get(commit.sha)
+            if login:
+                self.by_email.setdefault(commit.author_email.lower(), login)
+                names.setdefault(commit.author_name.lower(), set()).add(login)
+        # A name that belongs to one account only also covers the commits of that
+        # person made with an address GitHub does not know.
+        self.by_name = {name: next(iter(found)) for name, found in names.items() if len(found) == 1}
+
+    def login(self, email: str, name: str = "") -> str:
+        email = email.lower()
+        if email in self.by_email:
+            return self.by_email[email]
+        found = NOREPLY_RE.match(email)
+        if found and "[bot]" not in email:
+            return found.group("login")
+        return self.by_name.get(name.lower(), "")
+
+    def is_bot(self, name: str, login: str = "") -> bool:
+        return (
+            name.lower().endswith("[bot]")
+            or name.lower() in self.project.bots
+            or (login.lower() in self.project.bots if login else False)
+        )
+
+    def key(self, name: str, email: str, login: str) -> str:
+        if login:
+            return f"login:{login.lower()}"
+        return f"email:{email.lower()}" if email else f"name:{name.lower()}"
+
+    def credit(self, name: str, email: str, message: str, login: str = "") -> Credit:
+        """Who a commit is credited to, and the models it declares."""
+        rules = list(self.project.model_rules)
+        trailers = co_authors(message, rules)
+        models = [trailer.model for trailer in trailers if trailer.model]
+        login = login or self.login(email, name)
+
+        agent = identify(name, email, rules)
+        if agent:
+            # An AI agent authored the commit. The person it worked for is named as
+            # co-author; without one the commit stays under the agent's own name.
+            models = _unique([agent, *models])
+            for trailer in trailers:
+                if trailer.model or self.is_bot(trailer.name):
+                    continue
+                human_login = self.login(trailer.email, trailer.name)
+                return Credit(
+                    self.key(trailer.name, trailer.email, human_login),
+                    "human",
+                    trailer.name,
+                    human_login,
+                    tuple(models),
+                )
+            return Credit(f"agent:{agent.family.lower()}", "agent", agent.family, "", tuple(models))
+
+        kind = "bot" if self.is_bot(name, login) else "human"
+        return Credit(self.key(name, email, login), kind, name, login, tuple(_unique(models)))
+
+
+def _unique(models: list[Model]) -> list[Model]:
+    return list(dict.fromkeys(models))
+
+
+def build_report(
+    project: Project,
+    commits: list[Commit],
+    logins: dict[str, str] | None,
+    pulls: list[dict] | None,
+) -> dict:
+    """The whole report of a project. logins and pulls are None without GitHub access."""
+    identities = Identities(project, commits, logins or {})
+    since = project.trailer_since
+
+    people: dict[str, Person] = {}
+    months: dict[str, dict] = {}
+    model_stats: dict[Model, dict] = {}
+    family_commits: Counter = Counter()
+    family_vendor: dict[str, str] = {}
+
+    for commit in commits:
+        credit = identities.credit(
+            commit.author_name, commit.author_email, commit.message, (logins or {}).get(commit.sha, "")
+        )
+        day = commit.date[:10]
+        in_policy = bool(since) and day >= since
+
+        person = people.get(credit.key)
+        if person is None:
+            person = people[credit.key] = Person(credit.kind, credit.name, credit.login)
+        person.login = person.login or credit.login
+        person.commits += 1
+        person.since_commits += in_policy
+        person.first = min(person.first or day, day)
+        person.last = max(person.last, day)
+
+        month = months.setdefault(day[:7], {"none": 0, "bots": 0, "families": Counter()})
+        if credit.kind == "bot" and not credit.models:
+            month["bots"] += 1
+            continue
+        if not credit.models:
+            month["none"] += 1
+            continue
+
+        person.ai_commits += 1
+        person.since_ai_commits += in_policy
+        # A commit that names two models counts once in the totals, under the first one.
+        primary = credit.models[0].family
+        month["families"][primary] += 1
+        family_commits[primary] += 1
+        person.families[primary] += 1
+        for model in credit.models:
+            family_vendor[model.family] = model.vendor
+            person.models[model.label] += 1
+            stats = model_stats.setdefault(model, {"commits": 0, "first": day, "last": day, "people": set()})
+            stats["commits"] += 1
+            stats["first"] = min(stats["first"], day)
+            stats["last"] = max(stats["last"], day)
+            if credit.kind == "human":
+                stats["people"].add(credit.key)
+
+    # Colours follow the families: keep the order stable, most used first, and fold the tail.
+    ranked = [family for family, _ in family_commits.most_common()]
+    kept = ranked if len(ranked) <= MAX_FAMILIES + 1 else ranked[:MAX_FAMILIES]
+    folded = set(ranked) - set(kept)
+
+    def fold(counter: Counter) -> dict[str, int]:
+        result: Counter = Counter()
+        for family, count in counter.items():
+            result[OTHER if family in folded else family] += count
+        return dict(result)
+
+    families = [
+        {"id": family, "vendor": family_vendor.get(family, ""), "commits": family_commits[family]}
+        for family in kept
+    ]
+    if folded:
+        families.append(
+            {"id": OTHER, "vendor": "", "commits": sum(family_commits[family] for family in folded)}
+        )
+
+    humans = [person for person in people.values() if person.kind == "human"]
+    human_commits = sum(person.commits for person in humans)
+    human_ai = sum(person.ai_commits for person in humans)
+
+    report = {
+        "project": {
+            "slug": project.slug,
+            "name": project.name,
+            "repository": project.repository,
+            "url": project.url,
+            "policy_url": project.policy_url,
+            "trailer_since": since,
+        },
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "github": logins is not None,
+        "totals": {
+            "commits": sum(person.commits for person in people.values()),
+            "human_commits": human_commits,
+            "ai_commits": human_ai,
+            "since_commits": sum(person.since_commits for person in humans),
+            "since_ai_commits": sum(person.since_ai_commits for person in humans),
+            "humans": len(humans),
+            "humans_with_ai": sum(1 for person in humans if person.ai_commits),
+            "models": len(model_stats),
+            "first": commits[0].date[:10] if commits else "",
+            "last": max((commit.date[:10] for commit in commits), default=""),
+        },
+        "families": families,
+        "months": [
+            {
+                "month": month,
+                "none": values["none"],
+                "bots": values["bots"],
+                "families": fold(values["families"]),
+            }
+            for month, values in sorted(months.items())
+        ],
+        "models": [
+            {
+                "label": model.label,
+                "vendor": model.vendor,
+                "family": OTHER if model.family in folded else model.family,
+                "commits": stats["commits"],
+                "first": stats["first"],
+                "last": stats["last"],
+                "people": len(stats["people"]),
+            }
+            for model, stats in sorted(
+                model_stats.items(), key=lambda item: (-item[1]["commits"], item[0].label)
+            )
+        ],
+        "contributors": [_person(person, fold) for person in _ranked(humans)],
+        "others": [
+            _person(person, fold)
+            for person in _ranked([person for person in people.values() if person.kind != "human"])
+        ],
+        "pulls": None,
+    }
+    if pulls is not None and project.checkboxes:
+        report["pulls"] = pull_report(project, identities, pulls)
+    return report
+
+
+def _ranked(people: list[Person]) -> list[Person]:
+    return sorted(people, key=lambda person: (-person.commits, person.name.lower()))
+
+
+def _person(person: Person, fold) -> dict:
+    return {
+        "kind": person.kind,
+        "name": person.name,
+        "login": person.login,
+        "commits": person.commits,
+        "ai_commits": person.ai_commits,
+        "since_commits": person.since_commits,
+        "since_ai_commits": person.since_ai_commits,
+        "first": person.first,
+        "last": person.last,
+        "families": fold(person.families),
+        "models": [
+            {"label": label, "commits": count}
+            for label, count in sorted(person.models.items(), key=lambda item: (-item[1], item[0]))
+        ],
+    }
+
+
+def checkbox_state(body: str, checkbox: Checkbox) -> str:
+    """"ticked", "unticked", or "missing" when the box is not in the description."""
+    state = "missing"
+    for found in CHECKBOX_RE.finditer(body or ""):
+        text = found.group("text").lower()
+        if any(match in text for match in checkbox.match):
+            if found.group("mark") != " ":
+                return "ticked"
+            state = "unticked"
+    return state
+
+
+def pull_report(project: Project, identities: Identities, pulls: list[dict]) -> dict:
+    """Compare what each pull request says (its boxes) with what its commits say (their trailers)."""
+    ai_box = next((box for box in project.checkboxes if box.id == "ai"), None)
+    items = []
+    skipped_bots = 0
+    for pull in pulls:
+        author = pull.get("author") or {}
+        login = author.get("login", "")
+        if author.get("__typename") == "Bot" or identities.is_bot(login, login):
+            skipped_bots += 1
+            continue
+        opened = pull["createdAt"][:10]
+
+        models: Counter = Counter()
+        model_commits = 0
+        nodes = pull["commits"]["nodes"]
+        for node in nodes:
+            commit = node["commit"]
+            commit_author = commit.get("author") or {}
+            credit = identities.credit(
+                commit_author.get("name") or "",
+                commit_author.get("email") or "",
+                commit["message"],
+                ((commit_author.get("user") or {}).get("login")) or "",
+            )
+            if credit.models:
+                model_commits += 1
+                for model in credit.models:
+                    models[model.label] += 1
+
+        boxes = {
+            box.id: checkbox_state(pull.get("body") or "", box) if opened >= box.since else "not-yet"
+            for box in project.checkboxes
+        }
+        items.append(
+            {
+                "number": pull["number"],
+                "title": pull["title"],
+                "url": pull["url"],
+                "author": login,
+                "opened": opened,
+                "state": "draft" if pull.get("isDraft") and pull["state"] == "OPEN" else pull["state"].lower(),
+                "commits": pull["commits"]["totalCount"],
+                "commits_read": len(nodes),
+                "model_commits": model_commits,
+                "models": [label for label, _ in models.most_common()],
+                "boxes": boxes,
+                "disclosure": _disclosure(boxes.get(ai_box.id) if ai_box else None, model_commits),
+            }
+        )
+
+    return {
+        "since": min((box.since for box in project.checkboxes if box.since), default=""),
+        "checkboxes": [
+            {"id": box.id, "label": box.label, "since": box.since} for box in project.checkboxes
+        ],
+        "skipped_bots": skipped_bots,
+        "items": items,
+    }
+
+
+def _disclosure(ai_box: str | None, model_commits: int) -> str:
+    """Do the AI box of the pull request and the trailers of its commits tell the same story?"""
+    if ai_box in (None, "not-yet"):
+        return "trailers" if model_commits else "none"
+    if ai_box == "ticked":
+        return "consistent-ai" if model_commits else "box-without-trailer"
+    if model_commits:
+        return "trailer-without-box"
+    return "consistent-none" if ai_box == "unticked" else "template-missing"

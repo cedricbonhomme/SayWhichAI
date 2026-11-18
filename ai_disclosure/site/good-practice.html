@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good practice · AI transparency for Open Source projects</title>
+<meta name="description" content="How an Open Source project can be open about the use of AI tools: the Co-Authored-By trailer, and the four files that make it a habit.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <p class="brand"><a href="./">AI transparency for Open Source projects</a></p>
+    <nav class="nav" aria-label="Site">
+      <a href="./">Projects</a>
+      <a href="good-practice.html" aria-current="page">Good practice</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap prose">
+  <div class="intro">
+    <h1>Say which AI wrote it</h1>
+    <p>AI tools now write a large part of the code that reaches Open Source projects. That is welcome. What a project needs is to know it: one line at the end of each commit, and a person who answers for the change.</p>
+  </div>
+
+  <section>
+    <h2>Why it matters</h2>
+    <ul>
+      <li><strong>Reviewers read differently.</strong> Generated code fails in its own ways: plausible but wrong, wider than the task, confident about things nobody checked. A reviewer who knows which model wrote a change knows where to look.</li>
+      <li><strong>Responsibility stays with a person.</strong> A model cannot answer a review, fix a regression in six months, or be asked why. Saying that an AI wrote the change, and that you read, understood and tested it, keeps a human answerable.</li>
+      <li><strong>The history stays honest.</strong> A repository is also a record of who did what. When a model is named, the project can later find what a given model or version wrote, for example after a class of defects is discovered.</li>
+      <li><strong>Nobody has to hide.</strong> When declaring AI use is the normal thing, a newcomer who could not have written the change alone can say so, and ask for the review they need. Silence helps no one, and shame is what produces silence.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>The <code>Co-Authored-By</code> trailer</h2>
+    <p>A commit that was not written by a human ends with a trailer naming the model and its version:</p>
+<pre><code>fix: [website] Forms no longer drawn inside a grey box
+
+The extra classes went to the form element itself, which gave the
+whole form the look of an input.
+
+Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
+    <p>It is an existing git convention, the one already used for pair programming. It travels with the commit through forks, mirrors and rebases, it is shown by GitHub and GitLab, and any script can read it. Nothing has to be installed.</p>
+    <ul>
+      <li><strong>Name the model and the version</strong>, not only the tool: "Claude Opus 5.5" rather than "Claude" or "an AI assistant". The version is what makes the history useful later.</li>
+      <li><strong>One trailer per commit</strong>, on every commit the model wrote, not once per pull request.</li>
+      <li><strong>Keep it when squashing.</strong> A squash merge that drops the trailers erases the declaration.</li>
+      <li><strong>Leave it out of commits you wrote yourself.</strong> The trailer is a fact about a commit, not a label on a person.</li>
+    </ul>
+    <p>Several tools add the trailer by themselves; others do when the project asks them to, which is what <code>AGENTS.md</code> is for.</p>
+  </section>
+
+  <section>
+    <h2>Without the trailer, these pages say little</h2>
+    <p>Everything this site shows is read from what contributors declare. A commit without a trailer is counted as <em>no AI declared</em>, and nothing in a repository can tell a commit written by hand from a generated one whose trailer is missing.</p>
+    <p>So the figures of a project are as reliable as its habit of declaring. In a project that asks for the trailer, and where agents are told to add it, "no AI declared" comes close to "written by a person". In a project that asks for nothing, a low share of AI commits may only mean that nobody says it.</p>
+    <p>This is the reason to adopt the practice below: it makes the declaration the default, instead of leaving it to each contributor's memory.</p>
+  </section>
+
+  <section>
+    <h2>Four files that make it a habit</h2>
+    <p>This is what <a href="https://github.com/vulnerability-lookup/vulnerability-lookup">Vulnerability-Lookup</a> did. Each file speaks to a different reader.</p>
+
+    <h3>1. <code>CONTRIBUTING.md</code>, for people</h3>
+    <p>The reference. It states the rules in the project's own words, and the two files below repeat them. The rules of Vulnerability-Lookup, in short:</p>
+    <ul>
+      <li><strong>Check what you submit.</strong> Every change is read, understood and tested by its author before the pull request is opened, whoever or whatever wrote it.</li>
+      <li><strong>Be able to explain it.</strong> Reviewers may ask about any part of the change, and the author answers themselves, not with pasted model output.</li>
+      <li><strong>A human submits it.</strong> An agent does not open a pull request, an issue or a vulnerability report on its own.</li>
+      <li><strong>Say so.</strong> The pull request says when a significant part was generated, and each commit not written by a human carries the trailer.</li>
+      <li><strong>Check what you report.</strong> Issues and vulnerability reports describe a problem the author has reproduced.</li>
+    </ul>
+    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools">Read the full section in Vulnerability-Lookup</a>.</p>
+
+    <h3>2. <code>AGENTS.md</code>, for AI agents</h3>
+    <p>Coding agents read this file before they work. It turns the rules into instructions, so that the trailer is added without anyone having to remember it:</p>
+<pre><code>- **Say so.** End every commit you author with a `Co-Authored-By` trailer
+  naming the model, for example:
+
+      Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;
+
+- **A human reviews and submits.** Never open a pull request, an issue or a
+  vulnerability report on your own; the decision is the human's, after they
+  have reviewed your work.
+
+- When you draft a pull request description, keep all the sections of the
+  template. Never tick the box "I have read, understood and tested every
+  change": it is the human's own statement, leave it for them.</code></pre>
+    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/AGENTS.md">The full AGENTS.md of Vulnerability-Lookup</a>.</p>
+
+    <h3>3. <code>CLAUDE.md</code> and other tool files, pointing to it</h3>
+    <p>Some tools read their own file. Keep one set of rules and make those files import it, so that the rules never drift apart:</p>
+<pre><code># CLAUDE.md
+
+The instructions for AI agents live in AGENTS.md, shared by every tool.
+
+@AGENTS.md
+@CONTRIBUTING.md</code></pre>
+
+    <h3>4. <code>.github/PULL_REQUEST_TEMPLATE.md</code>, at the moment of submitting</h3>
+    <p>Two boxes, at the end of the template:</p>
+<pre><code>- [ ] Was a significant part of it generated with an AI tool? (If so, the commits carry a `Co-Authored-By` trailer naming the model.)
+- [ ] I have read, understood and tested every change in this pull request, and I can explain it.</code></pre>
+    <p>The first is a fact about the change, and it can be checked against the commits. The second is the author's own statement: an AI tool that drafts the description leaves it unticked, and the author ticks it once it is true.</p>
+  </section>
+
+  <section>
+    <h2>What it is not</h2>
+    <ul>
+      <li><strong>Not a ban.</strong> AI-assisted contributions are welcome. A project can still close a pull request nobody understood: that is about review, not about the tool.</li>
+      <li><strong>Not a ranking.</strong> The pages of this site describe what is declared. A high share is not a fault and a low one is not a merit.</li>
+      <li><strong>Not a proof.</strong> "No AI declared" never means "no AI used".</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Adopt it</h2>
+    <ol>
+      <li>Add the rules to <code>CONTRIBUTING.md</code>, with the date they apply from.</li>
+      <li>Add <code>AGENTS.md</code>, and make <code>CLAUDE.md</code> and other tool files import it.</li>
+      <li>Add the two boxes to the pull request template.</li>
+      <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
+    </ol>
+    <p>The same commitments are written as a short, versioned text, the AI transparency charter, in the repository of this site (<code>AI_CHARTER.md</code>).</p>
+  </section>
+</main>
+
+<footer class="wrap footer">AI transparency for Open Source projects.</footer>
+</body>
+</html>
