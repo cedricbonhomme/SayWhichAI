@@ -42,6 +42,11 @@ The site also has a **Good practice** page
 declaring matters, the `Co-Authored-By` trailer, and the four files (`CONTRIBUTING.md`,
 `AGENTS.md`, `CLAUDE.md`, the pull request template) that make it a habit.
 
+A **Policies** page
+([ai_disclosure/site/policies.html](ai_disclosure/site/policies.html)) compares the
+rules of other projects, and drafts a short statement a project could make about
+what it accepts.
+
 "No AI declared" means exactly that: a repository cannot prove that a commit was
 written without an AI tool.
 

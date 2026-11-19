@@ -267,3 +267,24 @@ section > .sub.after { margin: 12px 0 0; }
 .bars .track.scale span { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); }
 .bars .track.scale span:first-child { transform: none; }
 .bars.spans .figure small { font-size: 12px; }
+
+/* ---------- Text pages: what should catch the eye ---------- */
+.intro .links .button { background: var(--ink); color: var(--surface); text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 7px; }
+.intro .links { align-items: center; }
+.prose .callout { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--link); border-radius: 6px; padding: 12px 16px; margin: 16px 0; }
+.prose .callout.caution { border-left-color: var(--attention); }
+
+.file-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 16px 0 8px; counter-reset: file; }
+.file-card { counter-increment: file; display: block; position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px 12px 46px; color: inherit; text-decoration: none; }
+.file-card::before { content: counter(file); position: absolute; left: 14px; top: 13px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--axis); color: var(--ink-2); font-size: 12px; font-weight: 600; display: grid; place-items: center; }
+.file-card:hover, .file-card:focus-visible { border-color: var(--axis); outline: none; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
+.prose .file-card code { background: none; padding: 0; font-weight: 600; overflow-wrap: anywhere; }
+.file-card span { display: block; font-size: 13px; color: var(--ink-2); }
+
+.prose .file-name { margin: 0; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink-2); background: var(--grid); border: 1px solid var(--border); border-bottom: 0; border-radius: 10px 10px 0 0; padding: 6px 16px; }
+.prose .file-name + pre { border-radius: 0 0 10px 10px; }
+
+.prose ol.steps { list-style: none; padding: 0; counter-reset: step; display: grid; gap: 8px; }
+.prose ol.steps li { counter-increment: step; position: relative; margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px 12px 56px; }
+.prose ol.steps li::before { content: counter(step); position: absolute; left: 14px; top: 11px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--surface); font-size: 14px; font-weight: 650; display: grid; place-items: center; }
+@media (max-width: 560px) { .file-cards { grid-template-columns: 1fr; } }
