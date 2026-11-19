@@ -59,6 +59,11 @@ def test_projects_are_added_up():
         ("GitHub Copilot", "GitHub Copilot", 1, "2026-11-04", "2026-11-04"),
     ]
     assert [model["tool"] for model in stats["models"]] == [False, False, True]
+    # Ada named two models, Bob one model and one tool.
+    assert stats["per_person"] == [{"models": 1, "people": 1}, {"models": 2, "people": 1}]
+    assert stats["tool_only_people"] == 0
+    assert [(month["projects"], month["people"]) for month in stats["spread"]] == [(1, 1), (1, 1), (1, 1), (2, 2)]
+    assert stats["days"] == {"2026-08-05": 1, "2026-10-06": 1, "2026-11-02": 1, "2026-11-03": 1, "2026-11-04": 1}
     assert stats["vendors"] == [
         {"name": "Anthropic", "commits": 4, "models": 2, "tools": 0},
         {"name": "GitHub", "commits": 1, "models": 0, "tools": 1},
@@ -78,3 +83,4 @@ def test_nothing_named_and_no_github():
     assert stats["totals"]["commits"] == 0
     assert stats["totals"]["lines"] is None
     assert stats["months"] == [] and stats["models"] == []
+    assert stats["spread"] == [] and stats["per_person"] == [] and stats["days"] == {}

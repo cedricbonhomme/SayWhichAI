@@ -345,6 +345,61 @@
     return timeline(report, palette, LINES, [heaviest, unknown]);
   }
 
+  // A year of days, one column per week: how many commits name a model each day.
+  function calendar(days, last, sub) {
+    const DAY = 86400000;
+    const stamp = (iso) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10)));
+    const iso = (moment) => new Date(moment).toISOString().slice(0, 10);
+    const end = stamp(last);
+    // 53 columns, the first one starting on a Monday.
+    let start = end - 52 * 7 * DAY;
+    start -= ((new Date(start).getUTCDay() + 6) % 7) * DAY;
+    const cells = [];
+    for (let moment = start; moment <= end; moment += DAY) cells.push({ day: iso(moment), count: days[iso(moment)] || 0 });
+    const total = cells.reduce((sum, cell) => sum + cell.count, 0);
+    if (!total) return null;
+    const peak = Math.max(...cells.map((cell) => cell.count));
+    const level = (count) => (count ? Math.min(4, Math.ceil((4 * count) / peak)) : 0);
+
+    const size = 15, pitch = 18, left = 32, top = 18;
+    const columns = Math.ceil(cells.length / 7);
+    const width = left + columns * pitch, height = top + 7 * pitch;
+    const chart = svg("svg", { width, height, viewBox: `0 0 ${width} ${height}`, role: "img",
+      "aria-label": `${plural(total, "commit")} naming a model on ${plural(cells.filter((cell) => cell.count).length, "day")}, from ${day(cells[0].day)} to ${day(last)}.` });
+    ["Mon", "Wed", "Fri"].forEach((name, index) => {
+      const label = svg("text", { x: 0, y: top + index * 2 * pitch + size - 1 });
+      label.textContent = name;
+      chart.append(label);
+    });
+    cells.forEach((cell, index) => {
+      const column = Math.floor(index / 7), row = index % 7;
+      if (row === 0 || index === 0) {
+        // The name of a month above the first column that starts in it.
+        const previous = index >= 7 ? cells[index - 7].day.slice(0, 7) : "";
+        if (cell.day.slice(0, 7) !== previous && column < columns - 1) {
+          const label = svg("text", { x: left + column * pitch, y: 10 });
+          label.textContent = new Date(stamp(cell.day)).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" });
+          chart.append(label);
+        }
+      }
+      const square = svg("rect", { class: `cal-${level(cell.count)}`, x: left + column * pitch, y: top + row * pitch, width: size, height: size, rx: 2 });
+      square.addEventListener("pointermove", (event) =>
+        showTooltip(event, day(cell.day), [{ name: cell.count === 1 ? "commit naming a model" : "commits naming a model", value: number.format(cell.count) }]));
+      square.addEventListener("pointerleave", hideTooltip);
+      chart.append(square);
+    });
+    const scroll = el("div", { class: "calendar-scroll" }, chart);
+    // On a narrow screen, show the latest weeks first.
+    requestAnimationFrame(() => { scroll.scrollLeft = scroll.scrollWidth; });
+    return el("section", { id: "calendar" },
+      el("h2", { text: "Day by day" }),
+      el("p", { class: "sub", text: sub }),
+      el("div", { class: "card calendar" }, scroll,
+        el("div", { class: "calendar-legend", "aria-hidden": "true" }, "Fewer",
+          [0, 1, 2, 3, 4].map((step) => { const key = svg("svg", { width: 11, height: 11 }); key.append(svg("rect", { class: `cal-${step}`, width: 11, height: 11, rx: 2 })); return key; }),
+          "More")));
+  }
+
   function niceStep(raw) {
     const power = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1))));
     const unit = raw / power;
@@ -566,7 +621,9 @@
     const palette = colours(report);
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
     root.replaceChildren(...[
-      intro(report), tiles(report), timeline(report, palette, COMMITS), models(report, palette), lines(report, palette),
+      intro(report), tiles(report), timeline(report, palette, COMMITS),
+      calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A darker square is a day with more of them; a pale one is a day with no model named, not a day without work."),
+      models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =
@@ -612,6 +669,7 @@
         el("a", { href: "#time", text: "Month by month" }),
         el("a", { href: "#lifetimes", text: "Life of a version" }),
         el("a", { href: "#vendors", text: "Vendors" }),
+        el("a", { href: "#spread", text: "How declaring spread" }),
         el("a", { href: "#reading", text: "How to read these figures" })));
   }
 
@@ -643,7 +701,7 @@
         el("span", {}, row.name, row.small ? el("small", { text: row.small }) : null)),
       el("div", { class: "figure" }, number.format(row.value), row.figureSmall ? el("small", { text: " · " + row.figureSmall }) : null),
       el("div", { class: "track", title: row.title },
-        el("div", { class: "bar", style: `width:${(100 * row.value) / peak}%;background:${row.colour || "var(--ink-2)"}` })),
+        row.value ? el("div", { class: "bar", style: `width:${(100 * row.value) / peak}%;background:${row.colour || "var(--ink-2)"}` }) : null),
     ]));
   }
 
@@ -734,6 +792,115 @@
         : el("p", { class: "empty", text: "No commit names a model yet." })));
   }
 
+  // Two step lines: the projects and the people who have named a model so far.
+  function spread(stats) {
+    const months = stats.spread;
+    const series = [
+      { id: "people", name: "People", one: "person", many: "people", colour: "var(--ink)", dash: null },
+      { id: "projects", name: "Projects", one: "project", many: "projects", colour: "var(--ink-2)", dash: "5 4" },
+    ];
+    const holder = el("div", { class: "chart" });
+
+    function draw() {
+      const width = Math.max(320, Math.floor(holder.clientWidth || 960));
+      const height = 260;
+      const margin = { top: 16, right: 92, bottom: 26, left: 40 };
+      const plotW = width - margin.left - margin.right;
+      const plotH = height - margin.top - margin.bottom;
+      const peak = Math.max(1, ...months.map((month) => Math.max(month.people, month.projects)));
+      const step = niceStep(peak / 4);
+      const top = Math.ceil(peak / step) * step;
+      const band = plotW / months.length;
+      const y = (value) => margin.top + plotH - (value / top) * plotH;
+      const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, role: "img",
+        "aria-label": "Projects and people with at least one commit naming a model, month by month. The table below gives the same figures." });
+
+      for (let tick = 0; tick <= top + 1e-9; tick += step) {
+        chart.append(svg("line", { class: tick ? "grid" : "axis", x1: margin.left, x2: margin.left + plotW, y1: y(tick), y2: y(tick) }));
+        const label = svg("text", { x: margin.left - 8, y: y(tick) + 4, "text-anchor": "end" });
+        label.textContent = number.format(tick);
+        chart.append(label);
+      }
+      months.forEach((month, index) => {
+        const [year, mm] = month.month.split("-");
+        if (mm !== "01" && index !== 0) return;
+        if (index === 0 && mm !== "01" && (12 - Number(mm) + 1) * band < 34) return;
+        const label = svg("text", { x: margin.left + index * band + band / 2, y: height - 8, "text-anchor": "middle" });
+        label.textContent = year;
+        chart.append(label);
+      });
+
+      // The labels at the end of the lines must not sit on each other.
+      const ends = series.map((entry) => ({ entry, value: months[months.length - 1][entry.id] }));
+      const labelY = ends.map((end) => y(end.value) + 4);
+      if (Math.abs(labelY[0] - labelY[1]) < 14) {
+        const upper = labelY[0] <= labelY[1] ? 0 : 1;
+        labelY[upper] = labelY[1 - upper] - 14;
+      }
+      ends.forEach((end, index) => {
+        let path = "";
+        months.forEach((month, position) => {
+          const x0 = margin.left + position * band, x1 = x0 + band;
+          path += `${position ? "L" : "M"}${x0},${y(month[end.entry.id])}L${x1},${y(month[end.entry.id])}`;
+        });
+        const line = svg("path", { d: path, fill: "none", stroke: end.entry.colour, "stroke-width": 2, "stroke-linejoin": "round" });
+        if (end.entry.dash) line.setAttribute("stroke-dasharray", end.entry.dash);
+        chart.append(line);
+        const label = svg("text", { class: "end-label", x: margin.left + plotW + 8, y: labelY[index] });
+        label.textContent = plural(end.value, end.entry.one, end.entry.many);
+        chart.append(label);
+      });
+
+      const bands = [];
+      months.forEach((month, index) => {
+        const hit = svg("rect", { class: "band", x: margin.left + index * band, y: margin.top, width: band, height: plotH });
+        hit.addEventListener("pointermove", (event) => {
+          bands.forEach((other) => other.classList.toggle("active", other === hit));
+          showTooltip(event, `By the end of ${monthName(month.month)}`, series.map((entry) => ({
+            colour: entry.colour, name: month[entry.id] === 1 ? entry.one : entry.many, value: number.format(month[entry.id]),
+          })));
+        });
+        hit.addEventListener("pointerleave", () => { hit.classList.remove("active"); hideTooltip(); });
+        bands.push(hit);
+        chart.append(hit);
+      });
+      holder.replaceChildren(chart);
+    }
+
+    const table = el("table", {},
+      el("thead", {}, el("tr", {}, el("th", { text: "By the end of" }), series.map((entry) => el("th", { class: "num", text: entry.name })))),
+      el("tbody", {}, [...months].reverse().map((month) =>
+        el("tr", {}, el("td", { text: monthName(month.month) }),
+          series.map((entry) => el("td", { class: "num", text: number.format(month[entry.id]) }))))));
+
+    const section = el("section", { id: "spread" },
+      el("h2", { text: "How declaring spread" }),
+      el("p", { class: "sub", text: "The projects followed here, and the people in them, with at least one commit naming a model so far. A line only goes up: it counts the first time, not what came after." }),
+      el("div", { class: "card" },
+        el("div", { class: "chart-head" },
+          el("ul", { class: "legend" }, series.map((entry) =>
+            el("li", {}, el("span", { class: "line-key", style: `border-top:2px ${entry.dash ? "dashed" : "solid"} ${entry.colour}` }), entry.name)))),
+        holder,
+        el("details", { class: "table-view" }, el("summary", { text: "Show as a table" }), el("div", { class: "table-scroll" }, table))));
+    new ResizeObserver(draw).observe(holder);
+    return section;
+  }
+
+  function perPerson(stats) {
+    if (!stats.per_person.length) return null;
+    const people = stats.per_person.reduce((sum, row) => sum + row.people, 0);
+    const most = stats.per_person.length;
+    return el("section", { id: "people" },
+      el("h2", { text: "How many models a person names" }),
+      el("p", { class: "sub", text: "People who named a model at least once, by the number of different models and versions they named, all projects together. Nobody is named: this shows that people change models." }),
+      el("div", { class: "card" }, bars(stats.per_person.map((row) => ({
+        name: (row.models === 5 && most === 5 ? "5 models or more" : plural(row.models, "model")),
+        value: row.people, figureSmall: percent(row.people, people),
+        title: `${plural(row.people, "person", "people")} named ${row.models === 5 && most === 5 ? "5 models or more" : plural(row.models, "model")}`,
+      })))),
+      stats.tool_only_people ? el("p", { class: "sub after", text: `${plural(stats.tool_only_people, "person", "people")} named only a tool whose model is not named, and ${stats.tool_only_people === 1 ? "is" : "are"} not in this chart.` }) : null);
+  }
+
   function vendors(stats) {
     return el("section", { id: "vendors" },
       el("h2", { text: "Vendors" }),
@@ -767,7 +934,9 @@
     }
     const palette = colours(stats);
     root.replaceChildren(...[statsIntro(stats), statsTiles(stats), mostNamed(stats, palette),
-      timeline(stats, palette, NAMED), lifetimes(stats, palette), vendors(stats), statsReading(stats)].filter(Boolean));
+      timeline(stats, palette, NAMED),
+      calendar(stats.days, stats.generated_at.slice(0, 10), "Commits naming a model on each day of the last year, all projects together. A darker square is a day with more of them."),
+      lifetimes(stats, palette), vendors(stats), spread(stats), perPerson(stats), statsReading(stats)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =
       `Built on ${day(stats.generated_at.slice(0, 10))} from the public history of ${plural(stats.projects, "project")}.`;

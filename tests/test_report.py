@@ -53,6 +53,8 @@ def test_commits_are_credited_to_people():
     ada, bob = report["contributors"]
     assert (ada["login"], ada["commits"], ada["ai_commits"]) == ("ada", 4, 2)
     assert (ada["since_commits"], ada["since_ai_commits"]) == (3, 2)
+    assert (ada["ai_first"], bob["ai_first"]) == ("2026-11-05", "")
+    assert report["named"]["days"] == {"2026-11-05": 1, "2026-11-07": 1}
     assert ada["families"] == {"Claude Opus": 1, "GitHub Copilot": 1}
     assert (bob["commits"], bob["ai_commits"]) == (1, 0)
     assert [other["kind"] for other in report["others"]] == ["bot"]

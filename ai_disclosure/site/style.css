@@ -302,3 +302,19 @@ section > .sub.after { margin: 12px 0 0; }
 .badge img { display: block; height: 20px; }
 .badge pre { margin: 14px 0 0; padding: 10px 12px; background: var(--page); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
 .badge code { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* ---------- A year of days ---------- */
+.calendar-scroll { overflow-x: auto; padding-bottom: 4px; }
+.calendar svg { display: block; }
+.calendar text { fill: var(--muted); font-size: 10px; }
+.cal-0 { fill: var(--grid); }
+.cal-1 { fill: var(--series-1); fill-opacity: 0.3; }
+.cal-2 { fill: var(--series-1); fill-opacity: 0.5; }
+.cal-3 { fill: var(--series-1); fill-opacity: 0.75; }
+.cal-4 { fill: var(--series-1); }
+.calendar-legend { display: flex; align-items: center; gap: 3px; margin-top: 8px; font-size: 11px; color: var(--muted); }
+.calendar-legend svg { display: block; }
+
+/* ---------- Lines ---------- */
+.chart .end-label { fill: var(--ink-2); font-size: 12px; }
+.line-key { display: inline-block; width: 18px; height: 0; }

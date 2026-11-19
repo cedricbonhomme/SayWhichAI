@@ -41,6 +41,7 @@ class Person:
     since_ai_lines: int = 0
     first: str = ""
     last: str = ""
+    ai_first: str = ""  # day of the first commit naming a model
     families: Counter = field(default_factory=Counter)
     models: Counter = field(default_factory=Counter)
 
@@ -147,6 +148,7 @@ def build_report(
     weights: list[tuple[int, Commit, str]] = []  # lines changed, commit, family named
     unknown = 0  # commits GitHub gave no figure for
     several = 0  # commits naming more than one model
+    days: Counter = Counter()  # commits naming a model, day by day
 
     for commit in commits:
         credit = identities.credit(
@@ -183,6 +185,8 @@ def build_report(
 
         person.ai_commits += 1
         person.since_ai_commits += in_policy
+        person.ai_first = min(person.ai_first or day, day)
+        days[day] += 1
         person.ai_lines += changed
         person.since_ai_lines += changed * in_policy
         # A commit that names two models counts once in the totals, under the first one.
@@ -310,6 +314,7 @@ def build_report(
                 month: dict(values["families"]) for month, values in sorted(months.items()) if values["families"]
             },
             "several": several,
+            "days": dict(sorted(days.items())),
         },
         "pulls": None,
         "lines": None,
@@ -377,6 +382,7 @@ def _person(person: Person, fold) -> dict:
         "ai_lines": person.ai_lines,
         "first": person.first,
         "last": person.last,
+        "ai_first": person.ai_first,
         "families": fold(person.families),
         "models": [
             {"label": label, "commits": count}
