@@ -61,11 +61,11 @@ Add a line to its table of versions with every change.
 
 ## Use of AI and LLM tools
 
-This project adopts the [AI transparency charter](AI_CHARTER.md) 1.1.
+This project adopts the [AI transparency charter](AI_CHARTER.md) 1.2.
 
 AI tools are used in the development of this project, and AI-assisted contributions
-are welcome. Contributions written without any AI tool are just as welcome: nobody
-has to use one, and nobody has to explain why they do not. In both cases a pull
+are accepted. Contributions written without any AI tool are accepted in the same way:
+nobody has to use one, and nobody has to explain why they do not. In both cases a pull
 request is the responsibility of the person who submits it.
 
 - **Say so.** Mention in the pull request description when a significant part of the

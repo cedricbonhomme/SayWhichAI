@@ -21,7 +21,8 @@
 <main class="wrap prose">
   <div class="intro">
     <h1>Say which AI wrote it</h1>
-    <p>AI tools now write a large part of the code that reaches Open Source projects. Whether to accept it is each project's choice. Where it is accepted, it should be done openly and with trust. What a project needs first is to know it: one line at the end of each commit, and a person who answers for the change.</p>
+    <p>AI tools now write a growing part of the code that reaches Open Source projects. Whether to accept it is each project's choice. Where it is accepted, it should be done openly and with trust. What a project needs first is to know it: one line at the end of each commit, and a person who answers for the change.</p>
+    <p>This page describes one practice: that of a project which accepts AI-assisted contributions and asks that they be declared. Other projects choose otherwise, and <a href="#others">their rules are compared below</a>.</p>
   </div>
 
   <div class="with-toc">
@@ -34,6 +35,7 @@
           <li><a href="#merit">Judged on merit: the OCaml guidelines</a></li>
         </ol>
       </li>
+      <li><a href="#levels">A shared vocabulary</a></li>
       <li><a href="#trailer">The <code>Co-Authored-By</code> trailer</a></li>
       <li><a href="#reliability">Without the trailer, these pages say little</a></li>
       <li><a href="#files">Four files that make it a habit</a>
@@ -47,8 +49,11 @@
       <li><a href="#limits">The limits, said plainly</a></li>
       <li><a href="#not">What it is not</a></li>
       <li><a href="#adopt">Adopt it</a></li>
-      <li><a href="#others">How other projects do it</a></li>
-      <li><a href="#levels">How much? A shared vocabulary</a></li>
+      <li><a href="#others">How other projects do it</a>
+        <ol>
+          <li><a href="#ocaml">The OCaml experiment</a></li>
+        </ol>
+      </li>
       <li><a href="#taxonomy">Where does a project stand? (draft)</a></li>
       <li><a href="#related">Related work</a></li>
     </ol>
@@ -76,7 +81,7 @@
     <p>Declaring is what makes both possible. When AI use is said, those who avoid it can see where it is, and those who use it have nothing to hide. The Software Freedom Conservancy puts these two points first in its <a href="https://sfconservancy.org/llm-gen-ai/llm-backed-generative-ai-recommendations.html" target="_blank" rel="noreferrer">recommendations on LLM-backed generative AI</a>: support those who reject these systems, and let every contributor decide for themselves.</p>
 
     <h3 id="merit">Judged on merit: the OCaml guidelines</h3>
-    <p>The OCaml compiler states this idea better than we do. Its <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md">guidelines for AI-assisted contributions</a>, in the repository since November 2025, are six short rules, and the first one is:</p>
+    <p>For this idea, our reference is the OCaml compiler, which states it better than we do. Its <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md" target="_blank" rel="noreferrer">guidelines for AI-assisted contributions</a>, in the repository since November 2025, are six short rules, and the first one is:</p>
     <blockquote><p>We strive to evaluate contributions based on their merit, not their authors.</p></blockquote>
     <p>A change is judged on what it is: correct or not, understood or not, worth a reviewer's time or not. Who or what wrote it is not the test. So there is no ban and no separate track: a good change written with a model is accepted, and a bad one is refused because it is bad.</p>
     <p>Merit alone would be an empty word. The other rules are what make it work:</p>
@@ -88,6 +93,27 @@
     </ul>
     <p>What we take from it is the sentence that introduces the rules: they "also apply, or have a direct counterpart, with entirely human-produced content". Nothing is asked of a person who uses AI that is not asked of everyone. Declaring is then information for the review, never a verdict on the author, and that is what lets a project ask for it without shaming anyone.</p>
     <p>Judging on merit does not mean that the way a change was made is of no interest. It matters to the person who reviews it, and to anyone who later asks where the code came from. It means that the origin is said, and then not held against the author.</p>
+  </section>
+
+  <section id="levels">
+    <h2>A shared vocabulary</h2>
+    <p>"AI-assisted", "AI-generated", "vibe-coded": people use these words loosely, and each project that writes rules picks its own. A vocabulary now exists outside any project: <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/" target="_blank" rel="noreferrer">AI Content Disclosure for HTML</a>, the final report of a W3C community group, published on 9 October 2026. It was written for web pages and it is a community report, not a W3C standard. Its three values apply to a contribution as they are, and this page uses them throughout:</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Value</th><th>Meaning</th><th>For a contribution</th></tr></thead>
+        <tbody>
+          <tr><td><code>human-only</code></td><td>A positive assertion that no AI was involved.</td><td>Something a person states. A commit without a trailer does not state it.</td></tr>
+          <tr><td><code>ai-assisted</code></td><td>AI was involved, and a human reviewed the result before publication.</td><td>The trailer, and a person who has read, understood and tested the change.</td></tr>
+          <tr><td><code>ai-autonomous</code></td><td>AI was involved, and the result was published without human review.</td><td>What an agent submits on its own.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Three things in it are worth taking.</p>
+    <ul>
+      <li><strong>Two questions decide, in this order.</strong> Was AI involved? Did a human review the result before it was published? These are the two boxes of the <a href="#template">pull request template</a>.</li>
+      <li><strong>The amount does not decide.</strong> In the words of the report, "The amount of AI-authored text and the extent of human editing do not determine the value." Light editing and a full draft are both <code>ai-assisted</code> once a person has reviewed them. The line that matters is the review, which is also the line <a href="#others">nearly every project</a> draws.</li>
+      <li><strong>No declaration means "unknown".</strong> It is distinct from <code>human-only</code>. This is what "no AI declared" means on this site.</li>
+    </ul>
   </section>
 
   <section id="trailer">
@@ -129,7 +155,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
 
   <section id="files">
     <h2>Four files that make it a habit</h2>
-    <p>This is what <a href="https://github.com/vulnerability-lookup/vulnerability-lookup">Vulnerability-Lookup</a> did. Each file speaks to a different reader.</p>
+    <p>This is what <a href="https://github.com/vulnerability-lookup/vulnerability-lookup" target="_blank" rel="noreferrer">Vulnerability-Lookup</a> did. Each file speaks to a different reader.</p>
 
     <h3 id="contributing">1. <code>CONTRIBUTING.md</code>, for people</h3>
     <p>The reference. It states the rules in the project's own words, and the two files below repeat them. The rules of Vulnerability-Lookup, in short:</p>
@@ -140,7 +166,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
       <li><strong>Say so.</strong> The pull request says when a significant part was generated, and each commit not written by a human carries the trailer.</li>
       <li><strong>Check what you report.</strong> Issues and vulnerability reports describe a problem the author has reproduced.</li>
     </ul>
-    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools">Read the full section in Vulnerability-Lookup</a>.</p>
+    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools" target="_blank" rel="noreferrer">Read the full section in Vulnerability-Lookup</a>.</p>
 
     <h3 id="agents">2. <code>AGENTS.md</code>, for AI agents</h3>
     <p>Coding agents read this file before they work. It turns the rules into instructions, so that the trailer is added without anyone having to remember it:</p>
@@ -156,7 +182,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
 - When you draft a pull request description, keep all the sections of the
   template. Never tick the box "I have read, understood and tested every
   change": it is the human's own statement, leave it for them.</code></pre>
-    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/AGENTS.md">The full AGENTS.md of Vulnerability-Lookup</a>.</p>
+    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/AGENTS.md" target="_blank" rel="noreferrer">The full AGENTS.md of Vulnerability-Lookup</a>.</p>
 
     <h3 id="claude">3. <code>CLAUDE.md</code> and other tool files, pointing to it</h3>
     <p>Some tools read their own file. Keep one set of rules and make those files import it, so that the rules never drift apart:</p>
@@ -181,7 +207,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <ul>
       <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a squash or a rewritten commit message can drop it. Nothing signs it and nothing verifies it.</li>
       <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer. Counting the lines of the commit tells how large the commit is, not which part of it the model wrote. The <a href="#levels">shared vocabulary</a> does not measure it either: it asks whether a person reviewed the change.</li>
-      <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
+      <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/" target="_blank" rel="noreferrer">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
       <li><strong>Some disclosure is out of its reach.</strong> Not every project puts the declaration in the commit. Kubernetes asks for it in the description of the pull request, and the Linux kernel in the changelog, as plain sentences. A tool that reads trailers finds nothing there: on this site, such a project would show as "no AI declared" while its contributors declare.</li>
       <li><strong>The rules are requests.</strong> <code>AGENTS.md</code> and <code>CONTRIBUTING.md</code> ask; they cannot oblige. An agent may not read the file or may not follow it, and the person behind the agent is free to remove the trailer, or to tick a box without having read the change. A project can check that the boxes and the trailers agree. It cannot check that they are true.</li>
       <li><strong>A ban rests on the same good faith.</strong> SourceHut, which no longer accepts original content written with an LLM, states that it will not deploy "any automated tools for detecting AI use". Forbidding and declaring meet the same wall: only the contributor knows.</li>
@@ -209,7 +235,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li>Say what the project accepts, in the <a href="#taxonomy">words below</a>, which are still a draft: for this practice, "accepts <code>ai-assisted</code>".</li>
       <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
     </ol>
-    <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md">AI transparency charter</a>.</p>
+    <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">AI transparency charter</a>.</p>
   </section>
   <section id="others">
     <h2>How other projects do it</h2>
@@ -218,17 +244,17 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <table class="policies">
         <thead><tr><th>Project</th><th>AI-written code</th><th>Disclosure</th><th>Trailer in the commit</th><th>Also</th></tr></thead>
         <tbody>
-          <tr><td><a href="https://devguide.python.org/getting-started/ai-tools/">CPython</a></td><td>Not a reason on its own to close a pull request. The author reviews the work of the tool in detail.</td><td>"Appreciated, while not required", in the pull request description.</td><td>None.</td><td>Authors explain their changes in their own words. Repeat offenders may be blocked.</td></tr>
-          <tr><td><a href="https://numpy.org/devdocs/dev/ai_policy.html">NumPy</a></td><td>The author is responsible for it. Code mostly generated and below the project's standards is rejected.</td><td>Required: which tools, how they were used, what is generated. A pull request without it is rejected.</td><td>None.</td><td>No agent that submits a pull request on its own. AI does not write descriptions or comments, except to translate. The author answers for copyright.</td></tr>
-          <tr><td><a href="https://pandas.pydata.org/docs/dev/development/contributing.html">pandas</a></td><td>Accepted "as long as it's used responsibly".</td><td>Required: name the tool. The model and its version are advised.</td><td>None.</td><td>AI does not speak for the contributor in discussions. The project's own review skill is run first. Two violations can lead to a ban.</td></tr>
-          <tr><td><a href="https://github.com/pypa/pip/blob/main/AI_POLICY.md">pip</a></td><td>Accepted when a human owns the copyright, understands the code and takes responsibility for every line.</td><td>Not asked for.</td><td>Forbidden: "No LLM bots in <code>Co-authored-by:</code>s". Such a pull request is closed.</td><td>No unsupervised agent.</td></tr>
-          <tr><td><a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md">OCaml</a></td><td>Judged on its merit. The author has written, or read and reviewed, every part of it.</td><td>Required when a significant part of the code, the description or the messages is generated: which tool, and for what.</td><td>None.</td><td>Generated text is discouraged in bug reports. Code its author does not understand is never acceptable.</td></tr>
-          <tr><td><a href="https://docs.mesa3d.org/submittingpatches.html">Mesa</a></td><td>Accepted. The submitter is responsible, wherever the change came from.</td><td>Required, except for trivial or mechanical changes.</td><td><code>Assisted-by: LLM</code>, or <code>Generated-by: LLM</code> when almost all the code was generated. The model is not named.</td><td>No tool that submits on its own. AI is not used for commit messages or comments.</td></tr>
-          <tr><td><a href="https://github.com/fedify-dev/fedify/blob/main/AI_POLICY.md">Fedify</a></td><td>Welcome, for accepted issues, once verified by a person.</td><td>Required, with its extent, in the pull request and in the commits.</td><td><code>Assisted-by: AGENT_NAME:MODEL_VERSION</code>, one line per tool.</td><td>An agent must refuse a request to hide that AI took part.</td></tr>
-          <tr><td><a href="https://www.apache.org/legal/generative-tooling.html">Apache Software Foundation</a></td><td>Accepted when the terms of the tool and any third-party material allow the contribution to be licensed.</td><td>Recommended.</td><td><code>Generated-by: &lt;Name of Tool&gt; &lt;Version&gt;</code>, or <code>Co-authored-by</code>.</td><td>The aim is a provenance file that a machine can read, built from the commits.</td></tr>
-          <tr><td><a href="https://www.kubernetes.dev/docs/guide/pull-requests/#ai-guidance">Kubernetes</a></td><td>Help is acceptable. Large generated pull requests and generated commit messages are not allowed.</td><td>Required, in the pull request description.</td><td>Forbidden: AI as co-author, <code>assisted-by</code>, <code>co-developed</code> "or similar".</td><td>Review comments are answered without AI. A change its author cannot explain is closed.</td></tr>
-          <tr><td><a href="https://docs.kernel.org/process/coding-assistants.html">Linux kernel</a></td><td>Accepted. A person reviews it, signs it off and takes full responsibility.</td><td>Asked for in the changelog and the cover letter, as sentences: which tools, which parts.</td><td>None in the current documentation. An agent must not add <code>Signed-off-by</code>.</td><td>The assistant "must never send anything itself".</td></tr>
-          <tr><td><a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/">SourceHut <small>(a forge)</small></a></td><td>Prohibited for original content, from 10 September 2026 for new projects. Private use, to review or to ask questions, is discouraged but allowed.</td><td>An honour system. Misleading about AI use leads to suspension.</td><td>Not applicable.</td><td>No detection tool. Shaming people who use AI is sanctioned too.</td></tr>
+          <tr><td><a href="https://devguide.python.org/getting-started/ai-tools/" target="_blank" rel="noreferrer">CPython</a></td><td>Not a reason on its own to close a pull request. The author reviews the work of the tool in detail.</td><td>"Appreciated, while not required", in the pull request description.</td><td>None.</td><td>Authors explain their changes in their own words. Repeat offenders may be blocked.</td></tr>
+          <tr><td><a href="https://numpy.org/devdocs/dev/ai_policy.html" target="_blank" rel="noreferrer">NumPy</a></td><td>The author is responsible for it. Code mostly generated and below the project's standards is rejected.</td><td>Required: which tools, how they were used, what is generated. A pull request without it is rejected.</td><td>None.</td><td>No agent that submits a pull request on its own. AI does not write descriptions or comments, except to translate. The author answers for copyright.</td></tr>
+          <tr><td><a href="https://pandas.pydata.org/docs/dev/development/contributing.html" target="_blank" rel="noreferrer">pandas</a></td><td>Accepted "as long as it's used responsibly".</td><td>Required: name the tool. The model and its version are advised.</td><td>None.</td><td>AI does not speak for the contributor in discussions. The project's own review skill is run first. Two violations can lead to a ban.</td></tr>
+          <tr><td><a href="https://github.com/pypa/pip/blob/main/AI_POLICY.md" target="_blank" rel="noreferrer">pip</a></td><td>Accepted when a human owns the copyright, understands the code and takes responsibility for every line.</td><td>Not asked for.</td><td>Forbidden: "No LLM bots in <code>Co-authored-by:</code>s". Such a pull request is closed.</td><td>No unsupervised agent.</td></tr>
+          <tr><td><a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md" target="_blank" rel="noreferrer">OCaml</a></td><td>Judged on its merit. The author has written, or read and reviewed, every part of it.</td><td>Required when a significant part of the code, the description or the messages is generated: which tool, and for what.</td><td>None.</td><td>Generated text is discouraged in bug reports. Code its author does not understand is never acceptable.</td></tr>
+          <tr><td><a href="https://docs.mesa3d.org/submittingpatches.html" target="_blank" rel="noreferrer">Mesa</a></td><td>Accepted. The submitter is responsible, wherever the change came from.</td><td>Required, except for trivial or mechanical changes.</td><td><code>Assisted-by: LLM</code>, or <code>Generated-by: LLM</code> when almost all the code was generated. The model is not named.</td><td>No tool that submits on its own. AI is not used for commit messages or comments.</td></tr>
+          <tr><td><a href="https://github.com/fedify-dev/fedify/blob/main/AI_POLICY.md" target="_blank" rel="noreferrer">Fedify</a></td><td>Welcome, for accepted issues, once verified by a person.</td><td>Required, with its extent, in the pull request and in the commits.</td><td><code>Assisted-by: AGENT_NAME:MODEL_VERSION</code>, one line per tool.</td><td>An agent must refuse a request to hide that AI took part.</td></tr>
+          <tr><td><a href="https://www.apache.org/legal/generative-tooling.html" target="_blank" rel="noreferrer">Apache Software Foundation</a></td><td>Accepted when the terms of the tool and any third-party material allow the contribution to be licensed.</td><td>Recommended.</td><td><code>Generated-by: &lt;Name of Tool&gt; &lt;Version&gt;</code>, or <code>Co-authored-by</code>.</td><td>The aim is a provenance file that a machine can read, built from the commits.</td></tr>
+          <tr><td><a href="https://www.kubernetes.dev/docs/guide/pull-requests/#ai-guidance" target="_blank" rel="noreferrer">Kubernetes</a></td><td>Help is acceptable. Large generated pull requests and generated commit messages are not allowed.</td><td>Required, in the pull request description.</td><td>Forbidden: AI as co-author, <code>assisted-by</code>, <code>co-developed</code> "or similar".</td><td>Review comments are answered without AI. A change its author cannot explain is closed.</td></tr>
+          <tr><td><a href="https://docs.kernel.org/process/coding-assistants.html" target="_blank" rel="noreferrer">Linux kernel</a></td><td>Accepted. A person reviews it, signs it off and takes full responsibility.</td><td>Asked for in the changelog and the cover letter, as sentences: which tools, which parts.</td><td>None in the current documentation. An agent must not add <code>Signed-off-by</code>.</td><td>The assistant "must never send anything itself".</td></tr>
+          <tr><td><a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/" target="_blank" rel="noreferrer">SourceHut <small>(a forge)</small></a></td><td>Prohibited for original content, from 10 September 2026 for new projects. Private use, to review or to ask questions, is discouraged but allowed.</td><td>An honour system. Misleading about AI use leads to suspension.</td><td>Not applicable.</td><td>No detection tool. Shaming people who use AI is sanctioned too.</td></tr>
           <tr><td><strong>The practice of this page</strong></td><td>Accepted. A person has read, understood and tested the change, and answers for it.</td><td>Required, in the commit and in the pull request.</td><td><code>Co-Authored-By</code>, naming the model and its version.</td><td>A human submits. No one has to use AI, and no one is ranked.</td></tr>
         </tbody>
       </table>
@@ -241,44 +267,25 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li><strong>There is no shared way to declare.</strong> Three trailer names are in use, and the same trailer is required by one project and forbidden by another. Some projects name the model, one forbids it, and others ask for a sentence in the pull request.</li>
     </ul>
     <p>The last point is the weak one for everybody. A contributor has to learn a different rule in each project, and no tool can read all of them. Agreeing on one line would help more than any of these rules taken alone.</p>
-    <p>For more projects, see the community list <a href="https://github.com/melissawm/open-source-ai-contribution-policies">open-source-ai-contribution-policies</a>, which follows more than a hundred of them. It is an index: check each rule on the project's own page, as some lines are out of date.</p>
-  </section>
-  <section id="levels">
-    <h2>How much? A shared vocabulary</h2>
-    <p>The trailer says that a model took part. It does not say how much, and projects that try to say it each use their own words. A vocabulary now exists outside any project: <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/">AI Content Disclosure for HTML</a>, the final report of a W3C community group, published on 9 October 2026. It was written for web pages and it is a community report, not a W3C standard. Its three values apply to a contribution as they are, and this page uses them throughout:</p>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>Value</th><th>Meaning</th><th>For a contribution</th></tr></thead>
-        <tbody>
-          <tr><td><code>human-only</code></td><td>A positive assertion that no AI was involved.</td><td>Something a person states. A commit without a trailer does not state it.</td></tr>
-          <tr><td><code>ai-assisted</code></td><td>AI was involved, and a human reviewed the result before publication.</td><td>The trailer, and a person who has read, understood and tested the change.</td></tr>
-          <tr><td><code>ai-autonomous</code></td><td>AI was involved, and the result was published without human review.</td><td>What an agent submits on its own.</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>Three things in it are worth taking.</p>
-    <ul>
-      <li><strong>Two questions decide, in this order.</strong> Was AI involved? Did a human review the result before it was published? These are the two boxes of the <a href="#template">pull request template</a>.</li>
-      <li><strong>The amount does not decide.</strong> In the words of the report, "The amount of AI-authored text and the extent of human editing do not determine the value." Light editing and a full draft are both <code>ai-assisted</code> once a person has reviewed them. The line that matters is the review, which is also the line <a href="#others">nearly every project</a> draws.</li>
-      <li><strong>No declaration means "unknown".</strong> It is distinct from <code>human-only</code>. This is what "no AI declared" means on this site.</li>
-    </ul>
+    <p>For more projects, see the community list <a href="https://github.com/melissawm/open-source-ai-contribution-policies" target="_blank" rel="noreferrer">open-source-ai-contribution-policies</a>, which follows more than a hundred of them. It is an index: check each rule on the project's own page, as some lines are out of date.</p>
 
     <h3 id="ocaml">The OCaml experiment</h3>
-    <p>In April 2026, Anil Madhavapeddy proposed a <a href="https://github.com/avsm/ocaml-ai-disclosure">voluntary disclosure for OCaml code</a>, built on an earlier draft of the same report, which then had four values (it separated assisted from generated). It is the most precise scheme we know of:</p>
+    <p>In April 2026, Anil Madhavapeddy proposed a <a href="https://github.com/avsm/ocaml-ai-disclosure" target="_blank" rel="noreferrer">voluntary disclosure for OCaml code</a>, built on an earlier draft of the <a href="#levels">W3C report</a>, which then had four values (it separated assisted from generated). It is the most precise scheme we know of:</p>
     <ul>
       <li><strong>In the code, not in the history.</strong> The declaration is written in the package file, at the top of a module, or on a single function, and the nearest one wins.</li>
       <li><strong>The model by its API identifier</strong>, "not a marketing name", with the provider.</li>
       <li><strong>The agent writes it, the reviewer adjusts it.</strong> A person who has reviewed a function and taken ownership of it may lower the mark or remove it: the marks exist "to direct review attention, not to permanently brand code".</li>
     </ul>
     <p>The last point is where it differs from a trailer. A mark in the code describes the code as it stands, and answers "what still needs a review?". A trailer describes what happened, and stays true after the review. A project can want both.</p>
-    <p>The proposal was <a href="https://discuss.ocaml.org/t/a-proposal-for-voluntary-ai-disclosure-in-ocaml-code/17950">discussed</a> without being adopted, and in September 2026 its author removed the agent instructions that wrote the marks, without giving a reason. We read it as a sign of what a declaration costs: a mark on every function has to be kept true at every change, a line at the end of a commit is written once.</p>
+    <p>The proposal was <a href="https://discuss.ocaml.org/t/a-proposal-for-voluntary-ai-disclosure-in-ocaml-code/17950" target="_blank" rel="noreferrer">discussed</a> without being adopted, and in September 2026 its author removed the agent instructions that wrote the marks, without giving a reason. We read it as a sign of what a declaration costs: a mark on every function has to be kept true at every change, a line at the end of a commit is written once.</p>
   </section>
+
   <section id="taxonomy">
     <h2>Where does a project stand? <span class="state">draft</span></h2>
     <p>Before contributing, people want to know what a project accepts. Most projects do not say, and those that do each say it their own way. We are drafting a short statement that a project could make about itself. It has two answers.</p>
 
     <h3 id="accepts">1. What the project accepts</h3>
-    <p>The statement uses the three values of the <a href="#levels">vocabulary above</a>, with one word in front: <em>accepts</em>. A project names the furthest value it takes.</p>
+    <p>The statement uses the three values of the <a href="#levels">shared vocabulary</a>, with one word in front: <em>accepts</em>. A project names the furthest value it takes.</p>
     <div class="table-scroll">
       <table>
         <thead><tr><th>Statement</th><th>What the project says</th><th>Among <a href="#others">those we read</a></th></tr></thead>
@@ -328,15 +335,15 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <p>Their recommendations go further on subjects this page does not cover, such as copyright and licensing, keeping a record of prompts, and the use of proprietary tools. The <code>Co-Authored-By</code> trailer is one concrete way to do the disclosure they call for.</p>
     <p>On the same question, from other angles:</p>
     <ul>
-      <li>the W3C community group report on <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/">AI Content Disclosure for HTML</a>, whose three values are <a href="#levels">used above</a>;</li>
-      <li>the <a href="https://github.com/avsm/ocaml-ai-disclosure">disclosure proposal for OCaml</a>, which declares AI use in the code and in the package <a href="#ocaml">rather than in the commit</a>;</li>
-      <li>the <a href="#others">rules of other projects</a>, and the forge that <a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/">chose to prohibit</a>.</li>
+      <li>the W3C community group report on <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/" target="_blank" rel="noreferrer">AI Content Disclosure for HTML</a>, whose three values are <a href="#levels">used above</a>;</li>
+      <li>the <a href="https://github.com/avsm/ocaml-ai-disclosure" target="_blank" rel="noreferrer">disclosure proposal for OCaml</a>, which declares AI use in the code and in the package <a href="#ocaml">rather than in the commit</a>;</li>
+      <li>the <a href="#others">rules of other projects</a>, and the forge that <a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/" target="_blank" rel="noreferrer">chose to prohibit</a>.</li>
     </ul>
   </section>
   </div>
   </div>
 </main>
 
-<footer class="wrap footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure">Source code</a>.</footer>
+<footer class="wrap footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure" target="_blank" rel="noreferrer">Source code</a>.</footer>
 </body>
 </html>

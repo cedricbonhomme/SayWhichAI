@@ -2,7 +2,7 @@
 
 AI transparency for Open Source projects.
 
-A [charter](AI_CHARTER.md) (version 1.1) for projects that want to be open about the use of AI tools
+A [charter](AI_CHARTER.md) (version 1.2) for projects that want to be open about the use of AI tools
 in their development, and a tool that publishes what a project's contributors
 declare: it reads the commits and pull requests of a project and builds a static
 page of charts.
@@ -11,7 +11,7 @@ The first project followed is
 [Vulnerability-Lookup](https://github.com/vulnerability-lookup/vulnerability-lookup).
 
 The aim is transparency, not judgement. The project takes no side on the use of AI
-tools; it asks that the use be open, ethical and professional. The page describes what
+tools; it asks that the use be open. The page describes what
 is declared without ranking anyone.
 
 ## What the page shows

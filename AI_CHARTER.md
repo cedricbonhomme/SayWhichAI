@@ -1,16 +1,17 @@
 # AI transparency charter
 
-Version 1.1, 18 November 2026
+Version 1.2, 19 November 2026
 
 A short charter that a software project can adopt to say how AI tools are used in
 its development. It was first written for
 [Vulnerability-Lookup](https://github.com/vulnerability-lookup/vulnerability-lookup).
 
 The charter is about **transparency, not judgement**, and it is meant for
-everybody. Using an AI tool is welcome, whatever your experience, including when
-you could not have written the change without it. Not using one is just as
-welcome, whatever your reasons. What the project asks is that AI use is said, and
-that a person stands behind every contribution.
+everybody. It takes no side on the use of AI tools. A project that adopts it
+accepts contributions made with one, whatever your experience, including when you
+could not have written the change without it, and contributions made without one,
+whatever your reasons. What the project asks is that AI use is said, and that a
+person stands behind every contribution.
 
 ## The commitments
 
@@ -79,7 +80,7 @@ The first is a fact about the change. The second is the author's own statement,
 and only they tick it.
 
 A project that adopts the charter says which version, for example in its
-`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.1."
+`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.2."
 
 ## What is published
 
@@ -100,5 +101,6 @@ commitment raises the first, and projects choose when to move to it.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.2 | 19 November 2026 | Wording of the introduction: the charter takes no side on the use of AI tools, and no longer calls it "welcome". The commitments are unchanged |
 | 1.1 | 18 November 2026 | Added "No one has to use AI", after the first two recommendations of the Software Freedom Conservancy on LLM-backed generative AI |
 | 1.0 | 18 November 2026 | First version, from the rules of Vulnerability-Lookup |
