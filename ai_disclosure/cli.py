@@ -19,6 +19,7 @@ from .github import GitHub, GitHubError, find_token
 from .gitlog import mirror, read_changes, read_commits
 from .gource import build_story, render, write_story
 from .report import build_report
+from .stats import build_stats
 
 DEFAULT_SITE = Path("site.toml")
 SITE_HELP = "the file listing the projects to publish (default: site.toml if it exists, else every project)"
@@ -59,6 +60,7 @@ def build(args: argparse.Namespace) -> int:
             (output / entry.name).write_bytes(entry.read_bytes())
 
     index = []
+    reports = []
     for project in projects:
         _log(f"{project.name}: reading the history of {project.repository}")
         repository = Path(local[project.slug]) if project.slug in local else mirror(project, args.cache)
@@ -83,6 +85,7 @@ def build(args: argparse.Namespace) -> int:
                 pulls = github.pull_requests(project.repository, since)
 
         report = build_report(project, commits, logins, pulls, lines)
+        reports.append(report)
         # A video rendered earlier by "ai-disclosure video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"
         if video.exists():
@@ -111,6 +114,9 @@ def build(args: argparse.Namespace) -> int:
         )
 
     (data / "index.json").write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+    (data / "stats.json").write_text(
+        json.dumps(build_stats(reports), ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
+    )
     _log(f"Site written to {output}/")
     return 0
 

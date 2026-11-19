@@ -195,7 +195,7 @@
 
   // The same chart for commits and for lines: what is counted comes from the configuration.
   function timeline(report, palette, config, after) {
-    const series = [...report.families.map((family) => family.id), NONE];
+    const series = [...report.families.map((family) => family.id), ...(config.none === false ? [] : [NONE])];
     const months = report.months.map((month) => {
       const counted = config.pick(month);
       const values = { ...counted.families, [NONE]: counted.none };
@@ -276,7 +276,7 @@
         bands.push(hit);
       });
 
-      const since = report.project.trailer_since;
+      const since = report.project && report.project.trailer_since;
       const start = months.findIndex((month) => month.key === (since || "").slice(0, 7));
       if (start >= 0) {
         const days = new Date(Date.UTC(Number(since.slice(0, 4)), Number(since.slice(5, 7)), 0)).getUTCDate();
@@ -552,20 +552,202 @@
     root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette, COMMITS), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), reading(report)].filter(Boolean));
-    // The sections did not exist when the browser looked for the anchor of the address.
-    const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    if (target) {
-      // The page keeps changing height for a moment (the chart is drawn, the font
-      // arrives): follow it, until the reader starts to scroll.
-      const follow = new ResizeObserver(() => target.scrollIntoView({ behavior: "instant" }));
-      const stop = () => follow.disconnect();
-      ["wheel", "touchstart", "keydown", "mousedown"].forEach((kind) =>
-        addEventListener(kind, stop, { once: true, passive: true }));
-      setTimeout(stop, 5000);
-      follow.observe(root);
-    }
+    anchor();
     document.getElementById("footer").textContent =
       `Built on ${day(report.generated_at.slice(0, 10))} from the public history of ${report.project.repository}.`;
+  }
+
+  // The sections did not exist when the browser looked for the anchor of the address.
+  function anchor() {
+    const target = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (!target) return;
+    // The page keeps changing height for a moment (the chart is drawn, the font
+    // arrives): follow it, until the reader starts to scroll.
+    const follow = new ResizeObserver(() => target.scrollIntoView({ behavior: "instant" }));
+    const stop = () => follow.disconnect();
+    ["wheel", "touchstart", "keydown", "mousedown"].forEach((kind) =>
+      addEventListener(kind, stop, { once: true, passive: true }));
+    setTimeout(stop, 5000);
+    follow.observe(root);
+  }
+
+  /* ---------- Statistics of all the projects ---------- */
+
+  const NAMED = {
+    id: "time", title: "Models named, month by month", unit: "Commits", total: "commits naming a model", none: false,
+    aria: "Commits naming a model per month, by model family, all projects together. The table below gives the same figures.",
+    sub: "Commits naming a model, all projects together, under the family of the model. A commit that names several models is counted once, under the first one. “Share” shows one family taking over from another.",
+    pick: (month) => month,
+  };
+
+  function period(first, last) {
+    const from = first.slice(0, 7);
+    const to = last.slice(0, 7);
+    return from === to ? day(from) : `${day(from)} – ${day(to)}`;
+  }
+
+  function statsIntro(stats) {
+    return el("div", { class: "intro" },
+      el("h1", { text: "Statistics" }),
+      el("p", { text: `Which AI models contributors name in their commits, in the ${plural(stats.projects, "project")} followed here, all together. ` +
+        "No project and no person is named on this page: it is not a ranking." }),
+      el("div", { class: "links" },
+        el("a", { href: "#models", text: "Models named the most" }),
+        el("a", { href: "#time", text: "Month by month" }),
+        el("a", { href: "#lifetimes", text: "Life of a version" }),
+        el("a", { href: "#vendors", text: "Vendors" }),
+        el("a", { href: "#reading", text: "How to read these figures" })));
+  }
+
+  function statsTiles(stats) {
+    const totals = stats.totals;
+    const tile = (label, value, note) => el("div", { class: "tile" },
+      el("div", { class: "label", text: label }),
+      el("div", { class: "value", text: value }),
+      el("div", { class: "note", text: note }));
+    return el("div", { class: "tiles" },
+      tile("Commits naming a model", number.format(totals.commits),
+        totals.first ? `the first one on ${day(totals.first)}` : "none yet"),
+      totals.lines === null ? null : tile("Lines changed in those commits", compact.format(totals.lines),
+        "lines of commits that name a model, not lines written by a model" +
+        (totals.lines_projects < stats.projects ? ` · known for ${totals.lines_projects} of ${plural(stats.projects, "project")}` : "")),
+      tile("People who named a model", number.format(totals.people), "at least once, in a commit of theirs"),
+      tile("Commits naming several models", number.format(totals.several),
+        `${percent(totals.several, totals.commits)} of the commits naming a model`),
+      tile("Models named", number.format(totals.models),
+        `${plural(totals.families, "family", "families")} from ${plural(totals.vendors, "vendor")}`));
+  }
+
+  // Ranked bars: [{ name, small, colour, value, figureSmall, title }].
+  function bars(rows) {
+    const peak = Math.max(1, ...rows.map((row) => row.value));
+    return el("div", { class: "bars" }, rows.flatMap((row) => [
+      el("div", { class: "name" }, row.colour ? swatch(row.colour) : null,
+        el("span", {}, row.name, row.small ? el("small", { text: row.small }) : null)),
+      el("div", { class: "figure" }, number.format(row.value), row.figureSmall ? el("small", { text: " · " + row.figureSmall }) : null),
+      el("div", { class: "track", title: row.title },
+        el("div", { class: "bar", style: `width:${(100 * row.value) / peak}%;background:${row.colour || "var(--ink-2)"}` })),
+    ]));
+  }
+
+  function mostNamed(stats, palette) {
+    const views = {
+      family: () => stats.families.map((family) => ({
+        name: family.id, small: family.vendor, colour: palette.get(family.id), value: family.commits,
+        figureSmall: percent(family.commits, stats.totals.commits),
+        title: `${family.id}: ${plural(family.commits, "commit")}`,
+      })),
+      version: () => stats.models.map((model) => ({
+        name: model.label, small: `${model.vendor} · ${period(model.first, model.last)}`,
+        colour: palette.get(model.family), value: model.commits,
+        title: `${model.label}: ${plural(model.commits, "commit")}` +
+          (stats.totals.lines === null ? "" : `, ${plural(model.lines, "line")} changed`),
+      })),
+    };
+    const notes = {
+      family: "Each commit is counted once, under the family of the first model it names.",
+      version: "A commit that names several models counts for each of them, so this list adds up to a little more than the commits.",
+    };
+    let view = "family";
+    const holder = el("div");
+    const note = el("p", { class: "sub after" });
+    const options = [["family", "Families"], ["version", "Versions"]];
+    const fill = () => {
+      holder.replaceChildren(bars(views[view]()));
+      note.textContent = notes[view];
+    };
+    const buttons = options.map(([value, label]) =>
+      el("button", {
+        type: "button", "aria-pressed": String(value === view), text: label,
+        onclick: () => {
+          view = value;
+          buttons.forEach((button, index) => button.setAttribute("aria-pressed", String(options[index][0] === view)));
+          fill();
+        },
+      }));
+    fill();
+    return el("section", { id: "models" },
+      el("h2", { text: "Models named the most" }),
+      el("p", { class: "sub", text: "Commits naming each model, all projects together. Spellings of one model are counted together." }),
+      el("div", { class: "card" },
+        el("div", { class: "filters" }, el("div", { class: "toggle", role: "group", "aria-label": "Grouping" }, buttons)),
+        holder),
+      note);
+  }
+
+  function lifetimes(stats, palette) {
+    const time = (iso) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10)) || 1);
+    const models = [...stats.models].sort((a, b) => a.first.localeCompare(b.first) || a.label.localeCompare(b.label));
+    const start = time(stats.totals.first.slice(0, 7));
+    const end = Math.max(time(stats.totals.last), start + 86400000);
+    const place = (moment) => (100 * (moment - start)) / (end - start);
+
+    // A mark at each January, or at each quarter when the history is short.
+    const stride = end - start > 2 * 365 * 86400000 ? 12 : 3;
+    let marks = [];
+    for (let year = Number(stats.totals.first.slice(0, 4)), month = 0; Date.UTC(year, month, 1) <= end; month += stride) {
+      const moment = Date.UTC(year, month, 1);
+      if (moment >= start) marks.push({ at: place(moment), label: stride === 12 ? String(year + month / 12) : day(new Date(moment).toISOString().slice(0, 7)) });
+    }
+    while (marks.length > 6) marks = marks.filter((_, index) => index % 2 === 0);
+    const ruler = () => marks.map((mark) => el("span", { class: "mark", style: `left:${mark.at}%` }));
+
+    const rows = models.flatMap((model) => {
+      const left = place(time(model.first));
+      const width = Math.max(0, place(time(model.last)) - left);
+      return [
+        el("div", { class: "name" }, swatch(palette.get(model.family)), el("span", { text: model.label })),
+        el("div", { class: "figure" }, el("small", { text: period(model.first, model.last) })),
+        el("div", { class: "track span", title: `${model.label}: named from ${day(model.first)} to ${day(model.last)}, in ${plural(model.commits, "commit")}` },
+          ruler(),
+          el("div", { class: "bar", style: `left:${left}%;width:${width}%;background:${palette.get(model.family)}` })),
+      ];
+    });
+    const scale = el("div", { class: "track scale", "aria-hidden": "true" },
+      marks.map((mark) => el("span", { style: `left:${mark.at}%`, text: mark.label })));
+
+    return el("section", { id: "lifetimes" },
+      el("h2", { text: "Life of a model version" }),
+      el("p", { class: "sub", text: "From the first to the last commit naming each version, all projects together. A bar says when a version was named, not how often." }),
+      el("div", { class: "card" }, rows.length
+        ? el("div", { class: "bars spans" }, rows, scale)
+        : el("p", { class: "empty", text: "No commit names a model yet." })));
+  }
+
+  function vendors(stats) {
+    return el("section", { id: "vendors" },
+      el("h2", { text: "Vendors" }),
+      el("p", { class: "sub", text: "The same commits, under the vendor of the first model each one names." }),
+      el("div", { class: "card" }, bars(stats.vendors.map((vendor) => ({
+        name: vendor.name, small: plural(vendor.models, "model") + " named", value: vendor.commits,
+        figureSmall: percent(vendor.commits, stats.totals.commits),
+        title: `${vendor.name}: ${plural(vendor.commits, "commit")}`,
+      })))));
+  }
+
+  function statsReading(stats) {
+    return el("section", { id: "reading" },
+      el("h2", { text: "How to read these figures" }),
+      el("ul", { class: "notes" },
+        el("li", { text: "These figures count what is declared: a commit “names a model” when a Co-Authored-By trailer of its message names an AI model, or when an AI agent is its author. They are a lower bound. Use that is not declared cannot be seen." }),
+        el("li", { text: `They say which models are named in the ${plural(stats.projects, "project")} followed here, not which models are the most used in general: the projects are few, and several are written by the same people.` }),
+        el("li", { text: "Nothing is said here of the commits that name no model, nor of their share: the projects are of very different ages, and adding them up would mean nothing. Each project page gives its own figures." }),
+        stats.totals.lines === null ? null : el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line." }),
+        el("li", { text: "A person who contributes to several projects is counted once, by GitHub account, or by name when no account is known. Commits by dependency-update bots are left out." }),
+        el("li", { text: "This page takes no side on the use of AI, and no side between models. It exists because the figures are interesting, not to rank anyone." })));
+  }
+
+  function renderStats(stats) {
+    if (!stats.totals.commits) {
+      root.replaceChildren(statsIntro(stats), el("p", { class: "empty", text: "No commit names a model yet." }));
+      return;
+    }
+    const palette = colours(stats);
+    root.replaceChildren(statsIntro(stats), statsTiles(stats), mostNamed(stats, palette),
+      timeline(stats, palette, NAMED), lifetimes(stats, palette), vendors(stats), statsReading(stats));
+    anchor();
+    document.getElementById("footer").textContent =
+      `Built on ${day(stats.generated_at.slice(0, 10))} from the public history of ${plural(stats.projects, "project")}.`;
   }
 
   async function json(path) {
@@ -605,6 +787,14 @@
   }
 
   async function start() {
+    if (root.dataset.page === "stats") {
+      try {
+        renderStats(await json("data/stats.json"));
+      } catch (error) {
+        root.replaceChildren(el("p", { class: "error", text: "The statistics could not be loaded. " + error.message }));
+      }
+      return;
+    }
     let index;
     try {
       index = await json("data/index.json");

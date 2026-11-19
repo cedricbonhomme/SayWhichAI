@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistics · AI transparency for Open Source projects</title>
+<meta name="description" content="Which AI models contributors name in their commits, all the projects followed here together.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <p class="brand"><a href="./">AI transparency for Open Source projects</a></p>
+    <nav class="nav" aria-label="Site">
+      <a href="./">Projects</a>
+      <a href="stats.html" aria-current="page">Statistics</a>
+      <a href="good-practice.html">Good practice</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="report" data-page="stats" aria-live="polite">
+  <p class="loading" id="status">Loading the statistics…</p>
+</main>
+
+<footer class="wrap footer" id="footer"></footer>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

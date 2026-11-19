@@ -146,6 +146,7 @@ def build_report(
     family_vendor: dict[str, str] = {}
     weights: list[tuple[int, Commit, str]] = []  # lines changed, commit, family named
     unknown = 0  # commits GitHub gave no figure for
+    several = 0  # commits naming more than one model
 
     for commit in commits:
         credit = identities.credit(
@@ -186,6 +187,7 @@ def build_report(
         person.since_ai_lines += changed * in_policy
         # A commit that names two models counts once in the totals, under the first one.
         primary = credit.models[0].family
+        several += len(credit.models) > 1
         month["families"][primary] += 1
         month["lines_families"][primary] += changed
         family_commits[primary] += 1
@@ -285,6 +287,21 @@ def build_report(
             _person(person, fold)
             for person in _ranked([person for person in people.values() if person.kind != "human"])
         ],
+        # The same counts before the smaller families are folded into one: what the
+        # statistics of all the projects are added up from.
+        "named": {
+            "families": {
+                family: {
+                    "vendor": family_vendor.get(family, ""),
+                    "models": sorted(model.label for model in model_stats if model.family == family),
+                }
+                for family in sorted(family_vendor)
+            },
+            "months": {
+                month: dict(values["families"]) for month, values in sorted(months.items()) if values["families"]
+            },
+            "several": several,
+        },
         "pulls": None,
         "lines": None,
     }

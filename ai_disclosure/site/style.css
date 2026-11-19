@@ -258,3 +258,12 @@ section > .sub.after { margin: 12px 0 0; }
 
 .prose blockquote { margin: 12px 0; padding: 2px 0 2px 16px; border-left: 3px solid var(--axis); color: var(--ink); font-size: 17px; }
 .prose blockquote p { margin: 0; }
+
+/* ---------- Statistics: when each model version was named ---------- */
+.bars .track.span, .bars .track.scale { position: relative; }
+.bars .track.span .bar { position: absolute; top: 0; border-radius: 4px; min-width: 6px; }
+.bars .track.span .mark { position: absolute; top: -6px; bottom: -6px; width: 1px; background: var(--grid); }
+.bars .track.scale { height: 16px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bars .track.scale span { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); }
+.bars .track.scale span:first-child { transform: none; }
+.bars.spans .figure small { font-size: 12px; }
