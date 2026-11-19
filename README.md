@@ -10,9 +10,9 @@ page of charts.
 The first project followed is
 [Vulnerability-Lookup](https://github.com/vulnerability-lookup/vulnerability-lookup).
 
-The aim is transparency, not judgement. We are not against the use of AI tools, as
-long as it is open, ethical and professional, and the page describes what is declared
-without ranking anyone.
+The aim is transparency, not judgement. The project takes no side on the use of AI
+tools; it asks that the use be open, ethical and professional. The page describes what
+is declared without ranking anyone.
 
 ## What the page shows
 

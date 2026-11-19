@@ -21,7 +21,7 @@
 <main class="wrap prose">
   <div class="intro">
     <h1>Say which AI wrote it</h1>
-    <p>AI tools now write a large part of the code that reaches Open Source projects. We are not against it, as long as it is done openly, ethically and professionally. What a project needs first is to know it: one line at the end of each commit, and a person who answers for the change.</p>
+    <p>AI tools now write a large part of the code that reaches Open Source projects. Whether to accept it is each project's choice. Where it is accepted, it should be done openly and with trust. What a project needs first is to know it: one line at the end of each commit, and a person who answers for the change.</p>
   </div>
 
   <div class="with-toc">
@@ -99,7 +99,7 @@ The extra classes went to the form element itself, which gave the
 whole form the look of an input.
 
 Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
-    <p>It is an existing git convention, the one already used for pair programming. It travels with the commit through forks, mirrors and rebases, it is shown by GitHub and GitLab, and any script can read it. Nothing has to be installed.</p>
+    <p>It is an existing git convention, the one already used for pair programming. It travels with the commit through forks and mirrors, it is shown by GitHub and GitLab, and any script can read it. Nothing has to be installed.</p>
     <ul>
       <li><strong>Name the model and the version</strong>, not only the tool: "Claude Opus 5.5" rather than "Claude" or "an AI assistant". The version is what makes the history useful later. The identifier that the provider's API uses, when the tool knows it, is less ambiguous still than the name shown to people.</li>
       <li><strong>One trailer per commit</strong>, on every commit the model wrote, not once per pull request.</li>
@@ -179,12 +179,12 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <h2>The limits, said plainly</h2>
     <p>The trailer and the four files are the best we have today. They are also a weak system, and it is better to say so.</p>
     <ul>
-      <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a rebase or a squash can drop it. Nothing signs it and nothing verifies it.</li>
+      <li><strong>The trailer is a line of text.</strong> Anyone can write it, forget it or remove it, and a squash or a rewritten commit message can drop it. Nothing signs it and nothing verifies it.</li>
       <li><strong>It says yes or no, not how much.</strong> A model that wrote a whole feature and a model that fixed one line leave the same trailer. Counting the lines of the commit tells how large the commit is, not which part of it the model wrote. The <a href="#levels">shared vocabulary</a> does not measure it either: it asks whether a person reviewed the change.</li>
       <li><strong>It understates the part of the model.</strong> Git still lists a human as the author of the commit, with the AI as a co-author. In practice the model often does much of the work, and not only the code: it proposes designs, suggests features and brings ideas nobody had asked for. As we wrote when <a href="https://www.vulnerability-lookup.org/2026/10/16/vulnerability-lookup-in-under-3-minutes/">looking back at the history of Vulnerability-Lookup</a>: "Our tools for giving credit haven't caught up with this reality yet."</li>
       <li><strong>Some disclosure is out of its reach.</strong> Not every project puts the declaration in the commit. Kubernetes asks for it in the description of the pull request, and the Linux kernel in the changelog, as plain sentences. A tool that reads trailers finds nothing there: on this site, such a project would show as "no AI declared" while its contributors declare.</li>
       <li><strong>The rules are requests.</strong> <code>AGENTS.md</code> and <code>CONTRIBUTING.md</code> ask; they cannot oblige. An agent may not read the file or may not follow it, and the person behind the agent is free to remove the trailer, or to tick a box without having read the change. A project can check that the boxes and the trailers agree. It cannot check that they are true.</li>
-      <li><strong>A ban rests on the same good faith.</strong> SourceHut, which no longer accepts content written with an LLM, states that it will not deploy "any automated tools for detecting AI use". Forbidding and declaring meet the same wall: only the contributor knows.</li>
+      <li><strong>A ban rests on the same good faith.</strong> SourceHut, which no longer accepts original content written with an LLM, states that it will not deploy "any automated tools for detecting AI use". Forbidding and declaring meet the same wall: only the contributor knows.</li>
     </ul>
     <p>So the whole practice rests on good faith, and this has two consequences. The figures of this site are a lower bound: they count what was declared, never more. And declaring must cost nothing, because people only say what they are not blamed for.</p>
     <p>Stronger systems may come, where a tool attests what it produced and the forge records it. Until then, a plain line that people agree to write is far better than silence.</p>
@@ -206,7 +206,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
       <li>Add the rules to <code>CONTRIBUTING.md</code>, with the date they apply from.</li>
       <li>Add <code>AGENTS.md</code>, and make <code>CLAUDE.md</code> and other tool files import it.</li>
       <li>Add the two boxes to the pull request template.</li>
-      <li>Say what the project accepts, in the <a href="#taxonomy">words below</a>: for this practice, "accepts <code>ai-assisted</code>".</li>
+      <li>Say what the project accepts, in the <a href="#taxonomy">words below</a>, which are still a draft: for this practice, "accepts <code>ai-assisted</code>".</li>
       <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
     </ol>
     <p>The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md">AI transparency charter</a>.</p>
@@ -245,7 +245,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
   </section>
   <section id="levels">
     <h2>How much? A shared vocabulary</h2>
-    <p>The trailer says that a model took part. It does not say how much, and projects that try to say it each use their own words. A vocabulary now exists outside any project: <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/">AI Content Disclosure for HTML</a>, the final report of a W3C community group, published on 9 October 2026. It was written for web pages and it is a community report, not a W3C standard. Its three values apply to a contribution as they are, and this page uses them from here on:</p>
+    <p>The trailer says that a model took part. It does not say how much, and projects that try to say it each use their own words. A vocabulary now exists outside any project: <a href="https://www.w3.org/community/reports/ai-content-disclosure/CG-FINAL-ai-content-disclosure-20261009/">AI Content Disclosure for HTML</a>, the final report of a W3C community group, published on 9 October 2026. It was written for web pages and it is a community report, not a W3C standard. Its three values apply to a contribution as they are, and this page uses them throughout:</p>
     <div class="table-scroll">
       <table>
         <thead><tr><th>Value</th><th>Meaning</th><th>For a contribution</th></tr></thead>
@@ -286,7 +286,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
           <tr><td>accepts <code>human-only</code></td><td>Only contributions written without AI.</td><td>SourceHut, for the projects it hosts.</td></tr>
           <tr><td>accepts <code>ai-assisted</code></td><td>AI may take part, lightly or largely, when a person has read, understood and tested the change, and answers for it.</td><td>CPython, NumPy, pandas, pip, OCaml, Mesa, Fedify, the Apache Software Foundation, Kubernetes, the Linux kernel.</td></tr>
           <tr><td>accepts <code>ai-autonomous</code></td><td>Also contributions that no person has reviewed, for example from an agent the project runs or invites.</td><td>None.</td></tr>
-          <tr><td>unspecified</td><td>The project states nothing. This is not a position, and it is the most common case today.</td><td>Most of the <a href="./">projects followed here</a>, as far as we could find.</td></tr>
+          <tr><td>unspecified</td><td>The project states nothing. This is not a position, and it is the most common case today.</td><td>Several of the <a href="./">projects followed here</a>, as far as we could find.</td></tr>
         </tbody>
       </table>
     </div>
@@ -304,7 +304,7 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
     <h3 id="taxonomy-notes">Notes on the draft</h3>
     <ul>
       <li><strong>The statement is what a project says</strong>, in its own files. The charts of this site show what its commits declare. The two can differ, and seeing both is the point.</li>
-      <li><strong>No statement is the right one.</strong> A project that refuses AI and a project that welcomes it both help contributors by saying so.</li>
+      <li><strong>No statement is the right one.</strong> A project that refuses AI and a project that accepts it both help contributors by saying so.</li>
       <li><strong>Choosing one is the project's freedom.</strong> The freedoms of free software protect the people who run, study, change and share a program. They do not say how a contribution has to be made, and they give no contributor a right to have their way of working accepted. A project that accepts <code>human-only</code> and a project that accepts <code>ai-assisted</code> use the same freedom: to decide what they take. What a contributor keeps, in every case, is the freedom to fork.</li>
       <li><strong>The values are the W3C group's, the statements are ours.</strong> None of the projects in the last column describes itself this way. Placing real projects was the test of the draft, and it changed it.</li>
       <li><strong>Nothing says "largely generated".</strong> An earlier draft of ours had a label for it. No project we read draws that line as a rule of acceptance, and the W3C report dropped it too: what counts is whether a person reviewed the change, not how much of it a model wrote. A project that wants to say more can do it in the declaration, as Mesa does with two trailers.</li>
