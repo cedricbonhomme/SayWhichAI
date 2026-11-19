@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 from .config import Checkbox, Project
 from .gitlog import Commit
-from .models import Model, co_authors, identify
+from .models import TOOLS, Model, co_authors, identify
 
 NOREPLY_RE = re.compile(r"^(?:\d+\+)?(?P<login>[^@]+)@users\.noreply\.github\.com$", re.I)
 CHECKBOX_RE = re.compile(r"^\s*[-*+]\s*\[(?P<mark>[ xX])\]\s*(?P<text>.*)$", re.M)
@@ -217,12 +217,17 @@ def build_report(
         return dict(result)
 
     families = [
-        {"id": family, "vendor": family_vendor.get(family, ""), "commits": family_commits[family]}
+        {
+            "id": family,
+            "vendor": family_vendor.get(family, ""),
+            "commits": family_commits[family],
+            "tool": family in TOOLS,
+        }
         for family in kept
     ]
     if folded:
         families.append(
-            {"id": OTHER, "vendor": "", "commits": sum(family_commits[family] for family in folded)}
+            {"id": OTHER, "vendor": "", "commits": sum(family_commits[family] for family in folded), "tool": False}
         )
 
     humans = [person for person in people.values() if person.kind == "human"]
@@ -248,7 +253,9 @@ def build_report(
             "since_ai_commits": sum(person.since_ai_commits for person in humans),
             "humans": len(humans),
             "humans_with_ai": sum(1 for person in humans if person.ai_commits),
-            "models": len(model_stats),
+            # A tool that does not say which model it runs on is not counted as a model.
+            "models": sum(1 for model in model_stats if not model.tool),
+            "tools": sum(1 for model in model_stats if model.tool),
             "first": commits[0].date[:10] if commits else "",
             "last": max((commit.date[:10] for commit in commits), default=""),
         },
@@ -272,6 +279,7 @@ def build_report(
                 "label": model.label,
                 "vendor": model.vendor,
                 "family": OTHER if model.family in folded else model.family,
+                "tool": model.tool,
                 "commits": stats["commits"],
                 "lines": stats["lines"],
                 "first": stats["first"],
@@ -293,6 +301,7 @@ def build_report(
             "families": {
                 family: {
                     "vendor": family_vendor.get(family, ""),
+                    "tool": family in TOOLS,
                     "models": sorted(model.label for model in model_stats if model.family == family),
                 }
                 for family in sorted(family_vendor)

@@ -6,6 +6,8 @@
 
   const SVG = "http://www.w3.org/2000/svg";
   const NONE = "No AI declared";
+  const TOOL = "tool, model not named";
+  const TOOL_NOTE = "Some trailers name a tool and not a model: GitHub Copilot, for instance, works with the models of several vendors and does not say which one. Such a commit declares the use of AI and is counted like the others, but the model behind it is not known. It is shown as “tool, model not named”, under the vendor of the tool.";
   const number = new Intl.NumberFormat("en");
   const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
   const root = document.getElementById("report");
@@ -133,7 +135,7 @@
   function tiles(report) {
     const totals = report.totals;
     const since = report.project.trailer_since;
-    const vendors = new Set(report.models.map((model) => model.vendor)).size;
+    const vendors = new Set(report.models.filter((model) => !model.tool).map((model) => model.vendor)).size;
     const hero = since
       ? {
           label: `Commits declaring an AI model since ${day(since)}`,
@@ -165,7 +167,8 @@
       el("div", { class: "tile" },
         el("div", { class: "label", text: "Models named" }),
         el("div", { class: "value", text: number.format(totals.models) }),
-        el("div", { class: "note", text: `from ${plural(vendors, "vendor")}` })),
+        el("div", { class: "note", text: `from ${plural(vendors, "vendor")}` +
+          (totals.tools ? ` · and ${plural(totals.tools, "tool")} whose model is not named` : "") })),
       report.pulls ? pullTile(report.pulls) : null,
     );
   }
@@ -358,7 +361,7 @@
         (report.lines ? `, ${plural(model.lines, "line")} changed` : "");
       return [
         el("div", { class: "name" }, swatch(palette.get(model.family)),
-          el("span", {}, model.label, el("small", { text: `${model.vendor} · ${period}` }))),
+          el("span", {}, model.label, el("small", { text: `${model.vendor} · ${model.tool ? TOOL + " · " : ""}${period}` }))),
         el("div", { class: "figure" }, number.format(model.commits),
           el("small", { text: model.people ? ` · ${plural(model.people, "person", "people")}` : "" })),
         el("div", { class: "track", title },
@@ -537,6 +540,7 @@
       el("ul", { class: "notes" },
         el("li", { text: "A commit “declares a model” when a Co-Authored-By trailer of its message names an AI model, or when an AI agent is its author. A commit authored by an agent is credited to the person named as its co-author." }),
         el("li", { text: "“No AI declared” is exactly that. Nothing here can show that a commit was written without an AI tool." }),
+        report.models.some((model) => model.tool) ? el("li", { text: TOOL_NOTE }) : null,
         report.lines ? el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line, and a generated file or a data file counts like any other." }) : null,
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
@@ -615,7 +619,8 @@
       tile("Commits naming several models", number.format(totals.several),
         `${percent(totals.several, totals.commits)} of the commits naming a model`),
       tile("Models named", number.format(totals.models),
-        `${plural(totals.families, "family", "families")} from ${plural(totals.vendors, "vendor")}`));
+        `${plural(totals.families, "family", "families")} from ${plural(totals.vendors, "vendor")}` +
+        (totals.tools ? ` · and ${plural(totals.tools, "tool")} whose model is not named` : "")));
   }
 
   // Ranked bars: [{ name, small, colour, value, figureSmall, title }].
@@ -633,12 +638,12 @@
   function mostNamed(stats, palette) {
     const views = {
       family: () => stats.families.map((family) => ({
-        name: family.id, small: family.vendor, colour: palette.get(family.id), value: family.commits,
+        name: family.id, small: family.vendor + (family.tool ? " · " + TOOL : ""), colour: palette.get(family.id), value: family.commits,
         figureSmall: percent(family.commits, stats.totals.commits),
         title: `${family.id}: ${plural(family.commits, "commit")}`,
       })),
       version: () => stats.models.map((model) => ({
-        name: model.label, small: `${model.vendor} · ${period(model.first, model.last)}`,
+        name: model.label, small: `${model.vendor} · ${model.tool ? TOOL + " · " : ""}${period(model.first, model.last)}`,
         colour: palette.get(model.family), value: model.commits,
         title: `${model.label}: ${plural(model.commits, "commit")}` +
           (stats.totals.lines === null ? "" : `, ${plural(model.lines, "line")} changed`),
@@ -677,15 +682,17 @@
 
   function lifetimes(stats, palette) {
     const time = (iso) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10)) || 1);
-    const models = [...stats.models].sort((a, b) => a.first.localeCompare(b.first) || a.label.localeCompare(b.label));
-    const start = time(stats.totals.first.slice(0, 7));
+    const models = stats.models.filter((model) => !model.tool).sort((a, b) => a.first.localeCompare(b.first) || a.label.localeCompare(b.label));
+    if (!models.length) return null;
+    const first = models[0].first;
+    const start = time(first.slice(0, 7));
     const end = Math.max(time(stats.totals.last), start + 86400000);
     const place = (moment) => (100 * (moment - start)) / (end - start);
 
     // A mark at each January, or at each quarter when the history is short.
     const stride = end - start > 2 * 365 * 86400000 ? 12 : 3;
     let marks = [];
-    for (let year = Number(stats.totals.first.slice(0, 4)), month = 0; Date.UTC(year, month, 1) <= end; month += stride) {
+    for (let year = Number(first.slice(0, 4)), month = 0; Date.UTC(year, month, 1) <= end; month += stride) {
       const moment = Date.UTC(year, month, 1);
       if (moment >= start) marks.push({ at: place(moment), label: stride === 12 ? String(year + month / 12) : day(new Date(moment).toISOString().slice(0, 7)) });
     }
@@ -708,7 +715,8 @@
 
     return el("section", { id: "lifetimes" },
       el("h2", { text: "Life of a model version" }),
-      el("p", { class: "sub", text: "From the first to the last commit naming each version, all projects together. A bar says when a version was named, not how often." }),
+      el("p", { class: "sub", text: "From the first to the last commit naming each version, all projects together. A bar says when a version was named, not how often." +
+        (stats.totals.tools ? " Tools whose model is not named are left out: nothing says which versions they ran on." : "") }),
       el("div", { class: "card" }, rows.length
         ? el("div", { class: "bars spans" }, rows, scale)
         : el("p", { class: "empty", text: "No commit names a model yet." })));
@@ -719,7 +727,9 @@
       el("h2", { text: "Vendors" }),
       el("p", { class: "sub", text: "The same commits, under the vendor of the first model each one names." }),
       el("div", { class: "card" }, bars(stats.vendors.map((vendor) => ({
-        name: vendor.name, small: plural(vendor.models, "model") + " named", value: vendor.commits,
+        name: vendor.name, value: vendor.commits,
+        small: [vendor.models ? plural(vendor.models, "model") + " named" : "",
+          vendor.tools ? plural(vendor.tools, "tool") + ", model not named" : ""].filter(Boolean).join(" · "),
         figureSmall: percent(vendor.commits, stats.totals.commits),
         title: `${vendor.name}: ${plural(vendor.commits, "commit")}`,
       })))));
@@ -730,6 +740,7 @@
       el("h2", { text: "How to read these figures" }),
       el("ul", { class: "notes" },
         el("li", { text: "These figures count what is declared: a commit “names a model” when a Co-Authored-By trailer of its message names an AI model, or when an AI agent is its author. They are a lower bound. Use that is not declared cannot be seen." }),
+        stats.totals.tools ? el("li", { text: TOOL_NOTE }) : null,
         el("li", { text: `They say which models are named in the ${plural(stats.projects, "project")} followed here, not which models are the most used in general: the projects are few, and several are written by the same people.` }),
         el("li", { text: "Nothing is said here of the commits that name no model, nor of their share: the projects are of very different ages, and adding them up would mean nothing. Each project page gives its own figures." }),
         stats.totals.lines === null ? null : el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line." }),
@@ -743,8 +754,8 @@
       return;
     }
     const palette = colours(stats);
-    root.replaceChildren(statsIntro(stats), statsTiles(stats), mostNamed(stats, palette),
-      timeline(stats, palette, NAMED), lifetimes(stats, palette), vendors(stats), statsReading(stats));
+    root.replaceChildren(...[statsIntro(stats), statsTiles(stats), mostNamed(stats, palette),
+      timeline(stats, palette, NAMED), lifetimes(stats, palette), vendors(stats), statsReading(stats)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =
       `Built on ${day(stats.generated_at.slice(0, 10))} from the public history of ${plural(stats.projects, "project")}.`;

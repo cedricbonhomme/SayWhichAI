@@ -18,6 +18,14 @@ TRAILER_RE = re.compile(
 _VERSION = r"(?P<version>\d+(?:\.\d+)*[a-z]?)"
 
 
+# Tools that run on a model they do not name: an assistant or an agent that works
+# with the models of several vendors, or with one that changes over time. A commit
+# naming one of them declares the use of AI, and leaves the model unsaid.
+TOOLS = frozenset({
+    "GitHub Copilot", "Codex", "ChatGPT", "OpenAI", "Cursor", "Aider", "Amazon Q", "Devin", "Jules", "Windsurf",
+})
+
+
 @dataclass(frozen=True)
 class Model:
     vendor: str
@@ -27,6 +35,11 @@ class Model:
     @property
     def label(self) -> str:
         return f"{self.family} {self.version}".strip()
+
+    @property
+    def tool(self) -> bool:
+        """True when this is a tool whose model is not named, and not a model."""
+        return self.family in TOOLS
 
 
 @dataclass(frozen=True)

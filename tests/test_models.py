@@ -33,6 +33,15 @@ def test_people_are_not_models(name, email):
     assert identify(name, email) is None
 
 
+def test_a_tool_is_not_a_model():
+    # Copilot runs on the models of several vendors and does not say which one.
+    assert identify("copilot-swe-agent[bot]", "198982749+Copilot@users.noreply.github.com").tool
+    assert identify("Codex", "noreply@openai.com").tool
+    # A model named beside the tool is a model.
+    assert not identify("Codex (GPT-6)", "noreply@openai.com").tool
+    assert not identify("Claude Opus 5.5", "noreply@anthropic.com").tool
+
+
 def test_trailers_are_read_whatever_their_case():
     message = (
         "fix: something\n\nA body.\n\n"
