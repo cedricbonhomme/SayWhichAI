@@ -12,6 +12,7 @@ projects = [
     "vulnerability-lookup",
     "vulntrain",
     "ml-gateway",
+    "gcve",
     "misp",
     "ail-framework",
     "flowintel",
