@@ -103,7 +103,7 @@
         <tbody>
           <tr><td>accepts <code>human-only</code></td><td>Only contributions written without AI.</td><td>SourceHut, for the projects it hosts.</td></tr>
           <tr><td>accepts <code>ai-assisted</code></td><td>AI may take part, lightly or largely, when a person has read, understood and tested the change, and answers for it.</td><td>CPython, NumPy, pandas, pip, OCaml, Mesa, Fedify, the Apache Software Foundation, Kubernetes, the Linux kernel.</td></tr>
-          <tr><td>accepts <code>ai-autonomous</code></td><td>Also contributions that no person has reviewed, for example from an agent the project runs or invites.</td><td>None.</td></tr>
+          <tr><td>accepts <code>ai-autonomous</code></td><td>Also contributions that no person has reviewed, for example from an agent the project runs or invites.</td><td>No project. One of the ready-made texts of <a href="https://ai-policy.dev/" target="_blank" rel="noreferrer">ai-policy.dev</a> allows it.</td></tr>
           <tr><td>unspecified</td><td>The project states nothing. This is not a position, and it is the most common case today.</td><td>Several of the <a href="./">projects followed here</a>, as far as we could find.</td></tr>
         </tbody>
       </table>
@@ -113,7 +113,7 @@
     <h3 id="declares">2. How AI use is declared</h3>
     <p>The same statement hides opposite rules: NumPy rejects a pull request that does not disclose, and pip closes one that names a model as co-author. So the statement needs a second answer:</p>
     <ul>
-      <li><strong>Whether:</strong> required, recommended, or not asked.</li>
+      <li><strong>Whether:</strong> required, recommended, not asked, or forbidden.</li>
       <li><strong>Where:</strong> in the commit, with the name of the trailer; in the pull request; or both.</li>
       <li><strong>What:</strong> that a tool was used, which tool, or the model and its version.</li>
     </ul>
@@ -127,6 +127,8 @@
       <li><strong>The values are the W3C group's, the statements are ours.</strong> None of the projects in the last column describes itself this way. Placing real projects was the test of the draft, and it changed it.</li>
       <li><strong>Nothing says "largely generated".</strong> An earlier draft of ours had a label for it. No project we read draws that line as a rule of acceptance, and the W3C report dropped it too: what counts is whether a person reviewed the change, not how much of it a model wrote. A project that wants to say more can do it in the declaration, as Mesa does with two trailers.</li>
       <li><strong>Nothing says "we would rather not".</strong> An earlier draft of ours had a label for it. Among the rules we read, none says it without forbidding. It may be a position that projects hold and do not write down.</li>
+      <li><strong>Ready-made policies tested the draft again.</strong> Three of the four texts of <a href="https://ai-policy.dev/" target="_blank" rel="noreferrer">ai-policy.dev</a> are easy to place. "AI Disallowed" accepts <code>human-only</code>. "Human Voice" accepts <code>ai-assisted</code>. "AI Allowed" accepts <code>ai-autonomous</code>: a contribution is welcome "whether it was created by a human or an agent". The fourth, "Human Responsible", does not fit. Everything submitted must be written by the contributor, yet "what happens on your machine is not policed, will not be asked about". It stands between <code>human-only</code> and <code>ai-assisted</code>, and the statement has no word for it.</li>
+      <li><strong>Declaring can be forbidden.</strong> The same text asks contributors not to add notes about AI tools. The second answer had three values, and now has a fourth.</li>
       <li><strong>Limits of size are not in it.</strong> Kubernetes accepts AI help and refuses large generated pull requests. The statement keeps the first and loses the second.</li>
       <li><strong>A forge can decide for its projects.</strong> SourceHut's rule applies to the original content of every project it hosts. A project there has a statement it did not choose, so there are two levels: the project, and the place where it lives.</li>
     </ul>
@@ -150,6 +152,7 @@
       <li>the <a href="https://github.com/avsm/ocaml-ai-disclosure" target="_blank" rel="noreferrer">disclosure proposal for OCaml</a>, which declares AI use in the code and in the package <a href="#ocaml">rather than in the commit</a>;</li>
       <li>the <a href="#others">rules of other projects</a>, and the forge that <a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/" target="_blank" rel="noreferrer">chose to prohibit</a>.</li>
     </ul>
+    <p><strong>Ready-made policies</strong> exist too. <a href="https://ai-policy.dev/" target="_blank" rel="noreferrer">ai-policy.dev</a> is a community collection of four texts, from "AI Allowed" to "AI Disallowed", that a project can copy into an <code>AI_POLICY.md</code> file. None of the four asks for a declaration. The most open one says that "AI usage does not need to be declared". Another one, "Human Responsible", forbids it: "a submission that discloses AI usage may be closed automatically". A text that accepts AI and asks that it be declared is not in the collection; it is the practice described on the <a href="good-practice.html">good practice</a> page.</p>
     <p><strong>European law</strong> meets the subject from another side. Since 2 August 2026, Article 50 of the <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng" target="_blank" rel="noreferrer">EU AI Act</a> asks the providers of AI systems to mark what their systems generate "in a machine-readable format". The <a href="https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content" target="_blank" rel="noreferrer">Code of Practice on Transparency of AI-Generated Content</a>, published in June 2026, says how. Both speak to those who provide the systems and to those who publish for the public, not to a project or its contributors, and neither mentions source code.</p>
     <p>Two of their ideas are also ours. The Code encourages providers to record the name of the AI system, and they "may also include the underlying AI model identifier and version number". And a published text needs no label when a person has reviewed it and "holds editorial responsibility" for it.</p>
   </section>
