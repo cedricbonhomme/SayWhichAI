@@ -2,7 +2,7 @@
 
 AI transparency for Open Source projects.
 
-A [charter](AI_CHARTER.md) (version 1.2) for projects that want to be open about the use of AI tools
+A [charter](AI_CHARTER.md) (version 1.3) for projects that want to be open about the use of AI tools
 in their development, and a tool that publishes what a project's contributors
 declare: it reads the commits and pull requests of a project and builds a static
 page of charts.
@@ -166,8 +166,13 @@ pytest
 
 ## License
 
-[AI disclosure](https://github.com/cedricbonhomme/ai-disclosure) is licensed under
-[GNU General Public License version 3](https://www.gnu.org/licenses/gpl-3.0.html)
+The code of [AI disclosure](https://github.com/cedricbonhomme/ai-disclosure) is licensed
+under the [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html),
+version 3 or any later version.
+
+The texts are meant to be copied and adapted by other projects: the
+[charter](AI_CHARTER.md) and the texts of the Good practice and Policies pages are
+licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) (CC BY 4.0).
 
 
 ## Contact

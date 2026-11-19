@@ -1,6 +1,6 @@
 # AI transparency charter
 
-Version 1.2, 19 November 2026
+Version 1.3, 19 November 2026
 
 A short charter that a software project can adopt to say how AI tools are used in
 its development. It was first written for
@@ -80,7 +80,7 @@ The first is a fact about the change. The second is the author's own statement,
 and only they tick it.
 
 A project that adopts the charter says which version, for example in its
-`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.2."
+`CONTRIBUTING.md`: "This project adopts the AI transparency charter 1.3."
 
 ## What is published
 
@@ -93,6 +93,12 @@ Only public data is read, and e-mail addresses are not published. Commits made
 before the project adopted the charter are shown for the history, and are not
 held to a rule that did not exist.
 
+## Licence
+
+This text is licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
+(CC BY 4.0): a project may copy it and adapt it to its own rules, with a mention of
+where it comes from.
+
 ## Versions
 
 The charter is versioned so that a project knows what it adopted. A change of
@@ -101,6 +107,7 @@ commitment raises the first, and projects choose when to move to it.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.3 | 19 November 2026 | The licence of the text is stated: CC BY 4.0. The commitments are unchanged |
 | 1.2 | 19 November 2026 | Wording of the introduction: the charter takes no side on the use of AI tools, and no longer calls it "welcome". The commitments are unchanged |
 | 1.1 | 18 November 2026 | Added "No one has to use AI", after the first two recommendations of the Software Freedom Conservancy on LLM-backed generative AI |
 | 1.0 | 18 November 2026 | First version, from the rules of Vulnerability-Lookup |

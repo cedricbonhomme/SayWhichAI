@@ -11,7 +11,8 @@ authors = [
 ]
 readme = "README.md"
 keywords = ["OpenSource", "AI", "Transparency"]
-license = "GPL-3.0-only"
+# The code, and the texts of the two text pages of the site.
+license = "AGPL-3.0-or-later AND CC-BY-4.0"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = []

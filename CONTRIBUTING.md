@@ -61,7 +61,7 @@ Add a line to its table of versions with every change.
 
 ## Use of AI and LLM tools
 
-This project adopts the [AI transparency charter](AI_CHARTER.md) 1.2.
+This project adopts the [AI transparency charter](AI_CHARTER.md) 1.3.
 
 AI tools are used in the development of this project, and AI-assisted contributions
 are accepted. Contributions written without any AI tool are accepted in the same way:
