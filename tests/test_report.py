@@ -1,6 +1,6 @@
 from ai_disclosure.config import Checkbox, Project
 from ai_disclosure.gitlog import Commit
-from ai_disclosure.report import build_report, checkbox_state
+from ai_disclosure.report import build_report, checkbox_state, recent_months
 
 AI = Checkbox("ai", "AI-generated", ("generated with an ai tool",), "2026-11-04")
 HUMAN = Checkbox("human", "Read and tested", ("read, understood and tested",), "2026-11-04")
@@ -99,6 +99,18 @@ def test_lines_changed_follow_the_commits():
     assert report["models"][0]["lines"] == 400
     ada = report["contributors"][0]
     assert (ada["lines"], ada["ai_lines"]) == (415, 400)
+
+
+def test_recent_months_end_with_the_month_of_the_build():
+    commits = [
+        commit("a", "Ada", "ada@example.org", "2026-10-01", "one"),
+        commit("b", "Ada", "ada@example.org", "2026-10-05", "two" + CLAUDE),
+        commit("e", "dependabot[bot]", "49699333+dependabot[bot]@users.noreply.github.com", "2026-10-07", "bump"),
+    ]
+    report = build_report(PROJECT, commits, None, None)
+    report["generated_at"] = "2026-12-03T00:00:00Z"
+    recent = recent_months(report, 4)
+    assert recent == {"from": "2026-09", "commits": [0, 2, 0, 0], "named": [0, 1, 0, 0]}
 
 
 def test_no_lines_without_github():

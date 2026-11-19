@@ -18,7 +18,8 @@ from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
 from .gitlog import mirror, read_changes, read_commits
 from .gource import build_story, render, write_story
-from .report import build_report
+from .badge import badge
+from .report import build_report, recent_months
 from .stats import build_stats
 
 DEFAULT_SITE = Path("site.toml")
@@ -98,6 +99,8 @@ def build(args: argparse.Namespace) -> int:
         (data / f"{project.slug}.json").write_text(
             json.dumps(report, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
         )
+        (output / "badge").mkdir(exist_ok=True)
+        (output / "badge" / f"{project.slug}.svg").write_text(badge(report), encoding="utf-8")
         totals = report["totals"]
         index.append(
             {
@@ -106,6 +109,7 @@ def build(args: argparse.Namespace) -> int:
                 "repository": project.repository,
                 "trailer_since": project.trailer_since,
                 "totals": totals,
+                "recent": recent_months(report),
             }
         )
         _log(

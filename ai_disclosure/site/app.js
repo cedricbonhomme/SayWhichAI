@@ -533,6 +533,18 @@
       el("p", { class: "sub film-note", text: "A file keeps the colour of its type, whoever changed it: a trailer says that a model took part in a commit, not how much of a file it wrote. Automated accounts are left out." }));
   }
 
+  function badgeSection(report) {
+    const slug = encodeURIComponent(report.project.slug);
+    const image = new URL(`badge/${slug}.svg`, location.href).href;
+    const page = new URL(`?project=${slug}`, location.href).href;
+    return el("section", { id: "badge" },
+      el("h2", { text: "Badge" }),
+      el("p", { class: "sub", text: `A small image that says the same as the first figure of this page, rebuilt with it. ${report.project.name} can show it in its README:` }),
+      el("div", { class: "card badge" },
+        el("img", { src: `badge/${slug}.svg`, alt: "The badge of the project", height: 20 }),
+        el("pre", {}, el("code", { text: `[![AI use](${image})](${page})` }))));
+  }
+
   function reading(report) {
     const since = report.project.trailer_since;
     return el("section", { id: "reading" },
@@ -555,7 +567,7 @@
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
     root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette, COMMITS), models(report, palette), lines(report, palette),
-      contributors(report, palette), pulls(report), film(report), reading(report)].filter(Boolean));
+      contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =
       `Built on ${day(report.generated_at.slice(0, 10))} from the public history of ${report.project.repository}.`;
@@ -775,6 +787,29 @@
     }
   }
 
+  // The last months of a project, as a small chart: commits, and those naming a model.
+  // Each project has its own scale: the shape is shown, not the size.
+  function spark(recent) {
+    const count = recent.commits.length;
+    const peak = Math.max(1, ...recent.commits);
+    const width = 240, height = 36, band = width / count, barW = band - 2;
+    const named = recent.named.reduce((sum, value) => sum + value, 0);
+    const all = recent.commits.reduce((sum, value) => sum + value, 0);
+    const chart = svg("svg", { viewBox: `0 0 ${width} ${height}`, preserveAspectRatio: "none", role: "img",
+      "aria-label": `Last ${count} months: ${number.format(named)} of ${plural(all, "commit")} name a model.` });
+    recent.commits.forEach((value, index) => {
+      const x = index * band + 1;
+      const full = value ? Math.max(1.5, (value / peak) * (height - 1)) : 0;
+      const part = recent.named[index] ? Math.max(1.5, (recent.named[index] / peak) * (height - 1)) : 0;
+      if (full) chart.append(svg("rect", { class: "all", x, y: height - full, width: barW, height: full, rx: 1 }));
+      if (part) chart.append(svg("rect", { class: "named", x, y: height - part, width: barW, height: part, rx: 1 }));
+    });
+    chart.append(svg("line", { class: "base", x1: 0, x2: width, y1: height - 0.5, y2: height - 0.5 }));
+    return el("div", { class: "spark" }, chart,
+      el("div", { class: "spark-note" }, el("span", { text: day(recent.from) }),
+        el("span", {}, swatch("var(--series-1)"), "naming a model"), el("span", { text: "now" })));
+  }
+
   function overview(index) {
     document.title = "AI transparency for Open Source projects";
     root.replaceChildren(
@@ -792,6 +827,7 @@
           el("div", { class: "value", text: percent(part, whole) }),
           el("div", { class: "label", text: `of commits declare an AI model${since ? " since " + day(since) : ""} (${number.format(part)} of ${number.format(whole)})` }),
           el("div", { class: "meter", role: "presentation" }, el("span", { style: `width:${whole ? (100 * part) / whole : 0}%` })),
+          project.recent ? spark(project.recent) : null,
           el("p", { class: "facts", text: `${plural(totals.humans, "contributor")}, ${number.format(totals.humans_with_ai)} declared a model · ${plural(totals.models, "model")} named` }));
       })));
     document.getElementById("footer").textContent = "Built from the public history of each project.";

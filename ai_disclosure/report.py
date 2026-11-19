@@ -342,6 +342,24 @@ def build_report(
     return report
 
 
+def recent_months(report: dict, count: int = 24) -> dict:
+    """The last months of a report, up to the month it was built: commits, and those naming a model.
+
+    For the small chart of the overview. Commits by bots are left out, as in the
+    chart of the project.
+    """
+    year, month = int(report["generated_at"][:4]), int(report["generated_at"][5:7])
+    wanted = []
+    for _ in range(count):
+        wanted.append(f"{year:04d}-{month:02d}")
+        year, month = (year - 1, 12) if month == 1 else (year, month - 1)
+    wanted.reverse()
+    known = {entry["month"]: entry for entry in report["months"]}
+    named = [sum(known[key]["families"].values()) if key in known else 0 for key in wanted]
+    commits = [known[key]["none"] + count if key in known else 0 for key, count in zip(wanted, named)]
+    return {"from": wanted[0], "commits": commits, "named": named}
+
+
 def _ranked(people: list[Person]) -> list[Person]:
     return sorted(people, key=lambda person: (-person.commits, person.name.lower()))
 
