@@ -541,7 +541,7 @@
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
-        el("li", { text: "Using an AI tool is welcome in this project. This page exists so that it is said, not to rank anyone." })));
+        el("li", { text: "This page takes no side on the use of AI. It exists so that the use is said, not to rank anyone." })));
   }
 
   /* ---------- Loading ---------- */
