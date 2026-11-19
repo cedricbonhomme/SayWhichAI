@@ -13,6 +13,13 @@ LABEL = "AI use"
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 CHARACTER = 6.2  # mean width of a character of the badge, in pixels
 
+# The image carries its two sets of colours, the ones of the site: where it is shown
+# as a picture (a README), it follows the theme of the reader's system.
+STYLE = (
+    ".l{fill:#52514e}.v{fill:#1c5cab}.lt,.vt{fill:#fff}"
+    "@media (prefers-color-scheme:dark){.l{fill:#383835}.v{fill:#86b6ef}.lt{fill:#f0efec}.vt{fill:#0d0d0d}}"
+)
+
 
 def _day(iso: str) -> str:
     year, month, day = iso.split("-")
@@ -48,12 +55,12 @@ def badge(report: dict) -> str:
     title = escape(f"{LABEL}: {text}")
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="20" role="img" aria-label="{title}">'
-        f"<title>{title}</title>"
+        f"<title>{title}</title><style>{STYLE}</style>"
         f'<clipPath id="r"><rect width="{width}" height="20" rx="3"/></clipPath>'
-        f'<g clip-path="url(#r)"><rect width="{left}" height="20" fill="#52514e"/>'
-        f'<rect x="{left}" width="{right}" height="20" fill="#1c5cab"/></g>'
-        '<g fill="#fff" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11" text-anchor="middle">'
-        f'<text x="{left / 2:g}" y="14" textLength="{label}">{escape(LABEL)}</text>'
-        f'<text x="{left + right / 2:g}" y="14" textLength="{value}">{escape(text)}</text>'
+        f'<g clip-path="url(#r)"><rect class="l" width="{left}" height="20"/>'
+        f'<rect class="v" x="{left}" width="{right}" height="20"/></g>'
+        '<g font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11" text-anchor="middle">'
+        f'<text class="lt" x="{left / 2:g}" y="14" textLength="{label}">{escape(LABEL)}</text>'
+        f'<text class="vt" x="{left + right / 2:g}" y="14" textLength="{value}">{escape(text)}</text>'
         "</g></svg>\n"
     )

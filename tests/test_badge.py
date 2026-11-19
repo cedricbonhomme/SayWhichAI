@@ -23,4 +23,6 @@ def test_the_badge_is_an_image():
     image = ElementTree.fromstring(badge(report(human_commits=10, ai_commits=0)))
     assert image.tag.endswith("svg")
     assert image.get("aria-label") == "AI use: declared in 0% of commits"
+    # It carries its dark colours, for a reader whose system is dark.
+    assert "prefers-color-scheme:dark" in badge(report(human_commits=10))
     assert "<1%" not in badge(report(human_commits=3496, ai_commits=3))  # escaped
