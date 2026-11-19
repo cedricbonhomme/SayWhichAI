@@ -83,7 +83,7 @@ the GitHub account of each commit author are cached in `.cache/`.
   model wrote.
 - `ai_disclosure/cli.py`: the `ai-disclosure` command.
 - `ai_disclosure/site/`: the static site (`index.html`, `stats.html`, `app.js`,
-  `style.css`, `good-practice.html`, `policies.html`), copied as is to the output.
+  `theme.js`, `style.css`, `good-practice.html`, `policies.html`), copied as is to the output.
 - `AI_CHARTER.md`: the charter.
 - `.github/workflows/pages.yml`: tests, build and deployment to GitHub Pages, on
   every push to `main` and once a day.

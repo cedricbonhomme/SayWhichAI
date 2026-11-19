@@ -21,8 +21,10 @@
   --good: #006300;
   --attention: #8a5a00;
 }
+/* The dark theme: when the system asks for it and the reader did not choose the light
+   one, or when the reader chose it in the footer. The two lists are the same. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --page: #0d0d0d;
     --surface: #1a1a19;
@@ -45,6 +47,29 @@
     --good: #0ca30c;
     --attention: #fab219;
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #96948d;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --link: #86b6ef;
+  --none: #4a4a46;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #0ca30c;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+  --good: #0ca30c;
+  --attention: #fab219;
 }
 
 * { box-sizing: border-box; }
@@ -179,7 +204,7 @@ td small { color: var(--muted); font-size: 12px; }
 .notes li { margin-bottom: 6px; }
 .empty { color: var(--ink-2); font-size: 14px; }
 
-.footer { margin-top: 56px; padding-top: 16px; padding-bottom: 40px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+.footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-top: 56px; padding-top: 16px; padding-bottom: 40px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
 
 /* Overview of the projects */
 .projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 28px; }
@@ -318,3 +343,6 @@ section > .sub.after { margin: 12px 0 0; }
 /* ---------- Lines ---------- */
 .chart .end-label { fill: var(--ink-2); font-size: 12px; }
 .line-key { display: inline-block; width: 18px; height: 0; }
+
+/* ---------- Theme switcher of the footer ---------- */
+.toggle.theme button { font-size: 12px; padding: 2px 10px; }

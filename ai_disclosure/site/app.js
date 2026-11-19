@@ -622,7 +622,7 @@
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
     root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette, COMMITS),
-      calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A darker square is a day with more of them; a pale one is a day with no model named, not a day without work."),
+      calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),
       models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
@@ -935,7 +935,7 @@
     const palette = colours(stats);
     root.replaceChildren(...[statsIntro(stats), statsTiles(stats), mostNamed(stats, palette),
       timeline(stats, palette, NAMED),
-      calendar(stats.days, stats.generated_at.slice(0, 10), "Commits naming a model on each day of the last year, all projects together. A darker square is a day with more of them."),
+      calendar(stats.days, stats.generated_at.slice(0, 10), "Commits naming a model on each day of the last year, all projects together. A stronger blue is a day with more of them."),
       lifetimes(stats, palette), vendors(stats), spread(stats), perPerson(stats), statsReading(stats)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =
