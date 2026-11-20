@@ -126,8 +126,8 @@
           `, from ${day(totals.first)} to ${day(totals.last)}.`,
       }),
       el("div", { class: "links" },
-        el("a", { href: project.url, text: project.repository }),
-        project.policy_url ? el("a", { href: project.policy_url, text: "The project's rules on AI-assisted contributions" }) : null,
+        el("a", { href: project.url, target: "_blank", rel: "noreferrer", text: project.repository }),
+        project.policy_url ? el("a", { href: project.policy_url, target: "_blank", rel: "noreferrer", text: "The project's rules on AI-assisted contributions" }) : null,
         el("a", { href: "#reading", text: "How to read these figures" })),
     );
   }
