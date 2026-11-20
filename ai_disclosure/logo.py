@@ -18,15 +18,24 @@ DRAWING = frozenset(
     """svg g defs symbol use title desc path circle ellipse rect line polyline polygon
     text tspan linearGradient radialGradient stop clipPath mask""".split()
 )
-OUTSIDE_RE = re.compile(r"url\(\s*[\"']?(?!#)|javascript:|data:|@import|expression\(", re.IGNORECASE)
+DECLARATION_RE = re.compile(r"^\ufeff?\s*<\?xml\s[^?]*\?>")
+OUTSIDE_RE = re.compile(r"url\(\s*[\"']?(?!#)|image-set\(|src\(|javascript:|data:|@import|expression\(", re.IGNORECASE)
 
 
 def plain_drawing(image: bytes) -> bool:
     """True when the SVG file holds nothing but a drawing."""
-    if b"<!" in image.replace(b"<!--", b""):
+    try:
+        # UTF-8 only, so that the checks below read the characters the browser reads.
+        text = image.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    body = DECLARATION_RE.sub("", text, count=1)
+    if "<?" in body:
+        return False  # a processing instruction can load a style sheet
+    if "<!" in body.replace("<!--", ""):
         return False  # a DOCTYPE or an entity: not needed by a drawing
     try:
-        root = ET.fromstring(image)
+        root = ET.fromstring(body)
     except ET.ParseError:
         return False
     if root.tag != SVG + "svg":
@@ -38,8 +47,10 @@ def plain_drawing(image: bytes) -> bool:
             return False
         for name, value in element.attrib.items():
             name = name.rsplit("}", 1)[-1].lower()
-            if name.startswith("on"):
-                return False
+            if name.startswith("on") or name == "style":
+                return False  # colours are given as attributes, CSS is not read
+            if "\\" in value:
+                return False  # a CSS escape can hide an address
             if name == "href" and not value.strip().startswith("#"):
                 return False
             if OUTSIDE_RE.search(value):

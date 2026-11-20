@@ -26,13 +26,34 @@ def test_a_drawing_is_published():
         "<style>circle { fill: red }</style>",
         '<foreignObject><p xmlns="http://www.w3.org/1999/xhtml">x</p></foreignObject>',
         '<circle r="1" fill="url(https://example.org/a.svg#g)"/>',
-        '<circle r="1" style="background: url(\'https://example.org\')"/>',
+        '<circle r="1" style="fill: red"/>',
+        '<circle r="1" fill="image-set(\'https://example.org/a.png\' 1x)"/>',
+        '<circle r="1" fill="src(\'https://example.org/a.png\')"/>',
         '<animate attributeName="r" to="5"/>',
         '<p xmlns="http://www.w3.org/1999/xhtml">x</p>',
     ],
 )
 def test_more_than_a_drawing_is_refused(inside):
     assert not plain_drawing(f"<svg {NS}>{inside}</svg>".encode())
+
+
+def test_an_xml_declaration_is_accepted():
+    assert plain_drawing(f'<?xml version="1.0" encoding="UTF-8"?>\n<svg {NS}><circle r="1"/></svg>'.encode())
+
+
+def test_a_processing_instruction_is_refused():
+    sheet = '<?xml-stylesheet href="https://example.org/a.css"?>'
+    assert not plain_drawing(f'<?xml version="1.0"?>{sheet}<svg {NS}/>'.encode())
+    assert not plain_drawing(f"{sheet}<svg {NS}/>".encode())
+    assert not plain_drawing(f"<svg {NS}>{sheet}</svg>".encode())
+
+
+def test_another_encoding_is_refused():
+    assert not plain_drawing(f'<svg {NS}><circle r="1"/></svg>'.encode("utf-16"))
+
+
+def test_a_css_escape_is_refused():
+    assert not plain_drawing(f'<svg {NS}><circle r="1" fill="\\75rl(https://example.org/a.svg#g)"/></svg>'.encode())
 
 
 def test_what_is_not_an_svg_drawing_is_refused():
