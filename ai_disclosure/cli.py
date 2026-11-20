@@ -17,7 +17,7 @@ from . import __version__
 from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
 from .logo import publishable
-from .gitlog import mirror, read_changes, read_commits, read_file
+from .gitlog import mirror, read_changes, read_commits, read_file, read_releases
 from .gource import build_story, render, write_story
 from .badge import badge
 from .report import build_report, recent_months
@@ -102,7 +102,8 @@ def build(args: argparse.Namespace) -> int:
                     "or is an SVG file that holds more than a drawing: skipped"
                 )
 
-        report = build_report(project, commits, logins, pulls, lines)
+        releases = read_releases(repository, project.branch)
+        report = build_report(project, commits, logins, pulls, lines, releases)
         reports.append(report)
         # A video rendered earlier by "ai-disclosure video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"

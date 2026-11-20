@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from .config import Checkbox, Project
-from .gitlog import Commit
+from .gitlog import Commit, Release
 from .models import TOOLS, Model, co_authors, identify
 
 NOREPLY_RE = re.compile(r"^(?:\d+\+)?(?P<login>[^@]+)@users\.noreply\.github\.com$", re.I)
@@ -131,6 +131,7 @@ def build_report(
     logins: dict[str, str] | None,
     pulls: list[dict] | None,
     lines: dict[str, list[int]] | None = None,
+    releases: list[Release] | None = None,
 ) -> dict:
     """The whole report of a project. logins, pulls and lines are None without GitHub access.
 
@@ -149,6 +150,8 @@ def build_report(
     unknown = 0  # commits GitHub gave no figure for
     several = 0  # commits naming more than one model
     days: Counter = Counter()  # commits naming a model, day by day
+    release_of = {sha: index for index, release in enumerate(releases or ()) for sha in release.commits}
+    released: Counter = Counter()  # (release or None for "not released yet", naming a model) -> commits
 
     for commit in commits:
         credit = identities.credit(
@@ -178,6 +181,7 @@ def build_report(
             month["bots"] += 1
             continue
         weights.append((changed, commit, credit.models[0].family if credit.models else ""))
+        released[release_of.get(commit.sha), bool(credit.models)] += 1
         if not credit.models:
             month["none"] += 1
             month["lines_none"] += changed
@@ -318,7 +322,26 @@ def build_report(
         },
         "pulls": None,
         "lines": None,
+        "releases": None,
     }
+    if releases:
+        report["releases"] = {
+            # Oldest first. A release that only holds merges or commits of bots is left out.
+            "items": [
+                {
+                    "name": release.name,
+                    "date": release.date,
+                    "commits": released[index, False] + released[index, True],
+                    "named": released[index, True],
+                }
+                for index, release in enumerate(releases)
+                if released[index, False] + released[index, True]
+            ],
+            "unreleased": {
+                "commits": released[None, False] + released[None, True],
+                "named": released[None, True],
+            },
+        }
     if lines is not None:
         weights.sort(key=lambda item: (-item[0], item[1].sha))
         report["lines"] = {

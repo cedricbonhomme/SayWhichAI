@@ -429,6 +429,35 @@
       el("div", { class: "card" }, rows.length ? el("div", { class: "bars" }, rows) : el("p", { class: "empty", text: "No commit names a model yet." })));
   }
 
+  const RELEASES = 12;
+
+  function releases(report) {
+    if (!report.releases) return null;
+    const row = (name, small, item, href) => [
+      el("div", { class: "name" },
+        el("span", {}, href ? el("a", { href, target: "_blank", rel: "noreferrer", text: name }) : name,
+          el("small", { text: small }))),
+      el("div", { class: "figure" }, percent(item.named, item.commits),
+        el("small", { text: ` · ${number.format(item.named)} of ${number.format(item.commits)}` })),
+      el("div", { class: "track", title: `${name}: ${number.format(item.named)} of ${plural(item.commits, "commit")} name a model` },
+        item.named ? el("div", { class: "bar", style: `width:${(100 * item.named) / item.commits}%` }) : null),
+    ];
+    const tagged = report.releases.items.slice().reverse().map((item) => row(item.name, day(item.date), item,
+      `${report.project.url}/releases/tag/${encodeURIComponent(item.name)}`));
+    const pending = report.releases.unreleased;
+    const recent = tagged.slice(0, RELEASES).flat();
+    const earlier = tagged.slice(RELEASES);
+    return el("section", { id: "releases" },
+      el("h2", { text: "What each release declares" }),
+      el("p", { class: "sub", text: "The share of the commits of each release that name a model, most recent first. A release is a tag of the repository; its commits are those that no earlier release holds. The share is a lower bound: a commit with no AI declared says nothing about how it was written." }),
+      el("div", { class: "card" },
+        el("div", { class: "bars shares" },
+          pending.commits ? row("Not released yet", "since the last release", pending) : null, recent),
+        earlier.length ? el("details", { class: "table-view" },
+          el("summary", { text: `The ${plural(earlier.length, "earlier release")}` }),
+          el("div", { class: "bars shares" }, earlier.flat())) : null));
+  }
+
   function split(person, palette, families) {
     const parts = [...families.filter((id) => person.families[id]).map((id) => [id, person.families[id]]),
       [NONE, person.commits - person.ai_commits]].filter(([, count]) => count > 0);
@@ -610,6 +639,7 @@
         report.models.some((model) => model.tool) ? el("li", { text: TOOL_NOTE }) : null,
         report.lines ? el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line, and a generated file or a data file counts like any other." }) : null,
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
+        report.releases ? el("li", { text: "A release is a tag of the followed branch, dated from the day the tag was made, or from the day of its commit when the tag has no date of its own. A commit belongs to the first release that holds it. A release that only holds merge commits or commits of automation is not listed." }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
         el("li", { text: "This page takes no side on the use of AI. It exists so that the use is said, not to rank anyone." })));
@@ -623,7 +653,7 @@
     root.replaceChildren(...[
       intro(report), tiles(report), timeline(report, palette, COMMITS),
       calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),
-      models(report, palette), lines(report, palette),
+      releases(report), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =

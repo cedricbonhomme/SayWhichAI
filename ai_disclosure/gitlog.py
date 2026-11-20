@@ -76,6 +76,33 @@ def read_commits(repository: Path, branch: str = "") -> list[Commit]:
     return commits
 
 
+@dataclass(frozen=True)
+class Release:
+    name: str  # the tag
+    date: str  # the day the tag was made; the day of its commit for a tag that has no date of its own
+    commits: frozenset[str]  # the non-merge commits no earlier release holds
+
+
+def read_releases(repository: Path, branch: str = "") -> list[Release]:
+    """The tags of the branch, oldest first, each with the commits it is the first to hold."""
+    ref = branch or default_branch(repository)
+    output = _git(
+        "for-each-ref", f"--merged={ref}", "--sort=creatordate",
+        f"--format=%(refname){_FIELD}%(creatordate:short)", "refs/tags", cwd=repository,
+    )
+    releases = []
+    earlier: list[str] = []
+    for line in output.splitlines():
+        tag, _, date = line.partition(_FIELD)
+        result = subprocess.run(
+            ["git", "rev-list", "--no-merges", "--stdin"], cwd=repository, check=True,
+            capture_output=True, text=True, input="\n".join([tag, "--not", *earlier]) + "\n",
+        )
+        releases.append(Release(tag.removeprefix("refs/tags/"), date, frozenset(result.stdout.split())))
+        earlier.append(tag)
+    return releases
+
+
 def read_changes(repository: Path, branch: str = "") -> dict[str, list[tuple[str, str]]]:
     """The files each non-merge commit adds (A), changes (M) or deletes (D).
 

@@ -1,5 +1,5 @@
 from ai_disclosure.config import Checkbox, Project
-from ai_disclosure.gitlog import Commit
+from ai_disclosure.gitlog import Commit, Release
 from ai_disclosure.report import build_report, checkbox_state, recent_months
 
 AI = Checkbox("ai", "AI-generated", ("generated with an ai tool",), "2026-11-04")
@@ -119,3 +119,31 @@ def test_no_lines_without_github():
     report = build_report(PROJECT, [commit("a", "Ada", "ada@example.org", "2026-10-01", "one")], None, None)
     assert report["lines"] is None
     assert "lines" not in report["months"][0]
+
+
+def test_what_each_release_declares():
+    commits = [
+        commit("a", "Ada", "ada@example.org", "2026-11-01", "first"),
+        commit("b", "Ada", "ada@example.org", "2026-11-02", "second" + CLAUDE),
+        commit("c", "dependabot[bot]", "49699333+dependabot[bot]@users.noreply.github.com", "2026-11-03", "bump"),
+        commit("d", "Ada", "ada@example.org", "2026-11-04", "third" + CLAUDE),
+        commit("e", "Ada", "ada@example.org", "2026-11-05", "fourth"),
+    ]
+    releases = [
+        Release("v1.0", "2026-11-02", frozenset({"a", "b"})),
+        Release("v1.0.1", "2026-11-03", frozenset({"c"})),  # only a bot: not listed
+        Release("v1.1", "2026-11-04", frozenset({"d", "not-on-the-branch"})),
+    ]
+    report = build_report(PROJECT, commits, None, None, None, releases)
+    assert report["releases"] == {
+        "items": [
+            {"name": "v1.0", "date": "2026-11-02", "commits": 2, "named": 1},
+            {"name": "v1.1", "date": "2026-11-04", "commits": 1, "named": 1},
+        ],
+        "unreleased": {"commits": 1, "named": 0},
+    }
+
+
+def test_a_project_without_a_tag_has_no_releases():
+    commits = [commit("a", "Ada", "ada@example.org", "2026-11-01", "first")]
+    assert build_report(PROJECT, commits, None, None)["releases"] is None
