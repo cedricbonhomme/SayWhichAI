@@ -201,6 +201,8 @@
     "free-text": "free text", "quote-block": "a quoted block",
   };
 
+  const CONTENTS = { tool: "the tool", model: "the model and its version", extent: "how much AI did", usage: "what AI was used for" };
+
   function stated(report) {
     const file = report.stated;
     if (!file) return null;
@@ -220,7 +222,7 @@
       const how = [
         file.method.length ? "With " + file.method.map((method) => METHODS[method]).join(" and ") + "." : "",
         file.trailers.length ? `${file.trailers.length > 1 ? "Trailers" : "Trailer"}: ${file.trailers.join(", ")}.` : "",
-        file.content.length ? `It states: ${file.content.map((item) => "the " + item).join(", ")}.` : "",
+        file.content.length ? `It states: ${file.content.map((item) => CONTENTS[item]).join(", ")}.` : "",
       ].filter(Boolean).join(" ");
       rows.push(...row("How it is declared", how, ""));
     }
