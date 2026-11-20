@@ -105,6 +105,16 @@ class GitHub:
             cursor = history["pageInfo"]["endCursor"]
             size = PAGE
 
+    def logo(self, repository: str) -> str:
+        """The account whose picture is the logo of the project, or nothing.
+
+        GitHub has no logo for a repository. An organisation has a picture, and it is
+        a logo; the picture of a person is their portrait, and is not one.
+        """
+        owner, name = repository.split("/")
+        account = self.query(_OWNER, owner=owner, name=name)["repository"]["owner"]
+        return account["login"] if account["__typename"] == "Organization" else ""
+
     def pull_requests(self, repository: str, since: str) -> list[dict]:
         """The pull requests opened from the date on, most recent first."""
         owner, name = repository.split("/")
@@ -121,6 +131,12 @@ class GitHub:
                 return pulls
             cursor = page["pageInfo"]["endCursor"]
 
+
+_OWNER = """
+query($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) { owner { __typename login } }
+}
+"""
 
 _COMMITS = """
 query($owner: String!, $name: String!, $ref: String!, $cursor: String, $size: Int!) {

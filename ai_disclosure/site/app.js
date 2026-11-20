@@ -991,8 +991,14 @@
         const part = since ? totals.since_ai_commits : totals.ai_commits;
         const whole = since ? totals.since_commits : totals.human_commits;
         return el("a", { class: "project-card", href: "?project=" + encodeURIComponent(project.slug) },
-          el("h2", { text: project.name }),
-          el("div", { class: "repo", text: project.repository }),
+          el("div", { class: "head" },
+            project.logo ? el("img", {
+              class: "logo", alt: "", loading: "lazy", width: 40, height: 40,
+              src: `https://github.com/${encodeURIComponent(project.logo)}.png?size=80`,
+            }) : null,
+            el("div", {},
+              el("h2", { text: project.name }),
+              el("div", { class: "repo", text: project.repository }))),
           el("div", { class: "value", text: percent(part, whole) }),
           el("div", { class: "label", text: `of commits declare an AI model${since ? " since " + day(since) : ""} (${number.format(part)} of ${number.format(whole)})` }),
           el("div", { class: "meter", role: "presentation" }, el("span", { style: `width:${whole ? (100 * part) / whole : 0}%` })),

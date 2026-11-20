@@ -68,6 +68,7 @@ def build(args: argparse.Namespace) -> int:
         commits = read_commits(repository, project.branch)
 
         logins = lines = pulls = None
+        logo = ""
         if github:
             branch = project.branch or "HEAD"
             _log(f"{project.name}: asking GitHub for accounts and pull requests")
@@ -81,6 +82,7 @@ def build(args: argparse.Namespace) -> int:
             (args.cache / f"{project.slug}-lines.json").write_text(
                 json.dumps(lines, separators=(",", ":")), encoding="utf-8"
             )
+            logo = github.logo(project.repository)
             since = min((box.since for box in project.checkboxes if box.since), default="")
             if since:
                 pulls = github.pull_requests(project.repository, since)
@@ -107,6 +109,7 @@ def build(args: argparse.Namespace) -> int:
                 "slug": project.slug,
                 "name": project.name,
                 "repository": project.repository,
+                "logo": logo,
                 "trailer_since": project.trailer_since,
                 "totals": totals,
                 "recent": recent_months(report),
