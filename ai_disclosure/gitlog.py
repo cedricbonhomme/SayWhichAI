@@ -51,6 +51,15 @@ def default_branch(repository: Path) -> str:
     return "HEAD"
 
 
+def read_file(repository: Path, path: str, branch: str = "", limit: int = 512 * 1024) -> bytes:
+    """A file of the repository as it is on the branch, or nothing when it is absent or too big."""
+    branch = branch or default_branch(repository)
+    result = subprocess.run(["git", "show", f"{branch}:{path}"], cwd=repository, capture_output=True)
+    if result.returncode != 0 or len(result.stdout) > limit:
+        return b""
+    return result.stdout
+
+
 def read_commits(repository: Path, branch: str = "") -> list[Commit]:
     """The non-merge commits reachable from the branch, oldest first."""
     ref = branch or default_branch(repository)

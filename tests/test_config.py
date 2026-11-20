@@ -27,3 +27,15 @@ def test_a_site_file_must_name_existing_projects(tmp_path):
     site.write_text('[site]\nprojects = ["a", "missing"]\n')
     with pytest.raises(ConfigError, match="missing"):
         load_projects(tmp_path, site)
+
+
+def test_a_project_names_its_logo(tmp_path):
+    (tmp_path / "a.toml").write_text('[project]\nrepository = "example/a"\nlogo = "static/img/icon-192.png"\n')
+    assert load_projects(tmp_path)[0].logo == "static/img/icon-192.png"
+
+
+@pytest.mark.parametrize("logo", ["logo.svg", "../logo.png", "/etc/logo.png", "-x.png", "https://example.org/a.png"])
+def test_a_logo_is_an_image_of_the_repository(tmp_path, logo):
+    (tmp_path / "a.toml").write_text(f'[project]\nrepository = "example/a"\nlogo = "{logo}"\n')
+    with pytest.raises(ConfigError, match="logo"):
+        load_projects(tmp_path)

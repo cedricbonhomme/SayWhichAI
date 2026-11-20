@@ -105,6 +105,15 @@ project of `projects/` is published.
 With several projects, the site opens on an overview of the projects, and each
 project has its own page (`?project=<file name>`), reachable from a selector too.
 
+The overview shows the picture of the organisation that owns the repository. A
+project can name its own logo instead, an image of its repository (PNG, JPEG, WebP or
+GIF, 512 kB at most) that the tool copies to the site:
+
+```toml
+[project]
+logo = "docs/logo.png"
+```
+
 A co-author the built-in rules do not recognise as a model can be declared:
 
 ```toml

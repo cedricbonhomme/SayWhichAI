@@ -994,7 +994,7 @@
           el("div", { class: "head" },
             project.logo ? el("img", {
               class: "logo", alt: "", loading: "lazy", width: 40, height: 40,
-              src: `https://github.com/${encodeURIComponent(project.logo)}.png?size=80`,
+              src: project.logo,
             }) : null,
             el("div", {},
               el("h2", { text: project.name }),

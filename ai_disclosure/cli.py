@@ -16,7 +16,7 @@ from pathlib import Path
 from . import __version__
 from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
-from .gitlog import mirror, read_changes, read_commits
+from .gitlog import mirror, read_changes, read_commits, read_file
 from .gource import build_story, render, write_story
 from .badge import badge
 from .report import build_report, recent_months
@@ -82,10 +82,22 @@ def build(args: argparse.Namespace) -> int:
             (args.cache / f"{project.slug}-lines.json").write_text(
                 json.dumps(lines, separators=(",", ":")), encoding="utf-8"
             )
-            logo = github.logo(project.repository)
+            owner = github.logo(project.repository)
+            logo = f"https://github.com/{owner}.png?size=80" if owner else ""
             since = min((box.since for box in project.checkboxes if box.since), default="")
             if since:
                 pulls = github.pull_requests(project.repository, since)
+
+        if project.logo:
+            # The project file names its own logo: an image of the repository, copied to the site.
+            image = read_file(repository, project.logo, project.branch)
+            if image:
+                name = f"{project.slug}{Path(project.logo).suffix.lower()}"
+                (output / "logo").mkdir(exist_ok=True)
+                (output / "logo" / name).write_bytes(image)
+                logo = f"logo/{name}"
+            else:
+                _log(f"{project.name}: the logo {project.logo} was not found or is over 512 kB, skipped")
 
         report = build_report(project, commits, logins, pulls, lines)
         reports.append(report)

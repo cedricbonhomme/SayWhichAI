@@ -11,6 +11,8 @@ from .models import Rule
 
 REPOSITORY_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# An image a browser shows without running anything: an SVG file may carry a script.
+LOGO_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_./ -]*\.(png|jpe?g|webp|gif)$", re.IGNORECASE)
 
 
 class ConfigError(ValueError):
@@ -31,6 +33,7 @@ class Project:
     name: str
     repository: str
     branch: str = ""
+    logo: str = ""  # the path of an image in the repository
     policy_url: str = ""
     trailer_since: str = ""
     checkboxes: tuple[Checkbox, ...] = ()
@@ -62,6 +65,13 @@ def load_project(path: Path) -> Project:
     if branch.startswith("-"):
         raise ConfigError(f"{where}: invalid branch {branch!r}")
 
+    logo = project.get("logo", "")
+    if logo and (not LOGO_RE.match(logo) or ".." in logo):
+        raise ConfigError(
+            f"{where}: [project] logo must be the path of a PNG, JPEG, WebP or GIF image "
+            f"in the repository, got {logo!r}"
+        )
+
     policy = data.get("policy", {})
     checkboxes = []
     for index, box in enumerate(policy.get("checkbox", [])):
@@ -92,6 +102,7 @@ def load_project(path: Path) -> Project:
         name=project.get("name") or repository.split("/")[1],
         repository=repository,
         branch=branch,
+        logo=logo,
         policy_url=policy.get("url", ""),
         trailer_since=_date(policy.get("trailer_since"), where),
         checkboxes=tuple(checkboxes),
