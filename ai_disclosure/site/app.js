@@ -173,6 +173,80 @@
     );
   }
 
+  // What the ai-policy.yaml file of the project says, in sentences. The value of the
+  // file is shown beside each one.
+  const STATED = {
+    stance: {
+      label: "Contributions made with AI, for code",
+      disallowed: "Not accepted: nothing produced by AI.",
+      assisted: "AI may help with small tasks. The substance of a change is the contributor's.",
+      generated: "Accepted: AI may produce the substance of a change.",
+    },
+    disclosure: {
+      label: "Declaring the use of AI",
+      required: "Required.",
+      encouraged: "Encouraged, not required.",
+      none: "Not asked.",
+      prohibited: "Not wanted: contributors are asked to leave notes about AI tools out.",
+    },
+    human_review: {
+      label: "The contributor's own review",
+      field: "humanReview",
+      required: "Required: the contributor has read, understood and tested the change.",
+      none: "Not required.",
+    },
+  };
+  const METHODS = {
+    "commit-trailer": "a trailer in the commit", "pr-template": "the pull request template",
+    "free-text": "free text", "quote-block": "a quoted block",
+  };
+
+  function stated(report) {
+    const file = report.stated;
+    if (!file) return null;
+    const source = el("a", { href: file.url, target: "_blank", rel: "noreferrer", text: file.file });
+    if (!file.readable) {
+      return el("section", { id: "stated" },
+        el("h2", { text: "What the project states" }),
+        el("p", { class: "sub" }, "The repository has an ", source, " file that this site could not read."));
+    }
+    const row = (label, sentence, value) => [
+      el("dt", { text: label }),
+      el("dd", {}, sentence, value ? el("code", { text: value }) : null),
+    ];
+    const rows = Object.entries(STATED).flatMap(([key, texts]) =>
+      file[key] ? row(texts.label, texts[file[key]], `${texts.field || key}: ${file[key]}`) : []);
+    if (file.method.length || file.trailers.length || file.content.length) {
+      const how = [
+        file.method.length ? "With " + file.method.map((method) => METHODS[method]).join(" and ") + "." : "",
+        file.trailers.length ? `${file.trailers.length > 1 ? "Trailers" : "Trailer"}: ${file.trailers.join(", ")}.` : "",
+        file.content.length ? `It states: ${file.content.map((item) => "the " + item).join(", ")}.` : "",
+      ].filter(Boolean).join(" ");
+      rows.push(...row("How it is declared", how, ""));
+    }
+    if (file.agents !== null) {
+      rows.push(...row("Autonomous agents",
+        file.agents ? "May submit a contribution on their own." : "May not submit a contribution on their own.",
+        `autonomousAgents.allowed: ${file.agents}`));
+    }
+    const notes = [
+      file.summary === "neutral" ? "The project states that it has considered AI and needs no rule of its own: its ordinary contribution rules apply." : "",
+      file.status && file.status !== "adopted" ? `The project marks this policy as ${file.status === "draft" ? "a draft" : "under discussion"}.` : "",
+      file.undecided.length ? `Not settled yet, according to the file: ${file.undecided.join(", ")}.` : "",
+      file.exceptions ? "The file says it is a summary: the written policy of the project has exceptions." : "",
+      file.scopes.length ? `Other rules apply to: ${file.scopes.join(", ")}.` : "",
+    ].filter(Boolean);
+    return el("section", { id: "stated" },
+      el("h2", { text: "What the project states" }),
+      el("p", { class: "sub" }, "The project's own statement, read from the ", source,
+        " file of its repository. The charts of this page show what its commits declare. The two can differ."),
+      el("div", { class: "card" },
+        rows.length ? el("dl", { class: "stated" }, rows) : null,
+        notes.length ? el("ul", { class: "notes" }, notes.map((note) => el("li", { text: note }))) : null,
+        file.statement ? el("p", { class: "stated-link" },
+          el("a", { href: file.statement, target: "_blank", rel: "noreferrer", text: "The project's written policy" })) : null));
+  }
+
   function pullTile(pulls) {
     const judged = pulls.items.filter((item) => item.boxes.human !== undefined && item.boxes.human !== "not-yet");
     const ticked = judged.filter((item) => item.boxes.human === "ticked").length;
@@ -639,6 +713,7 @@
         report.models.some((model) => model.tool) ? el("li", { text: TOOL_NOTE }) : null,
         report.lines ? el("li", { text: "“Lines changed” are the lines a commit adds plus the lines it deletes, as GitHub counts them. A commit that names a model counts in full, whoever wrote each line, and a generated file or a data file counts like any other." }) : null,
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
+        report.stated ? el("li", { text: "“What the project states” is read from the ai-policy.yaml file of its repository, a format proposed at codeberg.org/open-source-ecosystem/ai-policy. The sentences are this site's reading of the values of the file, which are shown beside them. The file is a summary: the written policy of the project is the reference." }) : null,
         report.releases ? el("li", { text: "A release is a tag of the followed branch, dated from the day the tag was made, or from the day of its commit when the tag has no date of its own. A commit belongs to the first release that holds it. A release that only holds merge commits or commits of automation is not listed." }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
@@ -651,7 +726,7 @@
     const palette = colours(report);
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
     root.replaceChildren(...[
-      intro(report), tiles(report), timeline(report, palette, COMMITS),
+      intro(report), tiles(report), stated(report), timeline(report, palette, COMMITS),
       calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),
       releases(report), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));

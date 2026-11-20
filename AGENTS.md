@@ -74,6 +74,11 @@ the GitHub account of each commit author are cached in `.cache/`.
 - `ai_disclosure/gitlog.py`, `ai_disclosure/github.py`: reading the commits, the
   GitHub accounts and the pull requests.
 - `ai_disclosure/report.py`: builds the published JSON of a project.
+- `ai_disclosure/policy.py`: reads the `ai-policy.yaml` file of a project, what the
+  project states about AI in its own repository. `ai_disclosure/yamlsubset.py` is the
+  small YAML reader it uses: it refuses what it does not understand and never guesses.
+- `ai-policy.yaml`: this project's own statement. It is a summary of the "Use of AI
+  and LLM tools" section of CONTRIBUTING.md: keep the two in step.
 - `ai_disclosure/logo.py`: decides whether the logo a project file names may be
   published. An SVG file is refused unless it is a plain drawing; it is never repaired.
 - `ai_disclosure/badge.py`: the badge of a project, an SVG image for its README.

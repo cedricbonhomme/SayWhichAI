@@ -17,6 +17,7 @@ from . import __version__
 from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
 from .logo import publishable
+from .policy import FILES, LIMIT, PolicyError, link, read_policy
 from .gitlog import mirror, read_changes, read_commits, read_file, read_releases
 from .gource import build_story, render, write_story
 from .badge import badge
@@ -25,6 +26,23 @@ from .stats import build_stats
 
 DEFAULT_SITE = Path("site.toml")
 SITE_HELP = "the file listing the projects to publish (default: site.toml if it exists, else every project)"
+
+
+def _stated(project, repository: Path) -> dict | None:
+    """What the project states in its own ai-policy.yaml, when its repository has one."""
+    tree = f"{project.url}/blob/{project.branch or 'HEAD'}"
+    for path in FILES:
+        content = read_file(repository, path, project.branch, LIMIT)
+        if not content:
+            continue
+        stated = {"file": path, "url": f"{tree}/{path}", "readable": False}
+        try:
+            stated.update(read_policy(content.decode("utf-8")))
+            stated["statement"] = link(tree, stated["statement"])
+        except (PolicyError, UnicodeDecodeError) as error:
+            _log(f"{project.name}: {path} could not be read ({error})")
+        return stated
+    return None
 
 
 def _log(message: str) -> None:
@@ -105,6 +123,7 @@ def build(args: argparse.Namespace) -> int:
         releases = read_releases(repository, project.branch)
         report = build_report(project, commits, logins, pulls, lines, releases)
         reports.append(report)
+        report["stated"] = _stated(project, repository)
         # A video rendered earlier by "ai-disclosure video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"
         if video.exists():

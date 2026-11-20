@@ -156,6 +156,18 @@ details.table-view summary { cursor: pointer; color: var(--ink-2); width: fit-co
 .bars .track { grid-column: 2; height: 14px; }
 .bars .figure { grid-column: 3; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .bars .bar { height: 100%; border-radius: 0 4px 4px 0; min-width: 2px; }
+.stated { display: grid; grid-template-columns: minmax(180px, max-content) 1fr; gap: 10px 24px; margin: 0; font-size: 14px; }
+.stated dt { color: var(--ink-2); }
+.stated dd { margin: 0; }
+.stated dd code { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--muted); }
+.stated + .notes { margin: 16px 0 0; padding-left: 18px; }
+.card > .notes:first-child { margin: 0; padding-left: 18px; }
+.stated-link { margin: 14px 0 0; font-size: 14px; }
+@media (max-width: 560px) {
+  .stated { grid-template-columns: 1fr; gap: 2px; }
+  .stated dd { margin-bottom: 10px; }
+  .stated dd code { display: block; margin: 2px 0 0; }
+}
 .bars.shares .track { background: var(--none); border-radius: 4px; overflow: hidden; }
 .bars.shares .bar { background: var(--series-1); border-radius: 0; }
 .bars.shares .name a { color: inherit; }

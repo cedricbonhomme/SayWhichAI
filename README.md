@@ -105,6 +105,13 @@ project of `projects/` is published.
 With several projects, the site opens on an overview of the projects, and each
 project has its own page (`?project=<file name>`), reachable from a selector too.
 
+When the repository of a project has an `ai-policy.yaml` file
+([the proposal](https://codeberg.org/open-source-ecosystem/ai-policy), version 1), its
+page shows what the project states there, beside what its commits declare. Nothing
+has to be configured. The tool reads the file with a small YAML reader of its own; a
+file it does not fully understand is reported as unreadable, never half shown. This
+repository has [its own](ai-policy.yaml).
+
 The overview shows the picture of the organisation that owns the repository. A
 project can name its own logo instead, an image of its repository (PNG, JPEG, WebP,
 GIF or SVG, 512 kB at most) that the tool copies to the site. An SVG file is copied
