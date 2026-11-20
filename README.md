@@ -106,8 +106,10 @@ With several projects, the site opens on an overview of the projects, and each
 project has its own page (`?project=<file name>`), reachable from a selector too.
 
 The overview shows the picture of the organisation that owns the repository. A
-project can name its own logo instead, an image of its repository (PNG, JPEG, WebP or
-GIF, 512 kB at most) that the tool copies to the site:
+project can name its own logo instead, an image of its repository (PNG, JPEG, WebP,
+GIF or SVG, 512 kB at most) that the tool copies to the site. An SVG file is copied
+only when it is a plain drawing, with no script, no style sheet and nothing loaded
+from elsewhere:
 
 ```toml
 [project]

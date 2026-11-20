@@ -34,7 +34,7 @@ def test_a_project_names_its_logo(tmp_path):
     assert load_projects(tmp_path)[0].logo == "static/img/icon-192.png"
 
 
-@pytest.mark.parametrize("logo", ["logo.svg", "../logo.png", "/etc/logo.png", "-x.png", "https://example.org/a.png"])
+@pytest.mark.parametrize("logo", ["logo.html", "../logo.png", "/etc/logo.png", "-x.png", "https://example.org/a.png"])
 def test_a_logo_is_an_image_of_the_repository(tmp_path, logo):
     (tmp_path / "a.toml").write_text(f'[project]\nrepository = "example/a"\nlogo = "{logo}"\n')
     with pytest.raises(ConfigError, match="logo"):

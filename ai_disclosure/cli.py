@@ -16,6 +16,7 @@ from pathlib import Path
 from . import __version__
 from .config import ConfigError, load_projects
 from .github import GitHub, GitHubError, find_token
+from .logo import publishable
 from .gitlog import mirror, read_changes, read_commits, read_file
 from .gource import build_story, render, write_story
 from .badge import badge
@@ -91,13 +92,15 @@ def build(args: argparse.Namespace) -> int:
         if project.logo:
             # The project file names its own logo: an image of the repository, copied to the site.
             image = read_file(repository, project.logo, project.branch)
-            if image:
+            if publishable(project.logo, image):
                 name = f"{project.slug}{Path(project.logo).suffix.lower()}"
                 (output / "logo").mkdir(exist_ok=True)
                 (output / "logo" / name).write_bytes(image)
                 logo = f"logo/{name}"
             else:
-                _log(f"{project.name}: the logo {project.logo} was not found or is over 512 kB, skipped")
+                _log(f"{project.name}: the logo {project.logo} was not found, is over 512 kB, "
+                    "or is an SVG file that holds more than a drawing: skipped"
+                )
 
         report = build_report(project, commits, logins, pulls, lines)
         reports.append(report)

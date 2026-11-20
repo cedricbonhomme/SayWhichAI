@@ -11,8 +11,7 @@ from .models import Rule
 
 REPOSITORY_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-# An image a browser shows without running anything: an SVG file may carry a script.
-LOGO_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_./ -]*\.(png|jpe?g|webp|gif)$", re.IGNORECASE)
+LOGO_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_./ -]*\.(png|jpe?g|webp|gif|svg)$", re.IGNORECASE)
 
 
 class ConfigError(ValueError):
@@ -68,7 +67,7 @@ def load_project(path: Path) -> Project:
     logo = project.get("logo", "")
     if logo and (not LOGO_RE.match(logo) or ".." in logo):
         raise ConfigError(
-            f"{where}: [project] logo must be the path of a PNG, JPEG, WebP or GIF image "
+            f"{where}: [project] logo must be the path of a PNG, JPEG, WebP, GIF or SVG image "
             f"in the repository, got {logo!r}"
         )
 

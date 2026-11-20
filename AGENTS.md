@@ -74,6 +74,8 @@ the GitHub account of each commit author are cached in `.cache/`.
 - `ai_disclosure/gitlog.py`, `ai_disclosure/github.py`: reading the commits, the
   GitHub accounts and the pull requests.
 - `ai_disclosure/report.py`: builds the published JSON of a project.
+- `ai_disclosure/logo.py`: decides whether the logo a project file names may be
+  published. An SVG file is refused unless it is a plain drawing; it is never repaired.
 - `ai_disclosure/badge.py`: the badge of a project, an SVG image for its README.
 - `ai_disclosure/stats.py`: adds the reports up into the statistics page. It names no
   project and no person: the page is not a ranking.

@@ -1,6 +1,7 @@
 [project]
 name = "BSimVis"
 repository = "MISP/bsimvis"
+logo = "img/logo/logo.svg"
 
 # This project states no rule on AI-assisted contributions yet: the page shows what
 # its commits declare. See vulnerability-lookup.toml for the [policy] settings.
