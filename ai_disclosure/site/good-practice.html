@@ -26,7 +26,7 @@
     <h1>Say which AI wrote it</h1>
     <p>AI tools now write a growing part of the code that reaches Open Source projects. Whether to accept it is each project's choice. Where it is accepted, it should be done openly and with trust. What a project needs first is to know it: one line at the end of each commit, and a person who answers for the change.</p>
     <p>This page describes one practice: that of a project which accepts AI-assisted contributions and asks that they be declared. Other projects choose otherwise, and <a href="policies.html">their rules are compared on another page</a>.</p>
-    <div class="links"><a class="button" href="#adopt">Adopt it in five steps</a><a href="#files">The four files</a><a href="#trailer">The trailer</a></div>
+    <div class="links"><a class="button" href="#adopt">Adopt it in three steps</a><a href="#files">The four files</a><a href="#trailer">The trailer</a></div>
   </div>
 
   <div class="with-toc">
@@ -34,11 +34,7 @@
     <p class="toc-title" id="toc-title">On this page</p>
     <ol>
       <li><a href="#why">Why it matters</a></li>
-      <li><a href="#everybody">For those who use AI, and for those who do not</a>
-        <ol>
-          <li><a href="#merit">Judged on merit: the OCaml guidelines</a></li>
-        </ol>
-      </li>
+      <li><a href="#everybody">For those who use AI, and for those who do not</a></li>
       <li><a href="#levels">A shared vocabulary</a></li>
       <li><a href="#trailer">The <code>Co-Authored-By</code> trailer</a></li>
       <li><a href="#reliability">Without the trailer, these pages say little</a></li>
@@ -74,23 +70,9 @@
     <ul>
       <li><strong>No one has to use AI.</strong> People refuse these tools for many reasons, and they do not owe an explanation. They deserve support, not only tolerance: the documentation, the review and the help of the project stay there for someone working without an AI tool.</li>
       <li><strong>No one is asked to.</strong> A maintainer who uses AI does not ask a contributor to do the same, and a contribution written by hand is reviewed like any other.</li>
-      <li><strong>No one is turned away for using it.</strong> Declaring AI use never counts against a contribution. OCaml calls this <a href="#merit">judging on merit</a>.</li>
+      <li><strong>No one is turned away for using it.</strong> Declaring AI use never counts against a contribution. OCaml calls this <a href="policies.html#merit">judging on merit</a>.</li>
     </ul>
     <p>Declaring is what makes both possible. When AI use is said, those who avoid it can see where it is, and those who use it have nothing to hide. The Software Freedom Conservancy puts these two points first in its <a href="https://sfconservancy.org/llm-gen-ai/llm-backed-generative-ai-recommendations.html" target="_blank" rel="noreferrer">recommendations on LLM-backed generative AI</a>: support those who reject these systems, and let every contributor decide for themselves.</p>
-
-    <h3 id="merit">Judged on merit: the OCaml guidelines</h3>
-    <p>For this idea, our reference is the OCaml compiler, which states it better than we do. Its <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md" target="_blank" rel="noreferrer">guidelines for AI-assisted contributions</a>, in the repository since November 2025, are six short rules, and the first one is:</p>
-    <blockquote><p>We strive to evaluate contributions based on their merit, not their authors.</p></blockquote>
-    <p>A change is judged on what it is: correct or not, understood or not, worth a reviewer's time or not. Who or what wrote it is not the test. So there is no ban and no separate track: a good change written with a model is accepted, and a bad one is refused because it is bad.</p>
-    <p>Merit alone would be an empty word. The other rules are what make it work:</p>
-    <ul>
-      <li><strong>The contributor answers for all of it.</strong> "We ask that you have either written, or read and reviewed yourself, every part of your contribution. You are responsible for its quality."</li>
-      <li><strong>AI use is disclosed, like any other help.</strong> A significant AI-generated part "must be disclosed, stating which tool was used and for what", because reviewing it "can require a different approach". The same rule adds that an acknowledgement is owed "even if another <em>human</em> contributor did some of the work".</li>
-      <li><strong>The reviewer's time is what is protected.</strong> It "is a scarce resource", and contributions, "whether human- or AI-authored", should conserve it.</li>
-      <li><strong>There is a floor.</strong> Never acceptable: "low-effort productions of code that contributors do not understand", plagiarised works, hallucinated security reports.</li>
-    </ul>
-    <p>What we take from it is the sentence that introduces the rules: they "also apply, or have a direct counterpart, with entirely human-produced content". Nothing is asked of a person who uses AI that is not asked of everyone. Declaring is then information for the review, never a verdict on the author, and that is what lets a project ask for it without shaming anyone.</p>
-    <p>Judging on merit does not mean that the way a change was made is of no interest. It matters to the person who reviews it, and to anyone who later asks where the code came from. It means that the origin is said, and then not held against the author.</p>
   </section>
 
   <section id="levels">
@@ -131,16 +113,7 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
       <li><strong>Leave it out of commits you wrote yourself.</strong> The trailer is a fact about a commit, not a label on a person.</li>
     </ul>
     <p>Several tools add the trailer by themselves; others do when the project asks them to, which is what <code>AGENTS.md</code> is for.</p>
-
-    <h3 id="other-trailers">It is not the only trailer</h3>
-    <p>Projects do not agree on the name of the line. <a href="policies.html#others">Among those we read</a>:</p>
-    <ul>
-      <li><strong><code>Assisted-by</code></strong> is required by Mesa and by Fedify. Both keep <code>Co-Authored-By</code> for people: in their words, it is "reserved for human co-authors".</li>
-      <li><strong><code>Generated-by</code></strong> is what Mesa asks for when almost all the code was generated, and one of the two forms the Apache Software Foundation recommends. The other one is <code>Co-authored-by</code>.</li>
-      <li><strong>No trailer at all</strong> for pip and Kubernetes, which do not allow a model to be listed as a co-author.</li>
-    </ul>
-    <p>We keep <code>Co-Authored-By</code> for a practical reason: the forges already show it, and several tools already write it without being asked. The objection is fair, though. A model is not an author like a person is, and git has no better place for it yet.</p>
-    <p>The name of the trailer matters less than three things, which hold whatever a project chooses: the line is in the commit, a script can read it, and it names the model and its version.</p>
+    <p><code>Co-Authored-By</code> is not the only name in use: some projects ask for <code>Assisted-by</code> or <code>Generated-by</code>, and some do not allow a model to be named at all (<a href="policies.html#other-trailers">the trailers of other projects</a>). The name matters less than three things, which hold whatever a project chooses: the line is in the commit, a script can read it, and it names the model and its version.</p>
   </section>
 
   <section id="reliability">
@@ -157,40 +130,89 @@ Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
     <div class="file-cards">
       <a class="file-card" href="#contributing"><code>CONTRIBUTING.md</code><span>for people</span></a>
       <a class="file-card" href="#agents"><code>AGENTS.md</code><span>for AI agents</span></a>
-      <a class="file-card" href="#claude"><code>CLAUDE.md</code><span>and other tool files, pointing to it</span></a>
+      <a class="file-card" href="#claude"><code>CLAUDE.md</code><span>only if your tool reads its own file</span></a>
       <a class="file-card" href="#template"><code>PULL_REQUEST_TEMPLATE.md</code><span>at the moment of submitting</span></a>
     </div>
 
     <h3 id="contributing">1. <code>CONTRIBUTING.md</code>, for people</h3>
-    <p>The reference. It states the rules in the project's own words, and the two files below repeat them. The rules of Vulnerability-Lookup, in short:</p>
-    <ul>
-      <li><strong>Check what you submit.</strong> Every change is read, understood and tested by its author before the pull request is opened, whoever or whatever wrote it.</li>
-      <li><strong>Be able to explain it.</strong> Reviewers may ask about any part of the change, and the author answers themselves, not with pasted model output.</li>
-      <li><strong>A human submits it.</strong> An agent does not open a pull request, an issue or a vulnerability report on its own.</li>
-      <li><strong>Say so.</strong> The pull request says when a significant part was generated, and each commit not written by a human carries the trailer.</li>
-      <li><strong>Check what you report.</strong> Issues and vulnerability reports describe a problem the author has reproduced.</li>
-    </ul>
-    <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools" target="_blank" rel="noreferrer">Read the full section in Vulnerability-Lookup</a>.</p>
+    <p>The reference. It states the rules, and the two files below repeat them. Here is a section to copy, with the seven commitments of the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">charter</a> under their own names. Set the date, and change the words to your project's own:</p>
+<p class="file-name">CONTRIBUTING.md</p>
+<pre><code>## Use of AI and LLM tools
+
+This project adopts the [AI transparency charter][charter] 1.3. These
+rules apply to contributions made from YYYY-MM-DD.
+
+AI-assisted contributions are accepted. Contributions written without any
+AI tool are accepted in the same way: nobody has to use one, and nobody
+has to explain why they do not. In both cases a pull request is the
+responsibility of the person who submits it.
+
+- **Say so.** Mention in the pull request description when a significant
+  part of the change was generated with an AI tool, and end each commit
+  that was not written by a human with a `Co-Authored-By` trailer naming
+  the model and its version, for example:
+
+  ```
+  Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;
+  ```
+- **A human answers for it.** Every change in a pull request must be read,
+  understood and tested by its author before it is opened, whoever or
+  whatever wrote it. Say it in the pull request: keep the template's
+  sections, and tick its last box yourself.
+- **Be able to explain it.** Reviewers may ask you to explain any part of
+  your change. Answer review comments yourself, not with pasted LLM
+  output.
+- **A human submits.** Pull requests opened by an agent on its own,
+  without a human author who reviewed them, will be closed.
+- **Report only what was reproduced.** The same applies to issues: report
+  a problem that you have observed yourself, and describe what you
+  observed.
+- **No shame, no ranking.** Declaring the use of an AI tool is never held
+  against a contribution. It is reviewed like any other.
+- **No one has to use AI.** Nothing in the project's workflow requires an
+  AI tool, and a contribution is not expected to be faster or larger
+  because such tools exist.
+
+These rules are repeated in [AGENTS.md](AGENTS.md), which every AI agent
+reads. Keep both files in step when you change them.
+
+[charter]: https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md</code></pre>
+
+    <p>For a project that wrote its own, see <a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools" target="_blank" rel="noreferrer">the section of Vulnerability-Lookup</a>.</p>
 
     <h3 id="agents">2. <code>AGENTS.md</code>, for AI agents</h3>
     <p>Coding agents read this file before they work. It turns the rules into instructions, so that the trailer is added without anyone having to remember it:</p>
 <p class="file-name">AGENTS.md</p>
-<pre><code>- **Say so.** End every commit you author with a `Co-Authored-By` trailer
-  naming the model, for example:
+<pre><code>## Rules for AI agents
 
-      Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;
+These rules come from the "Use of AI and LLM tools" section of
+[CONTRIBUTING.md](CONTRIBUTING.md). They are mandatory. CONTRIBUTING.md is
+the reference, and it wins if the two files ever disagree.
 
-- **A human reviews and submits.** Never open a pull request, an issue or a
-  vulnerability report on your own; the decision is the human's, after they
-  have reviewed your work.
+- **Say so.** End every commit you author with a `Co-Authored-By` trailer
+  naming the model and its version, for example:
 
-- When you draft a pull request description, keep all the sections of the
-  template. Never tick the box "I have read, understood and tested every
-  change": it is the human's own statement, leave it for them.</code></pre>
+  ```
+  Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;
+  ```
+- **Stay in scope.** Keep changes minimal and focused on the task. Do not
+  reformat, rename, or rewrite unrelated code or comments.
+- **Check what you produce.** Run the tests before handing your work over,
+  and say plainly what you could not verify.
+- **A human reviews and submits.** Never open a pull request or an issue
+  on your own; the decision is the human's, after they have reviewed your
+  work.
+- **Report only what was reproduced.** When you help write an issue, the
+  human must have observed the problem. Never present an unverified
+  finding as a confirmed one.
+- **Leave the human's box to the human.** When you draft a pull request
+  description, keep all the sections of the template. Never tick the box
+  "I have read, understood and tested every change": it is the human's own
+  statement.</code></pre>
     <p><a href="https://github.com/vulnerability-lookup/vulnerability-lookup/blob/main/AGENTS.md" target="_blank" rel="noreferrer">The full AGENTS.md of Vulnerability-Lookup</a>.</p>
 
-    <h3 id="claude">3. <code>CLAUDE.md</code> and other tool files, pointing to it</h3>
-    <p>Some tools read their own file. Keep one set of rules and make those files import it, so that the rules never drift apart:</p>
+    <h3 id="claude">3. <code>CLAUDE.md</code> and other tool files, if you use one</h3>
+    <p>Only needed if a tool you use reads its own file instead of <code>AGENTS.md</code>. Keep one set of rules and make that file import it, so that the rules never drift apart:</p>
 <p class="file-name">CLAUDE.md</p>
 <pre><code># CLAUDE.md
 
@@ -211,13 +233,31 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
 
   <section id="adopt">
     <h2>Adopt it</h2>
+    <p><strong>The shortest way is one paragraph.</strong> Paste it into your <code>CONTRIBUTING.md</code>, and the project has adopted the practice:</p>
+<p class="file-name">CONTRIBUTING.md</p>
+<pre><code>## Use of AI and LLM tools
+
+This project adopts the [AI transparency charter][charter] 1.3.
+AI-assisted contributions are accepted, and they are declared: end each
+commit that was not written by a human with a trailer naming the model and
+its version, for example:
+
+```
+Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;
+```
+
+[charter]: https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md</code></pre>
+    <p><strong>The whole practice is three steps.</strong> Each one is a text to copy from the section above:</p>
     <ol class="steps">
-      <li>Add the rules to <a href="#contributing"><code>CONTRIBUTING.md</code></a>, with the date they apply from.</li>
-      <li>Add <a href="#agents"><code>AGENTS.md</code></a>, and make <a href="#claude"><code>CLAUDE.md</code></a> and other tool files import it.</li>
+      <li>Copy the section for <a href="#contributing"><code>CONTRIBUTING.md</code></a>, and set the date the rules apply from.</li>
+      <li>Copy the rules for <a href="#agents"><code>AGENTS.md</code></a>. If a tool you use reads its own file, such as <a href="#claude"><code>CLAUDE.md</code></a>, make that file import it.</li>
       <li>Add the two boxes to the <a href="#template">pull request template</a>.</li>
-      <li>Say what the project accepts, in the words of <a href="policies.html#taxonomy">our statement</a>, which are still a draft: for this practice, "accepts <code>ai-assisted</code>".</li>
-      <li>Have your project followed here, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
     </ol>
+    <p>Two more things are optional:</p>
+    <ul>
+      <li>a summary of your rules for tools, in an <a href="#policy-file"><code>ai-policy.yaml</code></a> file;</li>
+      <li>having your project <a href="https://github.com/cedricbonhomme/ai-disclosure#follow-a-project" target="_blank" rel="noreferrer">followed on this site</a>, so that what is declared is published. Commits made before the date of the rules are shown for the history and are not held to them.</li>
+    </ul>
     <p class="callout">The same commitments are written as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">AI transparency charter</a>.</p>
   </section>
 
@@ -253,8 +293,33 @@ The instructions for AI agents live in AGENTS.md, shared by every tool.
 
 <footer class="wrap footer"><span>AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure" target="_blank" rel="noreferrer">Source code</a>. The text of this page is under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>.</span></footer>
 <script>
+// A "Copy" button on each block of text meant to be pasted into a file.
+for (const name of document.querySelectorAll(".file-name")) {
+  const block = name.nextElementSibling;
+  if (!block || block.tagName !== "PRE") continue;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "Copy";
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(block.textContent);
+      button.textContent = "Copied";
+    } catch (error) {
+      // No access to the clipboard: select the text, ready for Ctrl+C.
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = "Selected";
+    }
+    setTimeout(() => { button.textContent = "Copy"; }, 2000);
+  });
+  name.append(button);
+}
+
 // These sections moved to another page: a link made before still arrives.
-if (["#others", "#ocaml", "#taxonomy", "#accepts", "#declares", "#taxonomy-notes", "#related"].includes(location.hash)) {
+if (["#others", "#ocaml", "#taxonomy", "#accepts", "#declares", "#taxonomy-notes", "#related", "#merit", "#other-trailers"].includes(location.hash)) {
   location.replace("policies.html" + location.hash);
 }
 </script>

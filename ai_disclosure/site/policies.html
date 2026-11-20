@@ -34,6 +34,8 @@
     <ol>
       <li><a href="#others">How other projects do it</a>
         <ol>
+          <li><a href="#other-trailers">The trailer has other names</a></li>
+          <li><a href="#merit">Judged on merit: the OCaml guidelines</a></li>
           <li><a href="#ocaml">The OCaml experiment</a></li>
         </ol>
       </li>
@@ -79,6 +81,30 @@
     </ul>
     <p>The last point is the weak one for everybody. A contributor has to learn a different rule in each project, and no tool can read all of them. Agreeing on one line would help more than any of these rules taken alone.</p>
     <p>For more projects, see the community list <a href="https://github.com/melissawm/open-source-ai-contribution-policies" target="_blank" rel="noreferrer">open-source-ai-contribution-policies</a>, which follows more than a hundred of them. It is an index: check each rule on the project's own page, as some lines are out of date.</p>
+
+    <h3 id="other-trailers">The trailer has other names</h3>
+    <p>Projects do not agree on the name of the line. Among those we read:</p>
+    <ul>
+      <li><strong><code>Assisted-by</code></strong> is required by Mesa and by Fedify. Both keep <code>Co-Authored-By</code> for people: in their words, it is "reserved for human co-authors".</li>
+      <li><strong><code>Generated-by</code></strong> is what Mesa asks for when almost all the code was generated, and one of the two forms the Apache Software Foundation recommends. The other one is <code>Co-authored-by</code>.</li>
+      <li><strong>No trailer at all</strong> for pip and Kubernetes, which do not allow a model to be listed as a co-author.</li>
+    </ul>
+    <p>The <a href="good-practice.html#trailer">practice of this site</a> keeps <code>Co-Authored-By</code> for a practical reason: the forges already show it, and several tools already write it without being asked. The objection is fair, though. A model is not an author like a person is, and git has no better place for it yet.</p>
+    <p>The name of the trailer matters less than three things, which hold whatever a project chooses: the line is in the commit, a script can read it, and it names the model and its version.</p>
+
+    <h3 id="merit">Judged on merit: the OCaml guidelines</h3>
+    <p>The <a href="good-practice.html#everybody">practice of this site</a> rests on one idea: a contribution is judged on what it is, and declaring AI use never counts against it. Our reference for this idea is the OCaml compiler, which states it better than we do. Its <a href="https://github.com/ocaml/ocaml/blob/trunk/AI.md" target="_blank" rel="noreferrer">guidelines for AI-assisted contributions</a>, in the repository since November 2025, are six short rules, and the first one is:</p>
+    <blockquote><p>We strive to evaluate contributions based on their merit, not their authors.</p></blockquote>
+    <p>A change is judged on what it is: correct or not, understood or not, worth a reviewer's time or not. Who or what wrote it is not the test. So there is no ban and no separate track: a good change written with a model is accepted, and a bad one is refused because it is bad.</p>
+    <p>Merit alone would be an empty word. The other rules are what make it work:</p>
+    <ul>
+      <li><strong>The contributor answers for all of it.</strong> "We ask that you have either written, or read and reviewed yourself, every part of your contribution. You are responsible for its quality."</li>
+      <li><strong>AI use is disclosed, like any other help.</strong> A significant AI-generated part "must be disclosed, stating which tool was used and for what", because reviewing it "can require a different approach". The same rule adds that an acknowledgement is owed "even if another <em>human</em> contributor did some of the work".</li>
+      <li><strong>The reviewer's time is what is protected.</strong> It "is a scarce resource", and contributions, "whether human- or AI-authored", should conserve it.</li>
+      <li><strong>There is a floor.</strong> Never acceptable: "low-effort productions of code that contributors do not understand", plagiarised works, hallucinated security reports.</li>
+    </ul>
+    <p>What we take from it is the sentence that introduces the rules: they "also apply, or have a direct counterpart, with entirely human-produced content". Nothing is asked of a person who uses AI that is not asked of everyone. Declaring is then information for the review, never a verdict on the author, and that is what lets a project ask for it without shaming anyone.</p>
+    <p>Judging on merit does not mean that the way a change was made is of no interest. It matters to the person who reviews it, and to anyone who later asks where the code came from. It means that the origin is said, and then not held against the author.</p>
 
     <h3 id="ocaml">The OCaml experiment</h3>
     <p>In April 2026, Anil Madhavapeddy proposed a <a href="https://github.com/avsm/ocaml-ai-disclosure" target="_blank" rel="noreferrer">voluntary disclosure for OCaml code</a>, built on an earlier draft of the <a href="good-practice.html#levels">W3C report</a>, which then had four values (it separated assisted from generated). It is the most precise scheme we know of:</p>
