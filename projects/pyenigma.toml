@@ -1,0 +1,8 @@
+[project]
+name = "pyEnigma"
+repository = "cedricbonhomme/pyEnigma"
+
+[policy]
+# The repository has no written rule on AI-assisted contributions yet. The date is
+# the one from which its commits are expected to carry the trailer.
+trailer_since = "2026-06-08"

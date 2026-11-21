@@ -2,5 +2,7 @@
 name = "Rulezet"
 repository = "rulezet/rulezet-core"
 
-# This project states no rule on AI-assisted contributions yet: the page shows what
-# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+[policy]
+# The repository has no written rule on AI-assisted contributions yet. The date is
+# the one from which its commits are expected to carry the trailer.
+trailer_since = "2026-08-17"
