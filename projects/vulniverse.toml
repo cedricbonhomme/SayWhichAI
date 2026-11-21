@@ -1,0 +1,7 @@
+[project]
+name = "Vulniverse"
+repository = "vulnerability-lookup/vulniverse"
+logo = "frontend/public/icon.png"
+
+# This project states no rule on AI-assisted contributions yet: the page shows what
+# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
