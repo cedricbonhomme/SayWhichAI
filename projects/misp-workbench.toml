@@ -1,0 +1,14 @@
+[project]
+name = "MISP-Workbench"
+repository = "MISP/misp-workbench"
+logo = "frontend/public/images/misp-workbench-icon.png"
+
+[policy]
+# The repository has no written rule on AI-assisted contributions yet. The date is
+# the one from which its commits are expected to carry the trailer.
+trailer_since = "2026-08-23"
+
+# The project has no pull request template: no box to compare with the commits.
+
+[identities]
+bots = []

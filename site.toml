@@ -16,6 +16,7 @@ projects = [
     "vulniverse",
     "gcve",
     "misp",
+    "misp-workbench",
     "bsimvis",
     "ail-framework",
     "flowintel",
