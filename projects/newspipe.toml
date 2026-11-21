@@ -3,5 +3,7 @@ name = "Newspipe"
 repository = "cedricbonhomme/newspipe"
 logo = "newspipe/static/img/icon-192.png"
 
-# This project states no rule on AI-assisted contributions yet: the page shows what
-# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+[policy]
+# Date from which commits written with an AI tool must carry a Co-Authored-By
+# trailer naming the model. Earlier commits are shown, never judged.
+trailer_since = "2026-03-16"

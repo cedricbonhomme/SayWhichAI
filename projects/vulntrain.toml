@@ -5,7 +5,7 @@ logo = "docs/static/img/VulnTrain-logo.png"
 
 [policy]
 url = "https://github.com/vulnerability-lookup/VulnTrain/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
-trailer_since = "2026-11-18"
+trailer_since = "2026-02-09"
 
 [[policy.checkbox]]
 id = "ai"

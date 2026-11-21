@@ -4,3 +4,9 @@ repository = "MISP/MISP"
 
 # This project states no rule on AI-assisted contributions yet: the page shows what
 # its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+[policy]
+# Where the project states its rules on AI-assisted contributions.
+url = "https://github.com/MISP/MISP/blob/2d7de9643b9677231faf5660d8eca1cc9a090be2/docs/dev/event-templating-progress.md?#3-commit-message-format"
+# Date from which commits written with an AI tool must carry a Co-Authored-By
+# trailer naming the model. Earlier commits are shown, never judged.
+trailer_since = "2026-01-19"
