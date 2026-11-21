@@ -1086,32 +1086,61 @@
         el("span", {}, swatch("var(--series-1)"), "naming a model"), el("span", { text: "now" })));
   }
 
+  // The figure of a project card: since the date of the project's rule when it has one.
+  function declared(project) {
+    const totals = project.totals;
+    const since = project.trailer_since;
+    const part = since ? totals.since_ai_commits : totals.ai_commits;
+    const whole = since ? totals.since_commits : totals.human_commits;
+    return { since, part, whole, share: whole ? part / whole : 0 };
+  }
+
+  function card(project) {
+    const totals = project.totals;
+    const { since, part, whole, share } = declared(project);
+    return el("a", { class: "project-card", href: "?project=" + encodeURIComponent(project.slug) },
+      el("div", { class: "head" },
+        project.logo ? el("img", {
+          class: "logo", alt: "", loading: "lazy", width: 40, height: 40,
+          src: project.logo,
+        }) : null,
+        el("div", {},
+          el("h2", { text: project.name }),
+          el("div", { class: "repo", text: project.repository }))),
+      el("div", { class: "value", text: percent(part, whole) }),
+      el("div", { class: "label", text: `of commits declare an AI model${since ? " since " + day(since) : ""} (${number.format(part)} of ${number.format(whole)})` }),
+      el("div", { class: "meter", role: "presentation" }, el("span", { style: `width:${100 * share}%` })),
+      project.recent ? spark(project.recent) : null,
+      el("p", { class: "facts", text: `${plural(totals.humans, "contributor")}, ${number.format(totals.humans_with_ai)} declared a model · ${plural(totals.models, "model")} named` }));
+  }
+
   function overview(index) {
     document.title = "AI transparency for Open Source projects";
+    // The order is a way to read the page, not a ranking: it is the reader's choice.
+    let rising = false;
+    try { rising = localStorage.getItem("order") === "rising"; } catch (error) { /* no storage */ }
+    const list = el("div", { class: "projects" });
+    const button = el("button", { type: "button", class: "order" });
+    const draw = () => {
+      const sorted = index.map((project) => ({ project, share: declared(project).share }))
+        .sort((a, b) => (rising ? a.share - b.share : b.share - a.share));
+      list.replaceChildren(...sorted.map((item) => card(item.project)));
+      button.replaceChildren(el("span", { "aria-hidden": "true", text: rising ? "↑" : "↓" }),
+        rising ? " Lowest share first" : " Highest share first");
+      button.title = "Reverse the order";
+    };
+    button.addEventListener("click", () => {
+      rising = !rising;
+      try { localStorage.setItem("order", rising ? "rising" : "falling"); } catch (error) { /* no storage */ }
+      draw();
+    });
+    draw();
     root.replaceChildren(
       el("div", { class: "intro" },
         el("h1", { text: "AI transparency for Open Source projects" }),
         el("p", { text: "What the contributors of each project declare about their use of AI tools, read from the Co-Authored-By trailers of its commits and from its pull requests." })),
-      el("div", { class: "projects" }, index.map((project) => {
-        const totals = project.totals;
-        const since = project.trailer_since;
-        const part = since ? totals.since_ai_commits : totals.ai_commits;
-        const whole = since ? totals.since_commits : totals.human_commits;
-        return el("a", { class: "project-card", href: "?project=" + encodeURIComponent(project.slug) },
-          el("div", { class: "head" },
-            project.logo ? el("img", {
-              class: "logo", alt: "", loading: "lazy", width: 40, height: 40,
-              src: project.logo,
-            }) : null,
-            el("div", {},
-              el("h2", { text: project.name }),
-              el("div", { class: "repo", text: project.repository }))),
-          el("div", { class: "value", text: percent(part, whole) }),
-          el("div", { class: "label", text: `of commits declare an AI model${since ? " since " + day(since) : ""} (${number.format(part)} of ${number.format(whole)})` }),
-          el("div", { class: "meter", role: "presentation" }, el("span", { style: `width:${whole ? (100 * part) / whole : 0}%` })),
-          project.recent ? spark(project.recent) : null,
-          el("p", { class: "facts", text: `${plural(totals.humans, "contributor")}, ${number.format(totals.humans_with_ai)} declared a model · ${plural(totals.models, "model")} named` }));
-      })));
+      el("div", { class: "order-bar" }, el("span", { text: "Sorted by the share of commits declaring a model" }), button),
+      list);
     document.getElementById("footer").textContent = "Built from the public history of each project.";
   }
 

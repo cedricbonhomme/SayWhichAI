@@ -1,4 +1,5 @@
-# The projects this site publishes, in the order of the overview page.
+# The projects this site publishes, in the order of the project menu. The overview
+# page sorts them by the share of commits declaring a model.
 #
 # Each name is a file of projects/, without ".toml". A project file that is not
 # listed here is kept for another site and is neither read nor published.

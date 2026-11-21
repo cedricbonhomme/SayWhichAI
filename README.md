@@ -90,7 +90,7 @@ since = "2026-11-04"
 ```
 
 [site.toml](site.toml) lists the projects the site publishes, in the order of its
-overview page:
+project menu (the overview page sorts them by the share of commits declaring a model):
 
 ```toml
 [site]
