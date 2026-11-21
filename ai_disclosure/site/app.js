@@ -1162,6 +1162,16 @@
     }
     const wanted = new URLSearchParams(location.search).get("project");
     const found = index.find((project) => project.slug === wanted);
+    // The front page presents the practice; it shows a project only when a link asks for one.
+    const home = root.dataset.page === "home";
+    if (home && wanted === null) {
+      const list = document.getElementById("home-projects");
+      if (list) list.replaceChildren(...index.map((project) =>
+        el("a", { class: "chip", href: "?project=" + encodeURIComponent(project.slug) },
+          project.logo ? el("img", { alt: "", loading: "lazy", width: 20, height: 20, src: project.logo }) : null,
+          el("span", { text: project.name }))));
+      return;
+    }
     const current = found || (index.length === 1 ? index[0] : null);
     if (index.length > 1) {
       const select = document.getElementById("project-select");
@@ -1170,15 +1180,13 @@
         ...index.map((project) =>
           el("option", { value: project.slug, selected: current && project.slug === current.slug, text: project.name })));
       select.addEventListener("change", () => {
-        location.href = select.value ? "?project=" + encodeURIComponent(select.value) : "./";
+        location.href = select.value ? "?project=" + encodeURIComponent(select.value) : "projects.html";
       });
       select.closest("label").hidden = false;
     }
+    document.querySelector('.nav a[href="projects.html"]').setAttribute("aria-current", "page");
     if (current) load(current.slug);
-    else {
-      document.querySelector('.nav a[href="./"]').setAttribute("aria-current", "page");
-      overview(index);
-    }
+    else overview(index);
   }
 
   window.addEventListener("scroll", hideTooltip, { passive: true });

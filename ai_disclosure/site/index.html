@@ -4,19 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI transparency for Open Source projects</title>
-<meta name="description" content="What the contributors of a project declare about their use of AI tools, read from its commits and pull requests.">
+<meta name="description" content="A simple practice for Open Source projects that accept AI-assisted contributions: each commit names the model that wrote it, and a person answers for the change.">
 <link rel="stylesheet" href="style.css">
 <script src="theme.js"></script>
+<script>if (new URLSearchParams(location.search).has("project")) document.documentElement.classList.add("has-project");</script>
 </head>
 <body>
 <header class="masthead">
   <div class="wrap masthead-row">
     <p class="brand"><a href="./">AI transparency for Open Source projects</a></p>
     <nav class="nav" aria-label="Site">
-      <a href="./">Projects</a>
-      <a href="stats.html">Statistics</a>
       <a href="good-practice.html">Good practice</a>
       <a href="policies.html">Policies</a>
+      <a href="projects.html">Projects</a>
+      <a href="stats.html">Statistics</a>
       <label class="project-picker" hidden>Project
         <select id="project-select"></select>
       </label>
@@ -24,11 +25,70 @@
   </div>
 </header>
 
-<main class="wrap" id="report" aria-live="polite">
+<main class="wrap prose home" id="home">
+  <div class="intro">
+    <h1>Say which AI wrote it</h1>
+    <p>A simple practice for Open Source projects that accept contributions written with AI tools. Each commit names the model that wrote it, and a person answers for the change. Nothing more is needed to start: one line at the end of a commit, and a few sentences in the files a project already has.</p>
+    <div class="links"><a class="button" href="good-practice.html#adopt">Adopt it in three steps</a><a href="good-practice.html">Read the good practice</a><a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">The charter</a></div>
+  </div>
+
+  <section>
+    <h2>The practice, in three sentences</h2>
+    <div class="pillars">
+      <div>
+        <h3>Say so</h3>
+        <p>A commit that was not written by a human ends with a trailer naming the model and its version.</p>
+        <pre><code>Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
+      </div>
+      <div>
+        <h3>A human answers for it</h3>
+        <p>Every change is read, understood and tested by the person who submits it, whoever or whatever wrote it. An agent does not open a pull request on its own.</p>
+      </div>
+      <div>
+        <h3>No shame, no ranking</h3>
+        <p>Declaring an AI tool is never held against a contribution. Nobody has to use one, and nobody has to explain why they do not.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What a project adds</h2>
+    <p>The shortest way is <a href="good-practice.html#adopt">one paragraph in <code>CONTRIBUTING.md</code></a>. The whole practice is a section in three files, ready to copy:</p>
+    <ul>
+      <li><a href="good-practice.html#contributing"><code>CONTRIBUTING.md</code></a>, for people;</li>
+      <li><a href="good-practice.html#agents"><code>AGENTS.md</code></a>, for AI agents, which then write the trailer themselves;</li>
+      <li>two boxes in the <a href="good-practice.html#template">pull request template</a>.</li>
+    </ul>
+    <p>The same commitments exist as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">AI transparency charter</a>, that a project can adopt by name.</p>
+  </section>
+
+  <section>
+    <h2>What it looks like in real projects</h2>
+    <p>This site follows a few projects as examples. For each one it reads the commits and the pull requests, and shows what their contributors declare: which models are named, since when, and by how many people. The figures are a lower bound, and the pages rank nobody.</p>
+    <div class="chips" id="home-projects"></div>
+    <p class="links-line"><a href="projects.html">All the projects</a> · <a href="stats.html">Statistics, all projects together</a></p>
+    <p class="callout">The list is a showcase, not a registry: it is kept short on purpose. To see the same pages for your own projects, run the tool yourself.</p>
+  </section>
+
+  <section>
+    <h2>Run it for your own projects</h2>
+    <p>The tool that builds these pages is free software, written in Python with the standard library only. It reads a list of repositories and writes a static site, which any web server can publish.</p>
+<pre><code>pip install git+https://github.com/cedricbonhomme/ai-disclosure
+ai-disclosure build        # reads projects/, writes _site/</code></pre>
+    <p>One small file per project says where the repository is and from which date its rule applies. <a href="https://github.com/cedricbonhomme/ai-disclosure#readme" target="_blank" rel="noreferrer">The README explains the rest.</a></p>
+  </section>
+
+  <section>
+    <h2>Not every project chooses this</h2>
+    <p>Some projects refuse AI-generated contributions, others set no rule. This site takes no side on whether to use AI: it describes one way to be open about it. <a href="policies.html">How other projects do it</a> is compared on its own page.</p>
+  </section>
+</main>
+
+<main class="wrap" id="report" data-page="home" aria-live="polite">
   <p class="loading" id="status">Loading the report…</p>
 </main>
 
-<footer class="wrap footer"><span id="footer"></span></footer>
+<footer class="wrap footer"><span id="footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure" target="_blank" rel="noreferrer">Source code</a>. The text of this page is under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>.</span></footer>
 
 <div class="tooltip" id="tooltip" role="status" hidden></div>
 <script src="app.js"></script>

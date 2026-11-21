@@ -372,3 +372,20 @@ section > .sub.after { margin: 12px 0 0; }
 
 /* ---------- Theme switcher of the footer ---------- */
 .toggle.theme button { font-size: 12px; padding: 2px 10px; }
+
+/* The front page. It is plain HTML; a link to a project (?project=) shows the report instead. */
+.has-project #home, html:not(.has-project) #home ~ #report { display: none; }
+.home section { max-width: none; }
+.home section > p, .home section > ul, .home section > pre { max-width: 74ch; }
+.pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 0 0 12px; }
+.pillars > div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+.pillars h3 { margin: 0 0 6px; font-size: 17px; }
+.pillars p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.pillars pre { margin: 12px 0 0; padding: 8px 10px; background: var(--grid); }
+.pillars pre code { font-size: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: inherit; text-decoration: none; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px 4px 6px; }
+.chip:hover, .chip:focus-visible { border-color: var(--axis); outline: none; }
+.chip img { width: 20px; height: 20px; border-radius: 5px; background: #fff; object-fit: contain; }
+.chip span:first-child { padding-left: 6px; }
+.links-line { font-size: 14px; }
