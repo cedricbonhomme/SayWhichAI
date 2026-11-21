@@ -1,13 +1,15 @@
 # AI disclosure
 
-AI transparency for Open Source projects.
+AI transparency for Open Source projects: **<https://www.saywhichai.org>**
 
 A [charter](AI_CHARTER.md) (version 1.3) for projects that want to be open about the use of AI tools
 in their development, and a tool that publishes what a project's contributors
 declare: it reads the commits and pull requests of a project and builds a static
 page of charts.
 
-The first project followed is
+The site presents the practice, how to adopt it, and
+[a few projects followed as examples](https://www.saywhichai.org/projects.html). The
+first one was
 [Vulnerability-Lookup](https://github.com/vulnerability-lookup/vulnerability-lookup).
 
 The aim is transparency, not judgement. The project takes no side on the use of AI
