@@ -1,0 +1,22 @@
+[project]
+name = "Stegano"
+repository = "cedricbonhomme/Stegano"
+
+[policy]
+url = "https://github.com/cedricbonhomme/Stegano/blob/master/CONTRIBUTING.md#use-of-ai-and-llm-tools"
+trailer_since = "2026-01-01"
+
+[[policy.checkbox]]
+id = "ai"
+label = "AI-generated"
+match = ["generated with an AI tool"]
+since = "2026-11-21"
+
+[[policy.checkbox]]
+id = "human"
+label = "Read and tested"
+match = ["read, understood and tested"]
+since = "2026-11-21"
+
+[identities]
+bots = []

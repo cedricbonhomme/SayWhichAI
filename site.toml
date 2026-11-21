@@ -21,5 +21,6 @@ projects = [
     "flowintel",
     "rulezet-core",
     "newspipe",
+    "stegano",
     "ai-disclosure",
 ]
