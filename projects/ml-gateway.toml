@@ -4,7 +4,7 @@ repository = "vulnerability-lookup/ML-Gateway"
 
 [policy]
 url = "https://github.com/vulnerability-lookup/ML-Gateway/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
-trailer_since = "2026-11-18"
+trailer_since = "2026-03-30"
 
 [[policy.checkbox]]
 id = "ai"

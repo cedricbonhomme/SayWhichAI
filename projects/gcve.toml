@@ -5,7 +5,7 @@ repository = "gcve-eu/gcve"
 [policy]
 url = "https://github.com/gcve-eu/gcve/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
 # The date CONTRIBUTING.md and AGENTS.md started to ask for the trailer.
-trailer_since = "2026-11-15"
+trailer_since = "2026-06-19"
 
 # The project has no pull request template: no box to compare with the commits.
 
