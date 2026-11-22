@@ -66,7 +66,7 @@ the GitHub account of each commit author are cached in `.cache/`.
 
 ## Important paths
 
-- `ai_disclosure/models.py`: recognises a model in a `Co-Authored-By` trailer
+- `ai_disclosure/models.py`: recognises a model in a `Co-Authored-By`, `Assisted-by` or `Generated-by` trailer
   (vendor, family, version). A person must never be taken for a model: add a test in
   `tests/test_models.py` with every new rule.
 - `ai_disclosure/config.py`: the project files of `projects/*.toml`, and `site.toml`,

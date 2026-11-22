@@ -19,7 +19,8 @@ is declared without ranking anyone.
 ## What the page shows
 
 - **Commits per month**, split by the model family named in their `Co-Authored-By`
-  trailer, or "no AI declared", with the date the project started to require the
+  trailer (an `Assisted-by` or `Generated-by` trailer naming a model is read too), or
+  "no AI declared", with the date the project started to require the
   trailer.
 - **Models and versions**: commits naming each model, the months it was in use, the
   number of people who named it. Spellings of one model ("Claude Opus 4.8",

@@ -54,3 +54,52 @@ def test_trailers_are_read_whatever_their_case():
     assert found[0].model is None
     assert found[1].model is not None
     assert found[1].model.label == "Claude Opus 5.5"
+
+
+@pytest.mark.parametrize(
+    "line, expected",
+    [
+        ("Assisted-by: Claude:claude-opus-4-5", Model("Anthropic", "Claude Opus", "4.5")),
+        ("Assisted-by: Claude Code:claude-opus-5-5-20261001", Model("Anthropic", "Claude Opus", "5.5")),
+        ("Assisted-by: Claude:claude-3-opus coccinelle sparse", Model("Anthropic", "Claude Opus", "3")),
+        ("assisted-by: GitHub Copilot:claude-sonnet-4.5", Model("Anthropic", "Claude Sonnet", "4.5")),
+        ("Assisted-by: OpenCode:qwen3-coder", Model("Alibaba", "Qwen", "3")),
+        ("Assisted-by: Claude Code", Model("Anthropic", "Claude")),
+        ("Generated-by: Claude Opus 5.5 <noreply@anthropic.com>", Model("Anthropic", "Claude Opus", "5.5")),
+        ("Generated-by: Gemini:gemini-2.5-pro", Model("Google", "Gemini Pro", "2.5")),
+    ],
+)
+def test_assisted_by_and_generated_by_name_a_model(line, expected):
+    found = co_authors(f"fix: something\n\n{line}\n")
+    assert [author.model for author in found] == [expected]
+    assert found[0].kind == line.split(":")[0].lower()
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "Assisted-by: Claude Paroz <claude@example.org>",
+        "Assisted-by: Claude <claude@example.org>",
+        "Assisted-by: Ada Lovelace <ada@example.org>",
+        "Assisted-by: Devin Smith",
+        "Assisted-by: coccinelle",
+        "Generated-by: a script of mine",
+    ],
+)
+def test_assisted_by_a_person_or_another_tool_is_left_unread(line):
+    # Neither a model nor a co-author: the line does not say that a person wrote the commit.
+    assert co_authors(f"fix: something\n\n{line}\n") == []
+
+
+def test_the_same_model_in_two_trailers_is_one_model():
+    message = (
+        "fix: something\n\n"
+        "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
+        "Assisted-by: Claude Code:claude-opus-5-5\n"
+    )
+    assert {author.model for author in co_authors(message)} == {Model("Anthropic", "Claude Opus", "5.5")}
+
+
+def test_qwen_is_read_with_its_version_attached():
+    assert identify("Qwen3-Coder") == Model("Alibaba", "Qwen", "3")
+    assert identify("Qwentin Martin", "q@example.org") is None

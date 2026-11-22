@@ -1,4 +1,4 @@
-"""Recognise AI models in Co-Authored-By trailers and give them one name.
+"""Recognise AI models in commit trailers and give them one name.
 
 The same model is written in several ways ("Claude Opus 4.8",
 "Claude Opus 4.8 (1M context)", "Codex (GPT-6)"). A trailer is turned into a
@@ -10,8 +10,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+# Co-Authored-By names a person or a model. Assisted-by and Generated-by are the
+# names other projects give to the same declaration (Mesa, Fedify, the Linux kernel,
+# the Apache Software Foundation): they are read too, and only for the models they name.
 TRAILER_RE = re.compile(
-    r"^[ \t]*co-authored-by:[ \t]*(?P<name>[^<\n]*?)[ \t]*(?:<(?P<email>[^>\n]*)>)?[ \t]*$",
+    r"^[ \t]*(?P<kind>co-authored-by|assisted-by|generated-by):"
+    r"[ \t]*(?P<name>[^<\n]*?)[ \t]*(?:<(?P<email>[^>\n]*)>)?[ \t]*$",
     re.IGNORECASE | re.MULTILINE,
 )
 
@@ -47,6 +51,7 @@ class CoAuthor:
     name: str
     email: str
     model: Model | None = None
+    kind: str = "co-authored-by"
 
 
 @dataclass(frozen=True)
@@ -86,7 +91,7 @@ _NAME_RULES: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"\bamazon q\b", re.I), "Amazon", "Amazon Q"),
     (re.compile(rf"\b(?:mistral|codestral|devstral)\b(?:[ -]v?{_VERSION})?", re.I), "Mistral AI", "Mistral"),
     (re.compile(rf"\bdeepseek\b(?:[ -]v?{_VERSION})?", re.I), "DeepSeek", "DeepSeek"),
-    (re.compile(rf"\bqwen\b(?:[ -]v?{_VERSION})?", re.I), "Alibaba", "Qwen"),
+    (re.compile(rf"\bqwen(?:[ -]?v?{_VERSION})?\b", re.I), "Alibaba", "Qwen"),
     (re.compile(rf"\bgrok\b(?:[ -]v?{_VERSION})?", re.I), "xAI", "Grok"),
     (re.compile(rf"\bllama\b(?:[ -]v?{_VERSION})?", re.I), "Meta", "Llama"),
 ]
@@ -136,8 +141,42 @@ def identify(name: str, email: str = "", rules: list[Rule] | None = None) -> Mod
     return None
 
 
+_DATE_RE = re.compile(r"-\d{8}\b")
+_OLD_CLAUDE_RE = re.compile(r"\bclaude-(\d+)(?:-(\d+))?-(opus|sonnet|haiku)\b", re.I)
+_BARE_CLAUDE_RE = re.compile(r"claude(?:[ -]code)?", re.I)
+
+
+def _spelled_out(identifier: str) -> str:
+    """A model identifier as a name: "claude-opus-4-5-20251101" reads "claude-opus-4.5"."""
+    text = _DATE_RE.sub("", identifier)
+    text = _OLD_CLAUDE_RE.sub(lambda m: f"claude-{m[3]}-{m[1]}" + (f".{m[2]}" if m[2] else ""), text)
+    return re.sub(r"(?<=\d)-(?=\d)", ".", text)
+
+
+def assistant(name: str, email: str = "", rules: list[Rule] | None = None) -> Model | None:
+    """The model an Assisted-by or Generated-by trailer names, or None.
+
+    These trailers are often written "AGENT:MODEL-IDENTIFIER tool tool", without an
+    address. The model identifier wins over the agent. A name that is not recognised
+    stays unread: the line may name a person or a tool that is not an AI.
+    """
+    agent, _, identifier = name.partition(":")
+    for text in (_spelled_out(identifier), _spelled_out(name), agent):
+        found = identify(text.strip(), email, rules) if text.strip() else None
+        if found:
+            return found
+    # "Claude" alone is a first name in a Co-Authored-By trailer. Here, written alone
+    # and without an address, it is the assistant.
+    if not email and _BARE_CLAUDE_RE.fullmatch(agent.strip()):
+        return Model("Anthropic", "Claude")
+    return None
+
+
 def co_authors(message: str, rules: list[Rule] | None = None) -> list[CoAuthor]:
-    """Every Co-Authored-By line of a commit message, models identified."""
+    """Every Co-Authored-By line of a commit message, models identified.
+
+    Assisted-by and Generated-by lines are added when they name a model.
+    """
     seen: set[tuple[str, str]] = set()
     result = []
     for found in TRAILER_RE.finditer(message):
@@ -147,5 +186,11 @@ def co_authors(message: str, rules: list[Rule] | None = None) -> list[CoAuthor]:
         if key in seen or not (name or email):
             continue
         seen.add(key)
-        result.append(CoAuthor(name, email, identify(name, email, rules)))
+        kind = found.group("kind").lower()
+        if kind == "co-authored-by":
+            result.append(CoAuthor(name, email, identify(name, email, rules)))
+            continue
+        model = assistant(name, email, rules)
+        if model:
+            result.append(CoAuthor(name, email, model, kind))
     return result
