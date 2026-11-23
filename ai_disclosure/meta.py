@@ -72,10 +72,12 @@ def sitemap(url: str, pages: list[str], slugs: list[str]) -> str:
     )
 
 
-def security(contact: str, url: str, now: datetime) -> str:
-    """Where to report a vulnerability. The contact is a web address: no e-mail is published."""
+def security(fields: dict[str, str], url: str, now: datetime) -> str:
+    """Where and how to report a vulnerability: the fields of the site file, in their
+    order, with an expiry date and the canonical address."""
     expires = (now + VALIDITY).strftime("%Y-%m-%dT%H:%M:%SZ")
-    lines = [f"Contact: {contact}", f"Expires: {expires}", "Preferred-Languages: en"]
+    lines = [f"{key}: {value}" for key, value in fields.items()]
+    lines.insert(1, f"Expires: {expires}")
     if url:
         lines.append(f"Canonical: {url}/.well-known/security.txt")
     return "\n".join(lines) + "\n"

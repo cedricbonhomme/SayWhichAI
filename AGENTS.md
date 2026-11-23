@@ -83,8 +83,9 @@ the GitHub account of each commit author are cached in `.cache/`.
   published. An SVG file is refused unless it is a plain drawing; it is never repaired.
 - `ai_disclosure/badge.py`: the badge of a project, an SVG image for its README.
 - `ai_disclosure/meta.py`: the meta tags of each page, `robots.txt`, `sitemap.xml` and
-  `.well-known/security.txt`. The `url` and `security` addresses come from the site file;
-  without them, no absolute link is written.
+  `.well-known/security.txt`. The address of the site (`url`) and the fields of
+  security.txt (`[site.security]`) come from the site file; without `url`, no absolute
+  link is written.
 - `ai_disclosure/stats.py`: adds the reports up into the statistics page. It names no
   project and no person: the page is not a ranking.
 - `ai_disclosure/gource.py`: the optional Gource video of a project (`ai-disclosure

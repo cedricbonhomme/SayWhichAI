@@ -53,20 +53,33 @@ def test_the_sitemap_lists_the_pages_and_the_projects():
     assert f"<loc>{URL}/projects.html?project=a%26b</loc>" in xml
 
 
-def test_security_txt_expires_and_publishes_no_mail():
-    text = security("https://example.org/report", URL, datetime(2026, 1, 1, tzinfo=timezone.utc))
-    assert "Contact: https://example.org/report\n" in text
-    assert "Expires: 2026-04-01T00:00:00Z\n" in text
-    assert f"Canonical: {URL}/.well-known/security.txt\n" in text
-    assert "@" not in text
+def test_security_txt_keeps_the_fields_and_expires():
+    fields = {"Contact": "mailto:security@example.org", "Preferred-Languages": "en, fr"}
+    text = security(fields, URL, datetime(2026, 1, 1, tzinfo=timezone.utc))
+    assert text == (
+        "Contact: mailto:security@example.org\n"
+        "Expires: 2026-04-01T00:00:00Z\n"
+        "Preferred-Languages: en, fr\n"
+        f"Canonical: {URL}/.well-known/security.txt\n"
+    )
 
 
 def test_the_address_of_a_site_is_optional(tmp_path):
     site = tmp_path / "site.toml"
     site.write_text('[site]\nprojects = ["a"]\n')
-    assert load_address(site) == ("", "")
-    site.write_text('[site]\nprojects = ["a"]\nurl = "https://example.org/"\nsecurity = "https://example.org/s"\n')
-    assert load_address(site) == ("https://example.org", "https://example.org/s")
+    assert load_address(site) == ("", {})
+    site.write_text('[site]\nprojects = ["a"]\nurl = "https://example.org/"\n'
+                    '[site.security]\nContact = "mailto:a@example.org"\n')
+    assert load_address(site) == ("https://example.org", {"Contact": "mailto:a@example.org"})
+
+
+@pytest.mark.parametrize("table", ['Encryption = "https://example.org/key"', 'Contact = "a\\nb"',
+                                   'Contact = "mailto:a@example.org"\nUnknown = "x"', "Contact = 1"])
+def test_the_security_fields_are_checked(tmp_path, table):
+    site = tmp_path / "site.toml"
+    site.write_text(f'[site]\nprojects = ["a"]\n[site.security]\n{table}\n')
+    with pytest.raises(ConfigError):
+        load_address(site)
 
 
 @pytest.mark.parametrize("value", ['"http://example.org"', '"mailto:a@example.org"', "1", '"https://a b"'])

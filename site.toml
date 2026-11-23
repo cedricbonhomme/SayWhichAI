@@ -10,11 +10,11 @@
 #
 # url: where the site is published. It gives the pages their canonical address and
 # their link previews, and writes sitemap.xml. Leave it out for a site built elsewhere.
-# security: where to report a vulnerability, written to .well-known/security.txt.
+# [site.security]: the fields of .well-known/security.txt (RFC 9116), Contact first.
+# The build adds Expires and, with url, Canonical.
 
 [site]
 url = "https://www.saywhichai.org"
-security = "https://github.com/cedricbonhomme/ai-disclosure/security/advisories/new"
 projects = [
     "vulnerability-lookup",
     "vulntrain",
@@ -36,3 +36,9 @@ projects = [
     "iterated-function-systems",
     "ai-disclosure",
 ]
+
+[site.security]
+Contact = "mailto:cedric@cedricbonhomme.org"
+Encryption = "https://pgp.circl.lu/pks/lookup?op=get&search=0x55f5d60eefca3591008918e7a1cb94de57b7a70d"
+Acknowledgments = "https://www.cedricbonhomme.org/software/"
+Preferred-Languages = "en, fr"

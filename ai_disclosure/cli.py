@@ -77,7 +77,7 @@ def build(args: argparse.Namespace) -> int:
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
     site = resources.files("ai_disclosure") / "site"
-    url, contact = load_address(site_file) if site_file else ("", "")
+    url, contact = load_address(site_file) if site_file else ("", {})
     pages = []
     for entry in site.iterdir():
         if entry.is_file():

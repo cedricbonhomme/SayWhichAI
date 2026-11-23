@@ -121,18 +121,30 @@ def load_site(path: Path) -> list[str]:
     return names
 
 
-def load_address(path: Path) -> tuple[str, str]:
-    """The public address of a site and the page where to report a vulnerability, both
-    optional: an https address each, or an empty string."""
+# The fields of security.txt (RFC 9116) a site file may give; Expires and Canonical are
+# written by the build.
+SECURITY_FIELDS = ("Contact", "Encryption", "Acknowledgments", "Policy", "Hiring", "Preferred-Languages")
+
+
+def load_address(path: Path) -> tuple[str, dict[str, str]]:
+    """The public address of a site, or an empty string, and the fields of its
+    security.txt, or none: both are optional."""
     with path.open("rb") as handle:
         site = tomllib.load(handle).get("site", {})
-    found = []
-    for key in ("url", "security"):
-        value = site.get(key, "")
-        if not isinstance(value, str) or (value and not re.match(r"^https://[^\s\"<>]+$", value)):
-            raise ConfigError(f"{path}: [site] {key} must be an https address")
-        found.append(value.rstrip("/") if key == "url" else value)
-    return found[0], found[1]
+    url = site.get("url", "")
+    if not isinstance(url, str) or (url and not re.match(r"^https://[^\s\"<>]+$", url)):
+        raise ConfigError(f"{path}: [site] url must be an https address")
+    fields = site.get("security", {})
+    if not isinstance(fields, dict):
+        raise ConfigError(f"{path}: [site.security] must be a table of security.txt fields")
+    for key, value in fields.items():
+        if key not in SECURITY_FIELDS:
+            raise ConfigError(f"{path}: [site.security] {key} is not one of {', '.join(SECURITY_FIELDS)}")
+        if not isinstance(value, str) or not value or any(char in value for char in "\r\n"):
+            raise ConfigError(f"{path}: [site.security] {key} must be a line of text")
+    if fields and "Contact" not in fields:
+        raise ConfigError(f"{path}: [site.security] needs a Contact")
+    return url.rstrip("/"), fields
 
 
 def load_projects(directory: Path, site: Path | None = None) -> list[Project]:
