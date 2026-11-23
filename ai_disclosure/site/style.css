@@ -351,7 +351,11 @@ section > .sub.after { margin: 12px 0 0; }
 
 /* ---------- Badge of a project ---------- */
 .badge img { display: block; height: 20px; }
-.badge pre { margin: 14px 0 0; padding: 10px 12px; background: var(--page); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+.copyable { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; }
+.copyable pre { flex: 1; min-width: 0; }
+.copy { flex: none; font: inherit; font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+.copy:hover, .copy:focus-visible { color: var(--ink); border-color: var(--axis); outline: none; }
+.badge pre { margin: 0; padding: 10px 12px; background: var(--page); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
 .badge code { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 /* ---------- A year of days ---------- */

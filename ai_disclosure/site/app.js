@@ -702,7 +702,29 @@
       el("p", { class: "sub", text: `A small image that says the same as the first figure of this page, rebuilt with it. ${report.project.name} can show it in its README:` }),
       el("div", { class: "card badge" },
         el("img", { src: `badge/${slug}.svg`, alt: "The badge of the project", height: 20 }),
-        el("pre", {}, el("code", { text: `[![AI use](${image})](${page})` }))));
+        copyable(`[![AI use](${image})](${page})`)));
+  }
+
+  // A line of text to paste elsewhere, with a button that copies it.
+  function copyable(text) {
+    const code = el("code", { text });
+    const button = el("button", { type: "button", class: "copy", text: "Copy" });
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "Copied";
+      } catch (error) {
+        // No access to the clipboard: select the text, ready for Ctrl+C.
+        const range = document.createRange();
+        range.selectNodeContents(code);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        button.textContent = "Selected";
+      }
+      setTimeout(() => { button.textContent = "Copy"; }, 2000);
+    });
+    return el("div", { class: "copyable" }, el("pre", {}, code), button);
   }
 
   function reading(report) {
