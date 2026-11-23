@@ -10,13 +10,15 @@ import subprocess
 import sys
 import tempfile
 import time
+from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
 
 from . import __version__
-from .config import ConfigError, load_projects
+from .config import ConfigError, load_address, load_projects
 from .github import GitHub, GitHubError, find_token
 from .logo import publishable
+from .meta import page_meta, robots, security, sitemap
 from .policy import FILES, LIMIT, PolicyError, link, read_policy
 from .gitlog import mirror, read_changes, read_commits, read_file, read_releases
 from .gource import build_story, render, write_story
@@ -59,7 +61,8 @@ def _site_file(args: argparse.Namespace) -> Path | None:
 
 
 def build(args: argparse.Namespace) -> int:
-    projects = load_projects(args.projects, _site_file(args))
+    site_file = _site_file(args)
+    projects = load_projects(args.projects, site_file)
     local = dict(item.split("=", 1) for item in args.local)
     unknown = set(local) - {project.slug for project in projects}
     if unknown:
@@ -74,10 +77,23 @@ def build(args: argparse.Namespace) -> int:
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
     site = resources.files("ai_disclosure") / "site"
+    url, contact = load_address(site_file) if site_file else ("", "")
+    pages = []
     for entry in site.iterdir():
         if entry.is_file():
             # Not a path when the package is installed as an archive: copy the content.
-            (output / entry.name).write_bytes(entry.read_bytes())
+            if entry.name.endswith(".html"):
+                pages.append(entry.name)
+                html = page_meta(entry.read_text(encoding="utf-8"), url, entry.name)
+                (output / entry.name).write_text(html, encoding="utf-8")
+            else:
+                (output / entry.name).write_bytes(entry.read_bytes())
+    (output / "robots.txt").write_text(robots(url), encoding="utf-8")
+    if contact:
+        (output / ".well-known").mkdir(exist_ok=True)
+        (output / ".well-known" / "security.txt").write_text(
+            security(contact, url, datetime.now(timezone.utc)), encoding="utf-8"
+        )
 
     index = []
     reports = []
@@ -156,6 +172,12 @@ def build(args: argparse.Namespace) -> int:
         )
 
     (data / "index.json").write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+    if url:
+        # The front page first, then the other pages, then the page of each project.
+        ordered = sorted(pages, key=lambda page: (page != "index.html", page))
+        (output / "sitemap.xml").write_text(
+            sitemap(url, ordered, [project.slug for project in projects]), encoding="utf-8"
+        )
     (data / "stats.json").write_text(
         json.dumps(build_stats(reports), ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )

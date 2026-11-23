@@ -749,6 +749,9 @@
   function render(report) {
     const palette = colours(report);
     document.title = `${report.project.name} · AI transparency for Open Source projects`;
+    // The page of a project has its own address, whichever page shows it.
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.href = new URL(`projects.html?project=${encodeURIComponent(report.project.slug)}`, canonical.href).href;
     root.replaceChildren(...[
       intro(report), tiles(report), stated(report), timeline(report, palette, COMMITS),
       calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),

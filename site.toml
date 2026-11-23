@@ -7,8 +7,14 @@
 # Another site (another server, another selection) has its own file:
 #     ai-disclosure build --site /path/to/other-site.toml
 # Without any site file, every project of projects/ is published.
+#
+# url: where the site is published. It gives the pages their canonical address and
+# their link previews, and writes sitemap.xml. Leave it out for a site built elsewhere.
+# security: where to report a vulnerability, written to .well-known/security.txt.
 
 [site]
+url = "https://www.saywhichai.org"
+security = "https://github.com/cedricbonhomme/ai-disclosure/security/advisories/new"
 projects = [
     "vulnerability-lookup",
     "vulntrain",

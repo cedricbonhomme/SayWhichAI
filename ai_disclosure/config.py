@@ -121,6 +121,20 @@ def load_site(path: Path) -> list[str]:
     return names
 
 
+def load_address(path: Path) -> tuple[str, str]:
+    """The public address of a site and the page where to report a vulnerability, both
+    optional: an https address each, or an empty string."""
+    with path.open("rb") as handle:
+        site = tomllib.load(handle).get("site", {})
+    found = []
+    for key in ("url", "security"):
+        value = site.get(key, "")
+        if not isinstance(value, str) or (value and not re.match(r"^https://[^\s\"<>]+$", value)):
+            raise ConfigError(f"{path}: [site] {key} must be an https address")
+        found.append(value.rstrip("/") if key == "url" else value)
+    return found[0], found[1]
+
+
 def load_projects(directory: Path, site: Path | None = None) -> list[Project]:
     """Every project file of the directory, or only those a site file lists."""
     paths = sorted(directory.glob("*.toml"))
