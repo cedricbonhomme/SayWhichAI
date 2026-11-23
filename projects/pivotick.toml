@@ -1,0 +1,13 @@
+[project]
+name = "Pivotick"
+repository = "Pivotick/Pivotick"
+
+[policy]
+# The repository has no written rule on AI-assisted contributions yet. The date is
+# the one from which its commits are expected to carry the trailer.
+trailer_since = "2026-06-08"
+
+# The project has no pull request template: no box to compare with the commits.
+
+[identities]
+bots = []

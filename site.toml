@@ -19,6 +19,7 @@ projects = [
     "misp",
     "misp-workbench",
     "mispql",
+    "pivotick",
     "bsimvis",
     "ail-framework",
     "flowintel",
