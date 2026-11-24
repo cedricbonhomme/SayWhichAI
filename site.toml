@@ -31,6 +31,7 @@ projects = [
     "flowintel",
     "rulezet-core",
     "sysdiagnose",
+    "opencti",
     "newspipe",
     "stegano",
     "pyenigma",

@@ -1,0 +1,14 @@
+[project]
+name = "OpenCTI"
+repository = "OpenCTI-Platform/opencti"
+
+# This project states no rule on AI-assisted contributions yet: the page shows what
+# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+
+# Commit subjects such as "fix(security): ...": see vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?:\((?P<scope>[^)]+)\))?!?:'
+aliases = { docs = "doc", documentation = "doc" }
+
+# Commits cited by vulnerability records: see vulnerability-lookup.toml.
+[advisories]
