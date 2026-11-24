@@ -1,0 +1,13 @@
+[project]
+name = "Tenzir"
+repository = "tenzir/tenzir"
+
+# This project states no rule on AI-assisted contributions yet: the page shows what
+# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+
+[identities]
+# Writes the version bumps, the releases and the syncs.
+bots = ["tenzir-bot"]
+
+# Commits cited by vulnerability records: see vulnerability-lookup.toml.
+[advisories]
