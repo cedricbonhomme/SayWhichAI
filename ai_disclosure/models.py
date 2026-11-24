@@ -99,6 +99,9 @@ _NAME_RULES: list[tuple[re.Pattern[str], str, str]] = [
 # When the name says nothing, the e-mail address of the trailer may.
 _EMAIL_RULES: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"@anthropic\.com$", re.I), "Anthropic", "Claude"),
+    # The GitHub account of Claude's agent (anthropic-code-agent[bot]), found by its
+    # number: a person whose login is Claude has another one.
+    (re.compile(r"^242468646\+claude@users\.noreply\.github\.com$", re.I), "Anthropic", "Claude"),
     (re.compile(r"@openai\.com$", re.I), "OpenAI", "OpenAI"),
     (re.compile(r"copilot@|\+copilot@", re.I), "GitHub", "GitHub Copilot"),
     (re.compile(r"cursoragent@cursor\.com$", re.I), "Cursor", "Cursor"),

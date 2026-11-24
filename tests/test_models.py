@@ -14,6 +14,8 @@ from ai_disclosure.models import Model, co_authors, identify
         ("Codex", "noreply@openai.com", Model("OpenAI", "Codex")),
         ("Copilot Autofix powered by AI", "x@users.noreply.github.com", Model("GitHub", "GitHub Copilot")),
         ("copilot-swe-agent[bot]", "198982749+Copilot@users.noreply.github.com", Model("GitHub", "GitHub Copilot")),
+        ("anthropic-code-agent[bot]", "242468646+Claude@users.noreply.github.com", Model("Anthropic", "Claude")),
+        ("Claude", "242468646+Claude@users.noreply.github.com", Model("Anthropic", "Claude")),
     ],
 )
 def test_models_are_recognised(name, email, expected):
@@ -27,6 +29,7 @@ def test_models_are_recognised(name, email, expected):
         ("Devin Smith", "devin@example.org"),
         ("Jules Verne", "jules@example.org"),
         ("cedricbonhomme", "465400+cedricbonhomme@users.noreply.github.com"),
+        ("Claude", "1234+Claude@users.noreply.github.com"),
     ],
 )
 def test_people_are_not_models(name, email):
