@@ -534,6 +534,66 @@
           el("div", { class: "bars shares" }, earlier.flat())) : null));
   }
 
+  const SUBJECT_ROWS = 12;
+
+  // The kind and the scope that the subject line of a commit gives, as "fix: [security] ...".
+  function subjects(report) {
+    const facts = report.subjects;
+    if (!facts) return null;
+    const baseline = facts.commits ? (100 * facts.named) / facts.commits : 0;
+    const row = (name, small, item) => [
+      el("div", { class: "name" }, el("span", {}, name, small ? el("small", { text: small }) : null)),
+      el("div", { class: "figure" }, percent(item.named, item.commits),
+        el("small", { text: ` · ${number.format(item.named)} of ${number.format(item.commits)}` })),
+      el("div", { class: "track", title: `${name}: ${number.format(item.named)} of ${plural(item.commits, "commit")} name a model; ${percent(facts.named, facts.commits)} of all the commits do` },
+        item.named ? el("div", { class: "bar", style: `width:${(100 * item.named) / item.commits}%` }) : null,
+        el("div", { class: "baseline", style: `left:${baseline}%` })),
+    ];
+    const all = row("All the commits", "the line across each bar", facts);
+    const unmatched = facts.unmatched.commits ? row("Not following the convention", "", facts.unmatched) : null;
+    // The first rows, then the others in a fold: the rest of the list, and those with too few commits added up.
+    const view = (group, one) => {
+      const listed = group.items.map((item) => row(item.id, "", item));
+      const others = group.others.count
+        ? row(plural(group.others.count, "other " + one), "the smallest ones, added up", group.others) : null;
+      const later = [...listed.slice(SUBJECT_ROWS), others].filter(Boolean);
+      return [
+        el("div", { class: "bars shares" }, all, listed.slice(0, SUBJECT_ROWS).flat(), one === "kind" ? unmatched : null),
+        later.length ? el("details", { class: "table-view" },
+          el("summary", { text: `The ${plural(listed.slice(SUBJECT_ROWS).length + group.others.count, "other " + one)}` }),
+          el("div", { class: "bars shares" }, later.flat())) : null,
+      ];
+    };
+    const views = { kind: () => view(facts.kinds, "kind"), scope: () => view(facts.scopes, "scope") };
+    const options = [["kind", "Kinds"], ["scope", "Scopes"]].filter(([value]) =>
+      value === "kind" ? facts.kinds.items.length + facts.kinds.others.count : facts.scopes.items.length + facts.scopes.others.count);
+    if (!options.length || !facts.commits) {
+      return el("section", { id: "subjects" },
+        el("h2", { text: "Kinds of commits" }),
+        el("div", { class: "card" }, el("p", { class: "empty", text: facts.commits ? "No commit subject follows the convention of the project." : "No commit names a model yet." })));
+    }
+    let shown = options[0][0];
+    const holder = el("div");
+    const fill = () => holder.replaceChildren(...views[shown]().filter(Boolean));
+    const buttons = options.map(([value, label]) =>
+      el("button", {
+        type: "button", "aria-pressed": String(value === shown), text: label,
+        onclick: () => {
+          shown = value;
+          buttons.forEach((button, index) => button.setAttribute("aria-pressed", String(options[index][0] === shown)));
+          fill();
+        },
+      }));
+    fill();
+    return el("section", { id: "subjects" },
+      el("h2", { text: "Kinds of commits" }),
+      el("p", { class: "sub", text: `The share of commits naming a model, by the kind of change and the part of the project that the subject line of each commit gives (as in “fix: [security] …”), since ${day(facts.from)}. The line across each bar is the share of all the commits of the same period: a bar that goes past it is a kind of commit that names a model more often than the others.` }),
+      el("div", { class: "card" },
+        options.length > 1 ? el("div", { class: "filters" }, el("div", { class: "toggle", role: "group", "aria-label": "Grouping" }, buttons)) : null,
+        holder),
+      el("p", { class: "sub after", text: "These figures are not reliable on their own. The kind and the part are what the author wrote, following a convention that nothing checks: a fix labelled “security” is not always a vulnerability, and a vulnerability fixed is not always labelled. A series of commits made together, an audit for instance, weighs as many commits. A share says how often a kind of commit names a model, not why: it does not say who found a problem, who wrote the change, or anything of its quality." }));
+  }
+
   function split(person, palette, families) {
     const parts = [...families.filter((id) => person.families[id]).map((id) => [id, person.families[id]]),
       [NONE, person.commits - person.ai_commits]].filter(([, count]) => count > 0);
@@ -739,6 +799,7 @@
         since ? el("li", { text: `The project requires the trailer since ${day(since)}. Earlier commits are shown for the history and are not held to a rule that did not exist.` }) : null,
         report.stated ? el("li", { text: "“What the project states” is read from the ai-policy.yaml file of its repository, a format proposed at codeberg.org/open-source-ecosystem/ai-policy. The sentences are this site's reading of the values of the file, which are shown beside them. The file is a summary: the written policy of the project is the reference." }) : null,
         report.releases ? el("li", { text: "A release is a tag of the followed branch, dated from the day the tag was made, or from the day of its commit when the tag has no date of its own. A commit belongs to the first release that holds it. A release that only holds merge commits or commits of automation is not listed." }) : null,
+        report.subjects ? el("li", { text: "“Kinds of commits” reads the subject line of each commit with the convention of the project, a pattern its file in projects/ gives. Commits of automation are left out, and the period starts with the first commit naming a model, or with the date the project requires the trailer when it is later." }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
         el("li", { text: "This page takes no side on the use of AI. It exists so that the use is said, not to rank anyone." })));
@@ -755,7 +816,7 @@
     root.replaceChildren(...[
       intro(report), tiles(report), stated(report), timeline(report, palette, COMMITS),
       calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),
-      releases(report), models(report, palette), lines(report, palette),
+      releases(report), subjects(report), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =

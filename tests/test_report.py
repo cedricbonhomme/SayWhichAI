@@ -147,3 +147,46 @@ def test_what_each_release_declares():
 def test_a_project_without_a_tag_has_no_releases():
     commits = [commit("a", "Ada", "ada@example.org", "2026-11-01", "first")]
     assert build_report(PROJECT, commits, None, None)["releases"] is None
+
+
+def test_kinds_and_scopes_of_commits(monkeypatch):
+    import re
+
+    from ai_disclosure.config import Subjects
+
+    subjects = Subjects(re.compile(r"^(?P<kind>[a-z]+):\s*(?:\[(?P<scope>[^\]]+)\])?", re.I), {"docs": "doc"})
+    project = Project(slug="demo", name="Demo", repository="demo/demo", subjects=subjects)
+    monkeypatch.setattr("ai_disclosure.report.SUBJECT_MIN", 1)
+    commits = [
+        # Before the first commit naming a model: not counted.
+        commit("a", "Ada", "ada@example.org", "2026-10-01", "fix: [security] old"),
+        commit("b", "Ada", "ada@example.org", "2026-11-01", "fix: [security] one" + CLAUDE),
+        commit("c", "Ada", "ada@example.org", "2026-11-02", "fix: [security] two"),
+        commit("d", "Ada", "ada@example.org", "2026-11-03", "new: [docs] three" + CLAUDE),
+        commit("e", "Ada", "ada@example.org", "2026-11-04", "Changed things"),
+        commit("f", "dependabot[bot]", "49699333+dependabot[bot]@users.noreply.github.com", "2026-11-05", "fix: [deps] bump"),
+    ]
+    facts = build_report(project, commits, None, None)["subjects"]
+    assert facts["from"] == "2026-11-01"
+    assert (facts["commits"], facts["named"]) == (4, 2)
+    assert facts["unmatched"] == {"commits": 1, "named": 0}
+    assert facts["kinds"]["items"] == [{"id": "fix", "commits": 2, "named": 1}, {"id": "new", "commits": 1, "named": 1}]
+    assert facts["scopes"]["items"] == [{"id": "security", "commits": 2, "named": 1}, {"id": "doc", "commits": 1, "named": 1}]
+    assert facts["scopes"]["others"] == {"count": 0, "commits": 0, "named": 0}
+    assert build_report(PROJECT, commits, None, None)["subjects"] is None
+
+
+def test_a_kind_with_few_commits_is_added_up_with_the_others():
+    import re
+
+    from ai_disclosure.config import Subjects
+
+    project = Project(slug="demo", name="Demo", repository="demo/demo",
+                      subjects=Subjects(re.compile(r"^(?P<kind>[a-z]+):", re.I)))
+    commits = [commit(str(i), "Ada", "ada@example.org", "2026-11-01", "fix: x" + CLAUDE * (i % 2)) for i in range(10)]
+    commits += [commit("p", "Ada", "ada@example.org", "2026-11-02", "perf: y" + CLAUDE)]
+    kinds = build_report(project, commits, None, None)["subjects"]["kinds"]
+    assert kinds == {
+        "items": [{"id": "fix", "commits": 10, "named": 5}],
+        "others": {"count": 1, "commits": 1, "named": 1},
+    }

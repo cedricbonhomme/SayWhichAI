@@ -7,3 +7,8 @@ logo = "newspipe/static/img/icon-192.png"
 # Date from which commits written with an AI tool must carry a Co-Authored-By
 # trailer naming the model. Earlier commits are shown, never judged.
 trailer_since = "2026-03-16"
+
+# Commit subjects such as "fix: [security] ...": see vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
+aliases = { docs = "doc", documentation = "doc" }

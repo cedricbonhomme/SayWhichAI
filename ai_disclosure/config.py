@@ -27,6 +27,24 @@ class Checkbox:
 
 
 @dataclass(frozen=True)
+class Subjects:
+    """How the subject line of a commit names its kind and the part it touches."""
+
+    pattern: re.Pattern
+    aliases: dict[str, str] = field(default_factory=dict, compare=False)  # spelling -> the one it counts as
+
+    def read(self, message: str) -> tuple[str, str] | None:
+        """The kind and the scope of a commit (lowercase, "" when the pattern has no
+        such group), or None when its subject line does not follow the pattern."""
+        found = self.pattern.match(message.strip().split("\n", 1)[0])
+        if not found:
+            return None
+        groups = found.groupdict()
+        kind, scope = ((groups.get(name) or "").strip().lower() for name in ("kind", "scope"))
+        return self.aliases.get(kind, kind), self.aliases.get(scope, scope)
+
+
+@dataclass(frozen=True)
 class Project:
     slug: str
     name: str
@@ -38,6 +56,7 @@ class Project:
     checkboxes: tuple[Checkbox, ...] = ()
     bots: frozenset[str] = frozenset()
     model_rules: tuple[Rule, ...] = field(default_factory=tuple)
+    subjects: Subjects | None = None
 
     @property
     def url(self) -> str:
@@ -97,6 +116,7 @@ def load_project(path: Path) -> Project:
         )
 
     return Project(
+        subjects=_subjects(data.get("subjects"), where),
         slug=path.stem,
         name=project.get("name") or repository.split("/")[1],
         repository=repository,
@@ -108,6 +128,23 @@ def load_project(path: Path) -> Project:
         bots=frozenset(name.lower() for name in identities.get("bots", [])),
         model_rules=tuple(rules),
     )
+
+
+def _subjects(table: object, where: str) -> Subjects | None:
+    if table is None:
+        return None
+    if not isinstance(table, dict) or not isinstance(table.get("pattern"), str):
+        raise ConfigError(f"{where}: [subjects] needs a pattern")
+    try:
+        pattern = re.compile(table["pattern"], re.IGNORECASE)
+    except re.error as error:
+        raise ConfigError(f"{where}: [subjects] pattern is not a regular expression: {error}") from None
+    if not {"kind", "scope"} & set(pattern.groupindex):
+        raise ConfigError(f"{where}: [subjects] pattern needs a group (?P<kind>...) or (?P<scope>...)")
+    aliases = table.get("aliases", {})
+    if not isinstance(aliases, dict) or not all(isinstance(value, str) for value in aliases.values()):
+        raise ConfigError(f"{where}: [subjects.aliases] must map spellings to the one they count as")
+    return Subjects(pattern, {key.lower(): value.lower() for key, value in aliases.items()})
 
 
 def load_site(path: Path) -> list[str]:

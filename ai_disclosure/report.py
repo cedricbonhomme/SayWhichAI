@@ -21,6 +21,8 @@ NOREPLY_RE = re.compile(r"^(?:\d+\+)?(?P<login>[^@]+)@users\.noreply\.github\.co
 CHECKBOX_RE = re.compile(r"^\s*[-*+]\s*\[(?P<mark>[ xX])\]\s*(?P<text>.*)$", re.M)
 MAX_FAMILIES = 7
 HEAVIEST = 5
+SUBJECT_ROWS = 40  # the kinds or scopes a report lists at most
+SUBJECT_MIN = 10  # a kind or a scope with fewer commits is added up with the others: its share would be noise
 OTHER = "Other models"
 
 
@@ -152,6 +154,7 @@ def build_report(
     days: Counter = Counter()  # commits naming a model, day by day
     release_of = {sha: index for index, release in enumerate(releases or ()) for sha in release.commits}
     released: Counter = Counter()  # (release or None for "not released yet", naming a model) -> commits
+    subjects: list[tuple[str, tuple[str, str] | None, bool]] = []  # day, kind and scope, naming a model
 
     for commit in commits:
         credit = identities.credit(
@@ -182,6 +185,8 @@ def build_report(
             continue
         weights.append((changed, commit, credit.models[0].family if credit.models else ""))
         released[release_of.get(commit.sha), bool(credit.models)] += 1
+        if project.subjects:
+            subjects.append((day, project.subjects.read(commit.message), bool(credit.models)))
         if not credit.models:
             month["none"] += 1
             month["lines_none"] += changed
@@ -323,6 +328,7 @@ def build_report(
         "pulls": None,
         "lines": None,
         "releases": None,
+        "subjects": None,
     }
     if releases:
         report["releases"] = {
@@ -365,9 +371,67 @@ def build_report(
                 if changed
             ],
         }
+    if project.subjects:
+        report["subjects"] = subject_report(subjects, since)
     if pulls is not None and project.checkboxes:
         report["pulls"] = pull_report(project, identities, pulls)
     return report
+
+
+def subject_report(subjects: list[tuple[str, tuple[str, str] | None, bool]], since: str) -> dict:
+    """The share of commits naming a model, by the kind and the scope their subject line gives.
+
+    Counted from the first commit naming a model (or from the date the project
+    requires the trailer, when it is later): before it, every share would be zero,
+    and the comparison with the whole project would only show when declaring began.
+    The kind and the scope are what the author wrote; nothing checks them.
+    """
+    first = min((day for day, _, named in subjects if named), default="")
+    start = max(first, since) if first else ""
+    kinds: Counter = Counter()
+    scopes: Counter = Counter()
+    totals: Counter = Counter()
+    for day, found, named in subjects:
+        if not start or day < start:
+            continue
+        totals["commits", named] += 1
+        if found is None:
+            totals["unmatched", named] += 1
+            continue
+        kind, scope = found
+        if kind:
+            kinds[kind, named] += 1
+        if scope:
+            scopes[scope, named] += 1
+
+    def rows(counter: Counter) -> dict:
+        ids = {key for key, _ in counter}
+        items = sorted(
+            ({"id": key, "commits": counter[key, False] + counter[key, True], "named": counter[key, True]} for key in ids),
+            key=lambda item: (-item["commits"], item["id"]),
+        )
+        kept = [item for item in items[:SUBJECT_ROWS] if item["commits"] >= SUBJECT_MIN]
+        rest = items[len(kept):]
+        return {
+            "items": kept,
+            "others": {
+                "count": len(rest),
+                "commits": sum(item["commits"] for item in rest),
+                "named": sum(item["named"] for item in rest),
+            },
+        }
+
+    return {
+        "from": start,
+        "commits": totals["commits", False] + totals["commits", True],
+        "named": totals["commits", True],
+        "unmatched": {
+            "commits": totals["unmatched", False] + totals["unmatched", True],
+            "named": totals["unmatched", True],
+        },
+        "kinds": rows(kinds),
+        "scopes": rows(scopes),
+    }
 
 
 def recent_months(report: dict, count: int = 24) -> dict:

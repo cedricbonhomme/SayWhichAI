@@ -92,6 +92,18 @@ match = ["read, understood and tested"]
 since = "2026-11-04"
 ```
 
+When the commit subjects of a project follow a convention, such as `fix: [security] ...`,
+a `[subjects]` table gives it as a regular expression with a `kind` group, a `scope`
+group, or both. The page then shows, for each kind and each scope, the share of
+commits naming a model beside the share of all the commits. These figures are not
+reliable on their own: nothing checks the label an author gives a commit.
+
+```toml
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
+aliases = { docs = "doc", documentation = "doc" }   # spellings counted as one
+```
+
 [site.toml](site.toml) lists the projects the site publishes, in the order of its
 project menu (the overview page sorts them by the share of commits declaring a model):
 

@@ -39,3 +39,25 @@ def test_a_logo_is_an_image_of_the_repository(tmp_path, logo):
     (tmp_path / "a.toml").write_text(f'[project]\nrepository = "example/a"\nlogo = "{logo}"\n')
     with pytest.raises(ConfigError, match="logo"):
         load_projects(tmp_path)
+
+
+CIRCL = r"^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?"
+
+
+def test_a_project_reads_its_commit_subjects(tmp_path):
+    (tmp_path / "a.toml").write_text(
+        '[project]\nrepository = "example/a"\n'
+        f"[subjects]\npattern = '{CIRCL}'\naliases = {{ docs = \"doc\" }}\n"
+    )
+    subjects = load_projects(tmp_path)[0].subjects
+    assert subjects.read("fix: [security] Escape the URL\n\nbody") == ("fix", "security")
+    assert subjects.read("Fix [Docs] typo") == ("fix", "doc")
+    assert subjects.read("chg: Updated dependencies.") == ("chg", "")
+    assert subjects.read("Removed CLAUDE.md.") is None
+
+
+@pytest.mark.parametrize("table", ["pattern = '(unclosed'", "pattern = '^fix:'", "aliases = {}"])
+def test_a_subject_pattern_must_be_usable(tmp_path, table):
+    (tmp_path / "a.toml").write_text(f'[project]\nrepository = "example/a"\n[subjects]\n{table}\n')
+    with pytest.raises(ConfigError, match="subjects"):
+        load_projects(tmp_path)

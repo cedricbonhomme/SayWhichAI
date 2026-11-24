@@ -12,3 +12,8 @@ trailer_since = "2026-08-23"
 
 [identities]
 bots = []
+
+# Commit subjects such as "fix(security): ...": see vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?:\((?P<scope>[^)]+)\))?!?:'
+aliases = { docs = "doc", documentation = "doc" }

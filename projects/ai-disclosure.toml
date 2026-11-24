@@ -22,3 +22,8 @@ since = "2026-11-18"
 
 [identities]
 bots = []
+
+# Commit subjects such as "fix: [security] ...": see vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
+aliases = { docs = "doc", documentation = "doc" }
