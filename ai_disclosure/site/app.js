@@ -536,19 +536,23 @@
 
   const SUBJECT_ROWS = 12;
 
+  // A share bar with a line across it at the share of all the commits ({ commits, named }).
+  function shareRow(name, small, item, all) {
+    return [
+      el("div", { class: "name" }, el("span", {}, name, small ? el("small", { text: small }) : null)),
+      el("div", { class: "figure" }, percent(item.named, item.commits),
+        el("small", { text: ` · ${number.format(item.named)} of ${number.format(item.commits)}` })),
+      el("div", { class: "track", title: `${name}: ${number.format(item.named)} of ${plural(item.commits, "commit")} name a model; ${percent(all.named, all.commits)} of all the commits do` },
+        item.named ? el("div", { class: "bar", style: `width:${(100 * item.named) / item.commits}%` }) : null,
+        el("div", { class: "baseline", style: `left:${all.commits ? (100 * all.named) / all.commits : 0}%` })),
+    ];
+  }
+
   // The kind and the scope that the subject line of a commit gives, as "fix: [security] ...".
   function subjects(report) {
     const facts = report.subjects;
     if (!facts) return null;
-    const baseline = facts.commits ? (100 * facts.named) / facts.commits : 0;
-    const row = (name, small, item) => [
-      el("div", { class: "name" }, el("span", {}, name, small ? el("small", { text: small }) : null)),
-      el("div", { class: "figure" }, percent(item.named, item.commits),
-        el("small", { text: ` · ${number.format(item.named)} of ${number.format(item.commits)}` })),
-      el("div", { class: "track", title: `${name}: ${number.format(item.named)} of ${plural(item.commits, "commit")} name a model; ${percent(facts.named, facts.commits)} of all the commits do` },
-        item.named ? el("div", { class: "bar", style: `width:${(100 * item.named) / item.commits}%` }) : null,
-        el("div", { class: "baseline", style: `left:${baseline}%` })),
-    ];
+    const row = (name, small, item) => shareRow(name, small, item, facts);
     const all = row("All the commits", "the line across each bar", facts);
     const unmatched = facts.unmatched.commits ? row("Not following the convention", "", facts.unmatched) : null;
     // The first rows, then the others in a fold: the rest of the list, and those with too few commits added up.
@@ -592,6 +596,39 @@
         options.length > 1 ? el("div", { class: "filters" }, el("div", { class: "toggle", role: "group", "aria-label": "Grouping" }, buttons)) : null,
         holder),
       el("p", { class: "sub after", text: "These figures are not reliable on their own. The kind and the part are what the author wrote, following a convention that nothing checks: a fix labelled “security” is not always a vulnerability, and a vulnerability fixed is not always labelled. A series of commits made together, an audit for instance, weighs as many commits. A share says how often a kind of commit names a model, not why: it does not say who found a problem, who wrote the change, or anything of its quality." }));
+  }
+
+  // The commits that a vulnerability record cites among its references.
+  function advisories(report) {
+    const facts = report.advisories;
+    if (!facts) return null;
+    const head = [el("h2", { text: "Commits cited by vulnerability records" })];
+    const earlier = facts.earlier ? ` ${plural(facts.earlier, "earlier commit")} ${facts.earlier === 1 ? "is" : "are"} cited too.` : "";
+    if (!facts.items.length) {
+      return el("section", { id: "advisories" }, head,
+        el("div", { class: "card" }, el("p", { class: "empty", text: (facts.from ? "No vulnerability record cites a commit of this period." : "No commit names a model yet.") + earlier })));
+    }
+    const cited = { commits: facts.items.length, named: facts.items.filter((item) => item.named).length };
+    const labels = facts.items.every((item) => item.labelled === null) ? null
+      : facts.items.filter((item) => item.labelled).length;
+    const record = (id) => el("a", { href: "https://vulnerability.circl.lu/vuln/" + encodeURIComponent(id), target: "_blank", rel: "noreferrer", text: id });
+    return el("section", { id: "advisories" }, head,
+      el("p", { class: "sub", text: `Commits that a vulnerability record cites among its references, as the search of Vulnerability-Lookup finds them, since ${day(facts.from)}. The line across each bar is the share of all the commits of the same period.${earlier}` }),
+      el("div", { class: "card" },
+        el("div", { class: "bars shares" },
+          shareRow("All the commits", "the line across each bar", facts, facts),
+          shareRow("Cited by a record", "", cited, facts)),
+        labels === null ? null : el("p", { class: "sub after", text: `${number.format(labels)} of these ${plural(cited.commits, "commit")} ${labels === 1 ? "is" : "are"} labelled “security” in their subject line.` }),
+        el("details", { class: "table-view" },
+          el("summary", { text: `The ${plural(cited.commits, "commit")}` }),
+          el("div", { class: "heaviest cited" }, el("ol", {}, facts.items.map((item) =>
+            el("li", {},
+              el("span", { class: "num", text: day(item.date) }),
+              el("span", {},
+                el("a", { href: `${report.project.url}/commit/${item.sha}`, text: item.title || item.sha.slice(0, 10) }),
+                el("small", {}, " ", item.ids.flatMap((id, index) => index ? [", ", record(id)] : [record(id)]),
+                  ` · ${item.named ? "names a model" : NONE.toLowerCase()}`)))))))),
+      el("p", { class: "sub after", text: "A record that cites a commit is a firmer sign of a vulnerability fixed than a label, but not a proof: a record can cite the commit that brought the problem, or one commit among several. Many records cite a release or a pull request instead, and are not counted. Whether a commit names a model says nothing of who found the problem, nor of the quality of the fix." }));
   }
 
   function split(person, palette, families) {
@@ -800,6 +837,7 @@
         report.stated ? el("li", { text: "“What the project states” is read from the ai-policy.yaml file of its repository, a format proposed at codeberg.org/open-source-ecosystem/ai-policy. The sentences are this site's reading of the values of the file, which are shown beside them. The file is a summary: the written policy of the project is the reference." }) : null,
         report.releases ? el("li", { text: "A release is a tag of the followed branch, dated from the day the tag was made, or from the day of its commit when the tag has no date of its own. A commit belongs to the first release that holds it. A release that only holds merge commits or commits of automation is not listed." }) : null,
         report.subjects ? el("li", { text: "“Kinds of commits” reads the subject line of each commit with the convention of the project, a pattern its file in projects/ gives. Commits of automation are left out, and the period starts with the first commit naming a model, or with the date the project requires the trailer when it is later." }) : null,
+        report.advisories ? el("li", { text: "“Commits cited by vulnerability records” come from a search of Vulnerability-Lookup (vulnerability.circl.lu) for records whose references link to a commit of the repository, made once a day. A link to a commit that is not on the followed branch is left out." }) : null,
         el("li", { text: "Merge commits are not counted. People are recognised by their GitHub account, so that several e-mail addresses of one person count together; e-mail addresses are not published." }),
         el("li", { text: "For a pull request, “box removed” means that the line of the template is not in the description. The “read, understood and tested” box is the author's own statement: an AI tool must leave it unticked." }),
         el("li", { text: "This page takes no side on the use of AI. It exists so that the use is said, not to rank anyone." })));
@@ -816,7 +854,7 @@
     root.replaceChildren(...[
       intro(report), tiles(report), stated(report), timeline(report, palette, COMMITS),
       calendar(report.named.days, report.generated_at.slice(0, 10), "Commits naming a model on each day of the last year. A stronger blue is a day with more of them; a pale one is a day with no model named, not a day without work."),
-      releases(report), subjects(report), models(report, palette), lines(report, palette),
+      releases(report), subjects(report), advisories(report), models(report, palette), lines(report, palette),
       contributors(report, palette), pulls(report), film(report), badgeSection(report), reading(report)].filter(Boolean));
     anchor();
     document.getElementById("footer").textContent =

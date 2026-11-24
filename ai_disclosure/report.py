@@ -13,7 +13,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
-from .config import Checkbox, Project
+from .config import Checkbox, Project, Subjects
 from .gitlog import Commit, Release
 from .models import TOOLS, Model, co_authors, identify
 
@@ -134,6 +134,7 @@ def build_report(
     pulls: list[dict] | None,
     lines: dict[str, list[int]] | None = None,
     releases: list[Release] | None = None,
+    advisories: dict[str, list[str]] | None = None,
 ) -> dict:
     """The whole report of a project. logins, pulls and lines are None without GitHub access.
 
@@ -154,7 +155,7 @@ def build_report(
     days: Counter = Counter()  # commits naming a model, day by day
     release_of = {sha: index for index, release in enumerate(releases or ()) for sha in release.commits}
     released: Counter = Counter()  # (release or None for "not released yet", naming a model) -> commits
-    subjects: list[tuple[str, tuple[str, str] | None, bool]] = []  # day, kind and scope, naming a model
+    counted: list[tuple[str, Commit, bool]] = []  # day, commit, naming a model: every commit not a bot's
 
     for commit in commits:
         credit = identities.credit(
@@ -185,8 +186,7 @@ def build_report(
             continue
         weights.append((changed, commit, credit.models[0].family if credit.models else ""))
         released[release_of.get(commit.sha), bool(credit.models)] += 1
-        if project.subjects:
-            subjects.append((day, project.subjects.read(commit.message), bool(credit.models)))
+        counted.append((day, commit, bool(credit.models)))
         if not credit.models:
             month["none"] += 1
             month["lines_none"] += changed
@@ -329,6 +329,7 @@ def build_report(
         "lines": None,
         "releases": None,
         "subjects": None,
+        "advisories": None,
     }
     if releases:
         report["releases"] = {
@@ -371,30 +372,37 @@ def build_report(
                 if changed
             ],
         }
+    start = _start(counted, since)
     if project.subjects:
-        report["subjects"] = subject_report(subjects, since)
+        report["subjects"] = subject_report(project.subjects, counted, start)
+    if advisories is not None:
+        report["advisories"] = advisory_report(advisories, counted, start, project.subjects)
     if pulls is not None and project.checkboxes:
         report["pulls"] = pull_report(project, identities, pulls)
     return report
 
 
-def subject_report(subjects: list[tuple[str, tuple[str, str] | None, bool]], since: str) -> dict:
+def _start(counted: list[tuple[str, Commit, bool]], since: str) -> str:
+    """Where the comparisons by kind of commit start: the first commit naming a model,
+    or the date the project requires the trailer when it is later. Before it, every
+    share would be zero, and a comparison would only show when declaring began."""
+    first = min((day for day, _, named in counted if named), default="")
+    return max(first, since) if first else ""
+
+
+def subject_report(subjects: Subjects, counted: list[tuple[str, Commit, bool]], start: str) -> dict:
     """The share of commits naming a model, by the kind and the scope their subject line gives.
 
-    Counted from the first commit naming a model (or from the date the project
-    requires the trailer, when it is later): before it, every share would be zero,
-    and the comparison with the whole project would only show when declaring began.
     The kind and the scope are what the author wrote; nothing checks them.
     """
-    first = min((day for day, _, named in subjects if named), default="")
-    start = max(first, since) if first else ""
     kinds: Counter = Counter()
     scopes: Counter = Counter()
     totals: Counter = Counter()
-    for day, found, named in subjects:
+    for day, commit, named in counted:
         if not start or day < start:
             continue
         totals["commits", named] += 1
+        found = subjects.read(commit.message)
         if found is None:
             totals["unmatched", named] += 1
             continue
@@ -431,6 +439,49 @@ def subject_report(subjects: list[tuple[str, tuple[str, str] | None, bool]], sin
         },
         "kinds": rows(kinds),
         "scopes": rows(scopes),
+    }
+
+
+def advisory_report(
+    advisories: dict[str, list[str]],
+    counted: list[tuple[str, Commit, bool]],
+    start: str,
+    subjects: Subjects | None,
+) -> dict:
+    """The commits that vulnerability records cite, and how many of them name a model.
+
+    advisories gives the ids of the records citing each commit, by full commit id.
+    """
+    items = []
+    commits = named = earlier = 0
+    for day, commit, is_named in counted:
+        in_period = bool(start) and day >= start
+        commits += in_period
+        named += in_period and is_named
+        ids = advisories.get(commit.sha)
+        if not ids:
+            continue
+        if not in_period:
+            earlier += 1
+            continue
+        found = subjects.read(commit.message) if subjects else None
+        items.append(
+            {
+                "sha": commit.sha,
+                "date": day,
+                "title": commit.message.strip().split("\n", 1)[0][:120],
+                "ids": ids,
+                "named": is_named,
+                "labelled": None if subjects is None else bool(found and "security" in found),
+            }
+        )
+    items.sort(key=lambda item: (item["date"], item["sha"]), reverse=True)
+    return {
+        "from": start,
+        "commits": commits,
+        "named": named,
+        "earlier": earlier,
+        "items": items,
     }
 
 

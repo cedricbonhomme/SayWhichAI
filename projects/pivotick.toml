@@ -16,3 +16,6 @@ bots = []
 [subjects]
 pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
 aliases = { docs = "doc", documentation = "doc" }
+
+# Commits cited by vulnerability records: see vulnerability-lookup.toml.
+[advisories]

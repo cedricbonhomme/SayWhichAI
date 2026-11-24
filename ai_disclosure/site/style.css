@@ -288,6 +288,7 @@ section > .film-note { margin: 12px 0 0; }
 .heaviest p { margin: 0 0 8px; }
 .heaviest ol { list-style: none; margin: 0; padding: 0; }
 .heaviest li { display: grid; grid-template-columns: 9ch 1fr; gap: 12px; padding: 6px 0; border-top: 1px solid var(--grid); }
+.heaviest.cited li { grid-template-columns: 12ch 1fr; }
 .heaviest .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
 .heaviest a { overflow-wrap: anywhere; }
 .heaviest small { display: block; color: var(--muted); }

@@ -57,6 +57,9 @@ class Project:
     bots: frozenset[str] = frozenset()
     model_rules: tuple[Rule, ...] = field(default_factory=tuple)
     subjects: Subjects | None = None
+    # The sources of Vulnerability-Lookup searched for records citing a commit, () for
+    # its default; None when the project file does not ask for the search.
+    advisories: tuple[str, ...] | None = None
 
     @property
     def url(self) -> str:
@@ -117,6 +120,7 @@ def load_project(path: Path) -> Project:
 
     return Project(
         subjects=_subjects(data.get("subjects"), where),
+        advisories=_advisories(data.get("advisories"), where),
         slug=path.stem,
         name=project.get("name") or repository.split("/")[1],
         repository=repository,
@@ -145,6 +149,17 @@ def _subjects(table: object, where: str) -> Subjects | None:
     if not isinstance(aliases, dict) or not all(isinstance(value, str) for value in aliases.values()):
         raise ConfigError(f"{where}: [subjects.aliases] must map spellings to the one they count as")
     return Subjects(pattern, {key.lower(): value.lower() for key, value in aliases.items()})
+
+
+def _advisories(table: object, where: str) -> tuple[str, ...] | None:
+    if table is None:
+        return None
+    sources = table.get("sources", []) if isinstance(table, dict) else None
+    if not isinstance(sources, list) or not all(
+        isinstance(source, str) and re.match(r"^[a-z0-9_]+$", source) for source in sources
+    ):
+        raise ConfigError(f"{where}: [advisories] sources must be a list of source names, such as \"cvelistv5\"")
+    return tuple(sources)
 
 
 def load_site(path: Path) -> list[str]:

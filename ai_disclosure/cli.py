@@ -22,6 +22,7 @@ from .meta import page_meta, robots, security, sitemap
 from .policy import FILES, LIMIT, PolicyError, link, read_policy
 from .gitlog import mirror, read_changes, read_commits, read_file, read_releases
 from .gource import build_story, render, write_story
+from .advisories import AdvisoryError, cited_commits, resolve
 from .badge import badge
 from .report import build_report, recent_months
 from .stats import build_stats
@@ -58,6 +59,25 @@ def _site_file(args: argparse.Namespace) -> Path | None:
             raise ConfigError(f"{args.site}: no such site file")
         return args.site
     return DEFAULT_SITE if DEFAULT_SITE.is_file() else None
+
+
+def _cited(project, cache: Path) -> dict[str, list[str]] | None:
+    """The commits records cite, asked once a day: the answer is kept in the cache, and
+    an earlier answer is used when Vulnerability-Lookup cannot be reached."""
+    path = cache / f"{project.slug}-advisories.json"
+    kept = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if kept and kept.get("day") == today:
+        return kept["cited"]
+    _log(f"{project.name}: asking Vulnerability-Lookup for records citing a commit")
+    try:
+        cited = cited_commits(project.repository, project.advisories)
+    except AdvisoryError as error:
+        _log(f"{project.name}: {error}; " + ("the answer of " + kept["day"] + " is used" if kept else "left out"))
+        return kept["cited"] if kept else None
+    cache.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"day": today, "cited": cited}), encoding="utf-8")
+    return cited
 
 
 def build(args: argparse.Namespace) -> int:
@@ -137,7 +157,11 @@ def build(args: argparse.Namespace) -> int:
                 )
 
         releases = read_releases(repository, project.branch)
-        report = build_report(project, commits, logins, pulls, lines, releases)
+        advisories = None
+        if project.advisories is not None and not args.no_advisories:
+            cited = _cited(project, args.cache)
+            advisories = None if cited is None else resolve(cited, (commit.sha for commit in commits))
+        report = build_report(project, commits, logins, pulls, lines, releases, advisories)
         reports.append(report)
         report["stated"] = _stated(project, repository)
         # A video rendered earlier by "ai-disclosure video" is published with the page.
@@ -258,6 +282,9 @@ def main(argv: list[str] | None = None) -> int:
         help="read this project from an existing clone instead of cloning it",
     )
     command.add_argument("--no-github", action="store_true", help="do not call the GitHub API")
+    command.add_argument(
+        "--no-advisories", action="store_true", help="do not search Vulnerability-Lookup for records citing a commit"
+    )
     command.set_defaults(run=build)
 
     command = commands.add_parser("video", help="render a Gource video of each project (needs gource and ffmpeg)")

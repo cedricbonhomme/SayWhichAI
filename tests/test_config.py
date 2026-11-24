@@ -61,3 +61,16 @@ def test_a_subject_pattern_must_be_usable(tmp_path, table):
     (tmp_path / "a.toml").write_text(f'[project]\nrepository = "example/a"\n[subjects]\n{table}\n')
     with pytest.raises(ConfigError, match="subjects"):
         load_projects(tmp_path)
+
+
+def test_a_project_asks_for_vulnerability_records(tmp_path):
+    (tmp_path / "a.toml").write_text('[project]\nrepository = "example/a"\n[advisories]\n')
+    (tmp_path / "b.toml").write_text('[project]\nrepository = "example/b"\n[advisories]\nsources = ["cvelistv5"]\n')
+    (tmp_path / "c.toml").write_text('[project]\nrepository = "example/c"\n')
+    assert [found.advisories for found in load_projects(tmp_path)] == [(), ("cvelistv5",), None]
+
+
+def test_advisory_sources_are_names(tmp_path):
+    (tmp_path / "a.toml").write_text('[project]\nrepository = "example/a"\n[advisories]\nsources = "cvelistv5&x=1"\n')
+    with pytest.raises(ConfigError, match="advisories"):
+        load_projects(tmp_path)

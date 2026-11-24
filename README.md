@@ -104,6 +104,19 @@ pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
 aliases = { docs = "doc", documentation = "doc" }   # spellings counted as one
 ```
 
+An `[advisories]` table asks
+[Vulnerability-Lookup](https://vulnerability.circl.lu) once a day for the
+vulnerability records that cite a commit of the repository among their references.
+The page then lists these commits and shows how many of them name a model. A record
+that cites a commit is a firmer sign of a fix than a label, but not a proof. The
+answer is kept in `.cache/`. When the service cannot be reached, the last answer is
+used, and `--no-advisories` leaves the search out.
+
+```toml
+[advisories]
+# sources = ["cvelistv5"]   # the sources searched; the CVE records by default
+```
+
 [site.toml](site.toml) lists the projects the site publishes, in the order of its
 project menu (the overview page sorts them by the share of commits declaring a model):
 

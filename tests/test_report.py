@@ -190,3 +190,26 @@ def test_a_kind_with_few_commits_is_added_up_with_the_others():
         "items": [{"id": "fix", "commits": 10, "named": 5}],
         "others": {"count": 1, "commits": 1, "named": 1},
     }
+
+
+def test_commits_cited_by_vulnerability_records():
+    import re
+
+    from ai_disclosure.config import Subjects
+
+    subjects = Subjects(re.compile(r"^(?P<kind>[a-z]+):\s*(?:\[(?P<scope>[^\]]+)\])?", re.I))
+    project = Project(slug="demo", name="Demo", repository="demo/demo", subjects=subjects)
+    commits = [
+        commit("a", "Ada", "ada@example.org", "2026-10-01", "fix: [security] old"),
+        commit("b", "Ada", "ada@example.org", "2026-11-01", "chg: [ui] one" + CLAUDE),
+        commit("c", "Ada", "ada@example.org", "2026-11-02", "fix: [security] two" + CLAUDE),
+        commit("d", "Ada", "ada@example.org", "2026-11-03", "fix: [api] three"),
+    ]
+    cited = {"a": ["CVE-2026-1"], "c": ["CVE-2026-2", "GHSA-xxxx"], "d": ["CVE-2026-3"]}
+    facts = build_report(project, commits, None, None, None, None, cited)["advisories"]
+    assert (facts["from"], facts["commits"], facts["named"], facts["earlier"]) == ("2026-11-01", 3, 2, 1)
+    assert [(item["sha"], item["ids"], item["named"], item["labelled"]) for item in facts["items"]] == [
+        ("d", ["CVE-2026-3"], False, False),
+        ("c", ["CVE-2026-2", "GHSA-xxxx"], True, True),
+    ]
+    assert build_report(PROJECT, commits, None, None)["advisories"] is None
