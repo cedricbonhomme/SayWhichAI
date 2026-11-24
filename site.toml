@@ -30,6 +30,7 @@ projects = [
     "ail-framework",
     "flowintel",
     "rulezet-core",
+    "sysdiagnose",
     "newspipe",
     "stegano",
     "pyenigma",

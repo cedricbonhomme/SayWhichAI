@@ -1,0 +1,18 @@
+[project]
+name = "Sysdiagnose Analysis Framework"
+repository = "EC-DIGIT-CSIRC/sysdiagnose"
+# The README shows docs/saf_logo.svg, which is not a plain drawing: the PNG of the
+# same commit is used instead.
+logo = "newsaflogo.png"
+
+# This project states no rule on AI-assisted contributions yet: the page shows what
+# its commits declare. See vulnerability-lookup.toml for the [policy] settings.
+
+# Two forms are used, "fix: [main] ..." and "feat(cli): ...": the pattern reads both.
+# See vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[|\([^)]*\)!?:)!?:?\s*(?:[(\[](?P<scope>[^)\]]+)[)\]])?'
+aliases = { docs = "doc", documentation = "doc", feature = "feat", bugfix = "fix" }
+
+# Commits cited by vulnerability records: see vulnerability-lookup.toml.
+[advisories]
