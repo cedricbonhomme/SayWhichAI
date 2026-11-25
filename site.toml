@@ -18,6 +18,7 @@ url = "https://www.saywhichai.org"
 projects = [
     "vulnerability-lookup",
     "vulntrain",
+    "fedivuln",
     "ml-gateway",
     "vulniverse",
     "gcve",

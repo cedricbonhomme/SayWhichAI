@@ -1,0 +1,27 @@
+[project]
+name = "FediVuln"
+repository = "vulnerability-lookup/FediVuln"
+
+[policy]
+url = "https://github.com/vulnerability-lookup/FediVuln/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
+trailer_since = "2026-04-26"
+
+[[policy.checkbox]]
+id = "ai"
+label = "AI-generated"
+match = ["generated with an AI tool"]
+since = "2026-11-25"
+
+[[policy.checkbox]]
+id = "human"
+label = "Read and tested"
+match = ["read, understood and tested"]
+since = "2026-11-25"
+
+[identities]
+bots = []
+
+# Commit subjects such as "fix: [security] ...": see vulnerability-lookup.toml.
+[subjects]
+pattern = '^(?P<kind>[a-z]+)(?=:|\s*\[):?\s*(?:\[(?P<scope>[^\]]+)\])?'
+aliases = { docs = "doc", documentation = "doc" }
