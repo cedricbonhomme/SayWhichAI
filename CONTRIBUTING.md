@@ -56,7 +56,8 @@ to what the tool publishes.
 **The charter has a version.**
 [AI_CHARTER.md](AI_CHARTER.md) is adopted by other projects. Adding a commitment
 raises the second number of its version; changing or removing one raises the first.
-Add a line to its table of versions with every change.
+Add a line to its table of versions with every change, and change its page on the
+site, `ai_disclosure/site/charter.html`, in the same way.
 
 
 ## Use of AI and LLM tools

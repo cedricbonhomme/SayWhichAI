@@ -43,7 +43,8 @@ files ever disagree.
   it is the human's own statement, leave it for them.
 - **The charter has a version.** When you change a commitment of
   [AI_CHARTER.md](AI_CHARTER.md), raise its version (second number for an addition,
-  first for a change or a removal) and add a line to its table of versions.
+  first for a change or a removal) and add a line to its table of versions. Change
+  `ai_disclosure/site/charter.html`, its page on the site, in the same way.
 
 ## Project overview
 
@@ -94,7 +95,7 @@ the GitHub account of each commit author are cached in `.cache/`.
   model wrote.
 - `ai_disclosure/cli.py`: the `ai-disclosure` command.
 - `ai_disclosure/site/`: the static site (`index.html`, `projects.html`, `stats.html`, `app.js`,
-  `theme.js`, `style.css`, `good-practice.html`, `policies.html`), copied as is to the output.
+  `theme.js`, `style.css`, `good-practice.html`, `policies.html`, `charter.html`), copied as is to the output.
 - `AI_CHARTER.md`: the charter.
 - `.github/workflows/pages.yml`: tests, build and deployment to GitHub Pages, on
   every push to `main` and once a day.

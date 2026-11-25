@@ -1,5 +1,7 @@
+import re
 from datetime import datetime, timezone
 from importlib import resources
+from pathlib import Path
 
 import pytest
 
@@ -88,3 +90,13 @@ def test_the_address_of_a_site_must_be_https(tmp_path, value):
     site.write_text(f'[site]\nprojects = ["a"]\nurl = {value}\n')
     with pytest.raises(ConfigError):
         load_address(site)
+
+
+def test_the_charter_page_has_the_version_of_the_charter():
+    # charter.html is written by hand from AI_CHARTER.md: the two must not drift.
+    root = Path(__file__).resolve().parent.parent
+    charter = (root / "AI_CHARTER.md").read_text(encoding="utf-8")
+    version = re.search(r"^Version (\S+), (.+)$", charter, re.M)
+    page = (resources.files("ai_disclosure") / "site" / "charter.html").read_text(encoding="utf-8")
+    assert f'<p id="version">Version {version.group(1)}, {version.group(2)}</p>' in page
+    assert f"<tr><td>{version.group(1)}</td>" in page
