@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charter · AI transparency for Open Source projects</title>
+<meta name="description" content="The AI transparency charter: seven commitments a software project can adopt to say how AI tools are used in its development.">
+<!-- site meta -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="author" href="humans.txt">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-row">
+    <p class="brand"><a href="./"><img src="favicon.svg" alt="" width="24" height="24">AI transparency for Open Source projects</a></p>
+    <nav class="nav" aria-label="Site">
+      <a href="good-practice.html">Good practice</a>
+      <a href="policies.html">Policies</a>
+      <a href="projects.html">Projects</a>
+      <a href="stats.html">Statistics</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap prose">
+  <div class="intro">
+    <h1>AI transparency charter</h1>
+    <p id="version">Version 1.3, 19 November 2026</p>
+    <p>A short charter that a software project can adopt to say how AI tools are used in its development. It was first written for <a href="https://github.com/vulnerability-lookup/vulnerability-lookup" target="_blank" rel="noreferrer">Vulnerability-Lookup</a>.</p>
+    <p>The charter is about <strong>transparency, not judgement</strong>, and it is meant for everybody. It takes no side on the use of AI tools. A project that adopts it accepts contributions made with one, whatever your experience, including when you could not have written the change without it, and contributions made without one, whatever your reasons. What the project asks is that AI use is said, and that a person stands behind every contribution.</p>
+  </div>
+
+  <div class="with-toc">
+  <nav class="toc" aria-labelledby="toc-title">
+    <p class="toc-title" id="toc-title">On this page</p>
+    <ol>
+      <li><a href="#commitments">The commitments</a></li>
+      <li><a href="#no-ai-declared">What "no AI declared" means</a></li>
+      <li><a href="#adopting">Adopting the charter</a></li>
+      <li><a href="#published">What is published</a></li>
+      <li><a href="#licence">Licence</a></li>
+      <li><a href="#versions">Versions</a></li>
+    </ol>
+  </nav>
+  <div class="toc-body">
+
+  <section id="commitments">
+    <h2>The commitments</h2>
+    <ol>
+      <li><p><strong>Say so.</strong> A commit that was not written by a human ends with a <code>Co-Authored-By</code> trailer naming the model and its version:</p>
+<pre><code>Co-Authored-By: Claude Opus 5.5 &lt;noreply@anthropic.com&gt;</code></pre>
+        <p>A pull request says in its description when a significant part of it was generated with an AI tool.</p></li>
+      <li><p><strong>A human answers for it.</strong> Every change is read, understood and tested by the person who submits it, whoever or whatever wrote it. That person states it in the pull request, in their own name. An AI tool never makes this statement for them.</p></li>
+      <li><p><strong>Be able to explain it.</strong> Reviewers may ask the author to explain any part of a change. The author answers themselves, not with pasted model output.</p></li>
+      <li><p><strong>A human submits.</strong> Pull requests, issues and vulnerability reports are opened by a person, after they have reviewed the work. An agent does not open them on its own.</p></li>
+      <li><p><strong>Report only what was reproduced.</strong> An issue or a vulnerability report describes a problem its author has observed, not an unverified finding of a tool.</p></li>
+      <li><p><strong>No shame, no ranking.</strong> Declaring the use of AI never counts against a contribution. The figures a project publishes about it describe what is declared; they are not a score.</p></li>
+      <li><p><strong>No one has to use AI.</strong> People who choose not to use AI tools are supported, not merely tolerated. The project never requires an AI tool to contribute: its documentation, its review and its help remain there for someone working without one. Their contributions are reviewed in the same way, and a maintainer who uses AI does not ask a contributor to do the same.</p></li>
+    </ol>
+  </section>
+
+  <section id="no-ai-declared">
+    <h2>What "no AI declared" means</h2>
+    <p>A commit without a trailer is a commit where no AI is declared. It may have been written entirely by hand, or the trailer may have been forgotten: nothing in a repository proves which. Anything published under this charter uses that wording and never says that someone "does not use AI".</p>
+  </section>
+
+  <section id="adopting">
+    <h2>Adopting the charter</h2>
+    <p>A project adopts the charter by putting it into practice in four places:</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>File</th><th>What it carries</th></tr></thead>
+        <tbody>
+          <tr><td><code>CONTRIBUTING.md</code></td><td>The commitments above, in the project's own words, and the date they apply from</td></tr>
+          <tr><td><code>AGENTS.md</code> (imported by <code>CLAUDE.md</code> and other agent files)</td><td>The same rules, addressed to AI agents: add the trailer, never tick the human's box, never open a pull request alone</td></tr>
+          <tr><td><code>.github/PULL_REQUEST_TEMPLATE.md</code></td><td>Two boxes, below</td></tr>
+          <tr><td>A project file in <a href="https://github.com/cedricbonhomme/ai-disclosure/tree/main/projects" target="_blank" rel="noreferrer">this repository</a></td><td>So that the declared figures are published</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The two boxes of the pull request template:</p>
+<pre><code>- [ ] Was a significant part of it generated with an AI tool? (If so, the commits carry a `Co-Authored-By` trailer naming the model.)
+- [ ] I have read, understood and tested every change in this pull request, and I can explain it.</code></pre>
+    <p>The first is a fact about the change. The second is the author's own statement, and only they tick it.</p>
+    <p>A project that adopts the charter says which version, for example in its <code>CONTRIBUTING.md</code>: "This project adopts the AI transparency charter 1.3." The <a href="good-practice.html#files">good practice</a> page has sections ready to copy.</p>
+  </section>
+
+  <section id="published">
+    <h2>What is published</h2>
+    <p>For a project that adopts the charter, this repository builds a public page from the project's history: the models and versions named in commits, the people who contribute and the models each of them names, and, for each pull request, whether its boxes and the trailers of its commits tell the same story.</p>
+    <p>Only public data is read, and e-mail addresses are not published. Commits made before the project adopted the charter are shown for the history, and are not held to a rule that did not exist.</p>
+  </section>
+
+  <section id="licence">
+    <h2>Licence</h2>
+    <p>This text is licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">Creative Commons Attribution 4.0 International</a> (CC BY 4.0): a project may copy it and adapt it to its own rules, with a mention of where it comes from.</p>
+  </section>
+
+  <section id="versions">
+    <h2>Versions</h2>
+    <p>The charter is versioned so that a project knows what it adopted. A change of wording that keeps the commitments, or adds one, raises the second number; changing or removing a commitment raises the first, and projects choose when to move to it.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead>
+        <tbody>
+          <tr><td>1.3</td><td>19 November 2026</td><td>The licence of the text is stated: CC BY 4.0. The commitments are unchanged</td></tr>
+          <tr><td>1.2</td><td>19 November 2026</td><td>Wording of the introduction: the charter takes no side on the use of AI tools, and no longer calls it "welcome". The commitments are unchanged</td></tr>
+          <tr><td>1.1</td><td>18 November 2026</td><td>Added "No one has to use AI", after the first two recommendations of the Software Freedom Conservancy on LLM-backed generative AI</td></tr>
+          <tr><td>1.0</td><td>18 November 2026</td><td>First version, from the rules of Vulnerability-Lookup</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The reference text is <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer"><code>AI_CHARTER.md</code></a>, with its history.</p>
+  </section>
+
+  </div>
+  </div>
+</main>
+
+<footer class="wrap footer"><span>AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure" target="_blank" rel="noreferrer">Source code</a>. The text of this page is under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>.</span></footer>
+</body>
+</html>
