@@ -57,13 +57,45 @@ builds a static site of charts from what their contributors declare.
 ```bash
 pip install -e . pytest        # in a virtual environment
 pytest                         # the tests
+pytest tests/test_models.py -k claude    # one file, or the tests matching a word
 saywhichai build               # reads projects/, writes _site/
 saywhichai build --no-github     # from git alone: no profiles, no lines, no pull requests
+saywhichai build --local saywhichai=.    # read a project from a clone you already have
 python3 -m http.server -d _site
 ```
 
+The site reads its data with `fetch`: look at it through the local server, not by
+opening the files. The workflow runs `pytest` only; no linter or type checker is run.
+
 The GitHub API needs `GITHUB_TOKEN` or `GH_TOKEN`, or a logged-in `gh`. Clones and
 the GitHub account of each commit author are cached in `.cache/`.
+
+## How a build works
+
+`saywhichai build` (`cli.py`) does the same for each project listed in the site file:
+
+1. `gitlog.py` clones the repository into `.cache/<slug>.git` (bare, without file
+   content) or refreshes it, and reads the commits of the default branch.
+2. With a token, `github.py` asks the GraphQL API for the account of each commit
+   author, the lines of each commit and the pull requests. The answers are kept in
+   `.cache/<slug>-accounts.json` and `.cache/<slug>-lines.json`, so that a later build
+   asks for the new commits only.
+3. `report.py` puts the two together into one dictionary, written to
+   `_site/data/<slug>.json`. `models.py` decides which co-author is a model. This is
+   where e-mail addresses stop: people leave `report.py` under their GitHub account
+   or their name.
+4. `cli.py` writes the badges, `data/index.json` (the overview) and, from all the
+   reports, `data/stats.json` (`stats.py`).
+
+The pages of `saywhichai/site/` are copied as they are, the HTML ones with their meta
+tags filled in (`meta.py`). Nothing is rendered in Python: `app.js` fetches
+`data/index.json`, `data/<slug>.json` (the page of a project is `?project=<slug>`) or
+`data/stats.json` and draws every chart and table in the browser. A new figure is
+therefore a change in three places: `report.py` or `stats.py` for the JSON, `app.js`
+for the drawing, and a test in `tests/`.
+
+The tests build `Project` and `Commit` objects by hand and never reach the network:
+only `gitlog.mirror`, `github.py` and `advisories.py` do.
 
 ## Important paths
 
@@ -80,6 +112,8 @@ the GitHub account of each commit author are cached in `.cache/`.
   small YAML reader it uses: it refuses what it does not understand and never guesses.
 - `ai-policy.yaml`: this project's own statement. It is a summary of the "Use of AI
   and LLM tools" section of CONTRIBUTING.md: keep the two in step.
+- `saywhichai/advisories.py`: asks Vulnerability-Lookup for the vulnerability records
+  that cite a commit of a project, for the projects with an `[advisories]` table.
 - `saywhichai/logo.py`: decides whether the logo a project file names may be
   published. An SVG file is refused unless it is a plain drawing; it is never repaired.
 - `saywhichai/badge.py`: the badges of a project, SVG images for its README: what its

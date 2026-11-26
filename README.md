@@ -16,6 +16,8 @@ The aim is transparency, not judgement. The project takes no side on the use of 
 tools; it asks that the use be open. The page describes what
 is declared without ranking anyone.
 
+[![AI use](https://www.saywhichai.org/badge/ai-policy.svg)](https://www.saywhichai.org/?project=ai-policy)
+
 ## What the page shows
 
 - **Commits per month**, split by the model family named in their `Co-Authored-By`
