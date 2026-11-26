@@ -2,15 +2,17 @@
 
 The format is the proposal of https://codeberg.org/open-source-ecosystem/ai-policy
 (version 1). This module reads the few fields the site shows: the stance on code,
-whether and how the use of AI is declared, the contributor's own review and
-autonomous agents. A file with an unknown version, or with a value this module does
-not know in a field it reads, is not half shown: it is reported as unreadable.
+whether and how the use of AI is declared, the contributor's own review,
+autonomous agents, and the date from which the rules apply (since). A file with an
+unknown version, or with a value this module does not know in a field it reads, is
+not half shown: it is reported as unreadable.
 """
 
 from __future__ import annotations
 
 import posixpath
 import re
+from datetime import date
 from urllib.parse import quote
 
 from .yamlsubset import YamlError, load
@@ -73,6 +75,19 @@ def _text(holder: dict, key: str) -> str:
     return value.strip()
 
 
+def _date(holder: dict, key: str) -> str:
+    value = holder.get(key)
+    if value is None:
+        return ""
+    try:
+        if not isinstance(value, str) or not re.match(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$", value):
+            raise ValueError
+        date.fromisoformat(value)
+    except ValueError:
+        raise PolicyError(f"{key}: a date as YYYY-MM-DD is expected") from None
+    return value
+
+
 def read_policy(text: str) -> dict:
     """The fields the site shows, or PolicyError when the file is not understood."""
     try:
@@ -113,6 +128,7 @@ def read_policy(text: str) -> dict:
         "readable": True,
         "summary": _one(data, "summary", SUMMARY),
         "status": _one(data, "status", STATUS),
+        "since": _date(data, "since"),
         "exceptions": bool(exceptions),
         "undecided": _many(data, "undecided"),
         "statement": _text(data, "statement"),

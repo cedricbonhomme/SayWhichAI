@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from dataclasses import replace
 from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
@@ -161,9 +162,15 @@ def build(args: argparse.Namespace) -> int:
         if project.advisories is not None and not args.no_advisories:
             cited = _cited(project, args.cache)
             advisories = None if cited is None else resolve(cited, (commit.sha for commit in commits))
+        stated = _stated(project, repository)
+        # The date the project's own file gives wins over the one of its project file.
+        if stated and stated.get("since") and stated["since"] != project.trailer_since:
+            _log(f"{project.name}: {stated['file']} gives the rules since {stated['since']}, "
+                f"used instead of trailer_since ({project.trailer_since or 'none'})")
+            project = replace(project, trailer_since=stated["since"])
         report = build_report(project, commits, logins, pulls, lines, releases, advisories)
         reports.append(report)
-        report["stated"] = _stated(project, repository)
+        report["stated"] = stated
         # A video rendered earlier by "ai-disclosure video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"
         if video.exists():

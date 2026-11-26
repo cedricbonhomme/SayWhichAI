@@ -7,6 +7,7 @@ version: 1
 summary: restrictive
 statement: AI_POLICY.md
 status: draft
+since: "2026-01-19"
 exceptions: true
 undecided: [models]
 defaults:
@@ -35,6 +36,7 @@ def test_the_fields_the_site_shows():
         "readable": True,
         "summary": "restrictive",
         "status": "draft",
+        "since": "2026-01-19",
         "exceptions": True,
         "undecided": ["models"],
         "statement": "AI_POLICY.md",
@@ -59,6 +61,11 @@ def test_none_is_a_value_not_nothing():
     assert read_policy("version: 1\ndefaults:\n  disclosure: none\n")["disclosure"] == "none"
 
 
+def test_since_is_optional_and_may_be_unquoted():
+    assert read_policy("version: 1\nsummary: neutral\n")["since"] == ""
+    assert read_policy("version: 1\nsummary: neutral\nsince: 2026-04-26\n")["since"] == "2026-04-26"
+
+
 def test_a_single_trailer():
     policy = read_policy('version: 1\ndisclosureFormat:\n  trailer: "Co-Authored-By:"\n')
     assert policy["trailers"] == ["Co-Authored-By"]
@@ -77,6 +84,9 @@ def test_a_single_trailer():
         "version: 1\nstatement: [a, b]\n",
         "version: 1\nassertions:\n  - stance: generated\n",
         "version: 1\na: &x 1\n",
+        "version: 1\nsince: 2026-13-01\n",
+        "version: 1\nsince: 26 April 2026\n",
+        "version: 1\nsince: 2026\n",
         "- a list\n",
         "",
     ],
