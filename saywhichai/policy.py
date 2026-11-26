@@ -1,6 +1,6 @@
 """What a project states about AI in its own repository: its ai-policy.yaml file.
 
-The format is the proposal of https://codeberg.org/open-source-ecosystem/ai-policy
+The format is described at https://github.com/cedricbonhomme/ai-policy
 (version 1). This module reads the few fields the site shows: the stance on code,
 whether and how the use of AI is declared, the contributor's own review,
 autonomous agents, and the date from which the rules apply (since). A file with an

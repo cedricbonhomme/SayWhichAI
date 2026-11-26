@@ -134,9 +134,10 @@ With several projects, the site opens on an overview of the projects, and each
 project has its own page (`?project=<file name>`), reachable from a selector too.
 
 When the repository of a project has an `ai-policy.yaml` file
-([the proposal](https://codeberg.org/open-source-ecosystem/ai-policy), version 1), its
+([the format](https://github.com/cedricbonhomme/ai-policy), version 1), its
 page shows what the project states there, beside what its commits declare. Nothing
-has to be configured. The tool reads the file with a small YAML reader of its own; a
+has to be configured. When the file gives `since`, that date is used instead of
+`trailer_since`. The tool reads the file with a small YAML reader of its own; a
 file it does not fully understand is reported as unreadable, never half shown. This
 repository has [its own](ai-policy.yaml).
 

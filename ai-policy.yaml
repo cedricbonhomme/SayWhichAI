@@ -1,6 +1,6 @@
 # What this project accepts from contributors who use AI, for tools to read.
 # The rules themselves are in CONTRIBUTING.md; this file is their summary.
-# Format: https://codeberg.org/open-source-ecosystem/ai-policy
+# Format: https://github.com/cedricbonhomme/ai-policy
 version: 1
 summary: mixed
 statement: CONTRIBUTING.md#use-of-ai-and-llm-tools
