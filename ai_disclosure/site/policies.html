@@ -187,6 +187,26 @@
       <li>the <a href="#others">rules of other projects</a>, and the forge that <a href="https://sourcehut.org/blog/2026-08-27-tos-changes-and-llms/" target="_blank" rel="noreferrer">chose to prohibit</a>.</li>
     </ul>
     <p id="policy-file"><strong>A file that tools can read.</strong> <a href="https://codeberg.org/open-source-ecosystem/ai-policy" target="_blank" rel="noreferrer"><code>ai-policy.yaml</code></a> is a proposal for a small file, kept at the root of a repository, in which a project declares what it accepts: whether AI may produce a contribution, whether its use must be declared and how, whether a person must have reviewed the change, and whether an agent may submit on its own. It describes itself as an early proposal whose design is not settled. It covers the two answers of the <a href="#taxonomy">draft statement</a> of this site, so we read it instead of proposing another file: when a project has one, its page shows what the file says. For our own use it lacks two things, which the project files of this site keep for now: the date from which a rule applies, and the wording of the boxes of a pull request template. Both were <a href="https://codeberg.org/open-source-ecosystem/ai-policy/issues/3" target="_blank" rel="noreferrer">reported to the proposal</a>.</p>
+    <p id="policy-badge"><strong>A badge, read from the file.</strong> Every project followed here gets a small image it can show in its README, "AI policy", which says in a few words what its <code>ai-policy.yaml</code> file states for code: whether AI may produce a contribution, then whether its use must be declared. The words are this site's reading of the values of the file:</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>In the file</th><th>On the badge</th></tr></thead>
+        <tbody>
+          <tr><td><code>stance: generated</code></td><td>generated code accepted</td></tr>
+          <tr><td><code>stance: assisted</code></td><td>assistance accepted</td></tr>
+          <tr><td><code>stance: disallowed</code></td><td>AI contributions not accepted</td></tr>
+          <tr><td><code>disclosure: required</code></td><td>declare it</td></tr>
+          <tr><td><code>disclosure: encouraged</code></td><td>declaring encouraged</td></tr>
+          <tr><td><code>disclosure: prohibited</code></td><td>leave AI notes out</td></tr>
+          <tr><td><code>disclosure: none</code></td><td>nothing is added</td></tr>
+          <tr><td><code>summary: neutral</code></td><td>ordinary rules apply</td></tr>
+          <tr><td><code>status: draft</code> or <code>under-discussion</code></td><td>"(draft)" or "(under discussion)" after the text</td></tr>
+          <tr><td>no file in the repository</td><td>no ai-policy.yaml found</td></tr>
+          <tr><td>a file this site cannot read</td><td>ai-policy.yaml not understood</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>For example, a project that accepts generated code and requires that it be declared shows "AI policy: generated code accepted · declare it". The colour of the badge is the same whatever the file says: no policy is better than another. The badge does not compare the policy with the commits, which have their own badge, "AI use". The other fields of the file, such as the contributor's own review or autonomous agents, are shown on the page of the project, which the badge links to.</p>
     <p><strong>Ready-made policies</strong> exist too. <a href="https://ai-policy.dev/" target="_blank" rel="noreferrer">ai-policy.dev</a> is a community collection of four texts, from "AI Allowed" to "AI Disallowed", that a project can copy into an <code>AI_POLICY.md</code> file. None of the four asks for a declaration. The most open one says that "AI usage does not need to be declared". Another one, "Human Responsible", forbids it: "a submission that discloses AI usage may be closed automatically". A text that accepts AI and asks that it be declared is not in the collection; it is the practice described on the <a href="good-practice.html">good practice</a> page.</p>
     <p><strong>European law</strong> meets the subject from another side. Since 2 August 2026, Article 50 of the <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng" target="_blank" rel="noreferrer">EU AI Act</a> asks the providers of AI systems to mark what their systems generate "in a machine-readable format". The <a href="https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content" target="_blank" rel="noreferrer">Code of Practice on Transparency of AI-Generated Content</a>, published in June 2026, says how. Both speak to those who provide the systems and to those who publish for the public, not to a project or its contributors, and neither mentions source code.</p>
     <p>Two of their ideas are also ours. The Code encourages providers to record the name of the AI system, and they "may also include the underlying AI model identifier and version number". And a published text needs no label when a person has reviewed it and "holds editorial responsibility" for it.</p>

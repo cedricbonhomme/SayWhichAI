@@ -797,7 +797,9 @@
     // The badge of the ai-policy.yaml file is offered when the repository has one. It
     // is built for every project, so that a README keeps showing what is true.
     const policy = report.stated ? [
-      el("p", { class: "sub", text: "A second one says what the project states in its ai-policy.yaml file: the stance on code and the disclosure asked. It does not compare the two." }),
+      el("p", { class: "sub" },
+        "A second one says what the project states in its ai-policy.yaml file: the stance on code and the disclosure asked. It does not compare the two. ",
+        el("a", { href: "policies.html#policy-badge", text: "How the file is put into words" }), "."),
       el("div", { class: "card badge" },
         el("img", { src: `badge/policy/${slug}.svg`, alt: "The policy badge of the project", height: 20 }),
         copyable(`[![AI policy](${new URL(`badge/policy/${slug}.svg`, location.href).href})](${page}#stated)`)),
