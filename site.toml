@@ -39,6 +39,7 @@ projects = [
     "pyenigma",
     "iterated-function-systems",
     "saywhichai",
+    "ai-policy",
 ]
 
 [site.security]

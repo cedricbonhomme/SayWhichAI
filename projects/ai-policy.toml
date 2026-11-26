@@ -1,0 +1,10 @@
+[project]
+name = "ai-policy"
+repository = "cedricbonhomme/ai-policy"
+
+[policy]
+url = "https://github.com/cedricbonhomme/ai-policy/blob/main/AI_POLICY.md"
+# No trailer_since: the ai-policy.yaml file of the repository gives the date (since).
+
+[identities]
+bots = []
