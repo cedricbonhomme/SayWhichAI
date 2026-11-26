@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from ai_disclosure.badge import badge, message
+from ai_disclosure.badge import STYLE, badge, message, policy_badge, policy_message
 
 
 def report(since="", **totals):
@@ -26,3 +26,32 @@ def test_the_badge_is_an_image():
     # It carries its dark colours, for a reader whose system is dark.
     assert "prefers-color-scheme:dark" in badge(report(human_commits=10))
     assert "<1%" not in badge(report(human_commits=3496, ai_commits=3))  # escaped
+
+
+def stated(**fields):
+    base = {"readable": True, "file": "ai-policy.yaml", "summary": None, "status": None, "stance": None, "disclosure": None}
+    return {**base, **fields}
+
+
+def test_the_policy_badge_says_what_the_file_states():
+    assert policy_message(stated(stance="generated", disclosure="required")) == "generated code accepted · declare it"
+    assert policy_message(stated(stance="assisted", disclosure="encouraged")) == "assistance accepted · declaring encouraged"
+    assert policy_message(stated(stance="disallowed")) == "AI contributions not accepted"
+    assert policy_message(stated(stance="generated", disclosure="none")) == "generated code accepted"
+    assert policy_message(stated(disclosure="prohibited")) == "leave AI notes out"
+    assert policy_message(stated(summary="neutral", stance="generated")) == "ordinary rules apply"
+    assert policy_message(stated(stance="assisted", status="draft")) == "assistance accepted (draft)"
+    assert policy_message(stated(stance="assisted", status="adopted")) == "assistance accepted"
+    assert policy_message(stated()) == "no rule for code stated"
+
+
+def test_the_policy_badge_is_written_without_a_file():
+    # An image a README shows keeps saying what is true when the file goes away.
+    assert policy_message(None) == "no ai-policy.yaml found"
+    assert policy_message({"readable": False, "file": ".well-known/ai-policy.yml"}) == (
+        ".well-known/ai-policy.yml not understood"
+    )
+    image = ElementTree.fromstring(policy_badge(stated(stance="generated", disclosure="required")))
+    assert image.get("aria-label") == "AI policy: generated code accepted · declare it"
+    # The same colours as the other badge, whatever the policy says.
+    assert STYLE in policy_badge(stated(stance="disallowed"))

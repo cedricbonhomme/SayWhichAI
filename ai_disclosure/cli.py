@@ -23,7 +23,7 @@ from .policy import FILES, LIMIT, PolicyError, link, read_policy
 from .gitlog import mirror, read_changes, read_commits, read_file, read_releases
 from .gource import build_story, render, write_story
 from .advisories import AdvisoryError, cited_commits, resolve
-from .badge import badge
+from .badge import badge, policy_badge
 from .report import build_report, recent_months
 from .stats import build_stats
 
@@ -178,6 +178,11 @@ def build(args: argparse.Namespace) -> int:
         )
         (output / "badge").mkdir(exist_ok=True)
         (output / "badge" / f"{project.slug}.svg").write_text(badge(report), encoding="utf-8")
+        # In a folder of their own: a project's slug may end in "-policy".
+        (output / "badge" / "policy").mkdir(exist_ok=True)
+        (output / "badge" / "policy" / f"{project.slug}.svg").write_text(
+            policy_badge(report["stated"]), encoding="utf-8"
+        )
         totals = report["totals"]
         index.append(
             {

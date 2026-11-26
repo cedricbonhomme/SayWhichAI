@@ -794,12 +794,21 @@
     const slug = encodeURIComponent(report.project.slug);
     const image = new URL(`badge/${slug}.svg`, location.href).href;
     const page = new URL(`?project=${slug}`, location.href).href;
+    // The badge of the ai-policy.yaml file is offered when the repository has one. It
+    // is built for every project, so that a README keeps showing what is true.
+    const policy = report.stated ? [
+      el("p", { class: "sub", text: "A second one says what the project states in its ai-policy.yaml file: the stance on code and the disclosure asked. It does not compare the two." }),
+      el("div", { class: "card badge" },
+        el("img", { src: `badge/policy/${slug}.svg`, alt: "The policy badge of the project", height: 20 }),
+        copyable(`[![AI policy](${new URL(`badge/policy/${slug}.svg`, location.href).href})](${page}#stated)`)),
+    ] : [];
     return el("section", { id: "badge" },
-      el("h2", { text: "Badge" }),
+      el("h2", { text: report.stated ? "Badges" : "Badge" }),
       el("p", { class: "sub", text: `A small image that says the same as the first figure of this page, rebuilt with it. ${report.project.name} can show it in its README:` }),
       el("div", { class: "card badge" },
         el("img", { src: `badge/${slug}.svg`, alt: "The badge of the project", height: 20 }),
-        copyable(`[![AI use](${image})](${page})`)));
+        copyable(`[![AI use](${image})](${page})`)),
+      ...policy);
   }
 
   // A line of text to paste elsewhere, with a button that copies it.

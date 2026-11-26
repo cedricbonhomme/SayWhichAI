@@ -82,7 +82,8 @@ the GitHub account of each commit author are cached in `.cache/`.
   and LLM tools" section of CONTRIBUTING.md: keep the two in step.
 - `ai_disclosure/logo.py`: decides whether the logo a project file names may be
   published. An SVG file is refused unless it is a plain drawing; it is never repaired.
-- `ai_disclosure/badge.py`: the badge of a project, an SVG image for its README.
+- `ai_disclosure/badge.py`: the badges of a project, SVG images for its README: what its
+  commits declare, and what its ai-policy.yaml file states.
 - `ai_disclosure/meta.py`: the meta tags of each page, `robots.txt`, `sitemap.xml` and
   `.well-known/security.txt`. The address of the site (`url`) and the fields of
   security.txt (`[site.security]`) come from the site file; without `url`, no absolute

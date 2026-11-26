@@ -360,6 +360,7 @@ section > .sub.after { margin: 12px 0 0; }
 .copy:hover, .copy:focus-visible { color: var(--ink); border-color: var(--axis); outline: none; }
 .badge pre { margin: 0; padding: 10px 12px; background: var(--page); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
 .badge code { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+#badge .card + .sub { margin-top: 16px; }
 
 /* ---------- A year of days ---------- */
 .calendar-scroll { overflow-x: auto; padding-bottom: 4px; }
