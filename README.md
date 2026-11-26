@@ -16,7 +16,7 @@ The aim is transparency, not judgement. The project takes no side on the use of 
 tools; it asks that the use be open. The page describes what
 is declared without ranking anyone.
 
-[![AI use](https://www.saywhichai.org/badge/ai-policy.svg)](https://www.saywhichai.org/?project=ai-policy)
+[![AI use](https://www.saywhichai.org/badge/saywhichai.svg)](https://www.saywhichai.org/?project=saywhichai)
 
 ## What the page shows
 
