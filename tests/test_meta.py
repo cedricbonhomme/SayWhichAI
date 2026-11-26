@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from ai_disclosure.config import ConfigError, load_address
-from ai_disclosure.meta import MARK, page_meta, robots, security, sitemap
+from saywhichai.config import ConfigError, load_address
+from saywhichai.meta import MARK, page_meta, robots, security, sitemap
 
 URL = "https://example.org"
 PAGE = f"""<head>
@@ -18,7 +18,7 @@ PAGE = f"""<head>
 
 
 def test_every_page_of_the_site_has_the_mark():
-    for page in (resources.files("ai_disclosure") / "site").iterdir():
+    for page in (resources.files("saywhichai") / "site").iterdir():
         if page.name.endswith(".html"):
             html = page.read_text(encoding="utf-8")
             assert html.count(MARK) == 1, page.name
@@ -97,6 +97,6 @@ def test_the_charter_page_has_the_version_of_the_charter():
     root = Path(__file__).resolve().parent.parent
     charter = (root / "AI_CHARTER.md").read_text(encoding="utf-8")
     version = re.search(r"^Version (\S+), (.+)$", charter, re.M)
-    page = (resources.files("ai_disclosure") / "site" / "charter.html").read_text(encoding="utf-8")
+    page = (resources.files("saywhichai") / "site" / "charter.html").read_text(encoding="utf-8")
     assert f'<p id="version">Version {version.group(1)}, {version.group(2)}</p>' in page
     assert f"<tr><td>{version.group(1)}</td>" in page

@@ -1,6 +1,6 @@
 from xml.etree import ElementTree
 
-from ai_disclosure.badge import STYLE, badge, message, policy_badge, policy_message
+from saywhichai.badge import STYLE, badge, message, policy_badge, policy_message
 
 
 def report(since="", **totals):

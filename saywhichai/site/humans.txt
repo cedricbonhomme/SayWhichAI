@@ -7,5 +7,5 @@ Cédric Bonhomme - cedricbonhomme.org
 Standards: HTML, CSS, JavaScript, no framework, no build step
 Software: Python (standard library), Inkscape
 AI tools: named in the Co-Authored-By trailer of each commit they took part in
-Source: https://github.com/cedricbonhomme/ai-disclosure
+Source: https://github.com/cedricbonhomme/SayWhichAI
 License: AGPL-3.0-or-later, CC-BY-4.0

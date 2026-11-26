@@ -1,6 +1,6 @@
 import pytest
 
-from ai_disclosure.logo import plain_drawing, publishable
+from saywhichai.logo import plain_drawing, publishable
 
 NS = 'xmlns="http://www.w3.org/2000/svg"'
 

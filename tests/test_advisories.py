@@ -1,6 +1,6 @@
 from urllib.parse import parse_qs, urlparse
 
-from ai_disclosure.advisories import cited_commits, resolve
+from saywhichai.advisories import cited_commits, resolve
 
 
 def record(cve, *urls, adp=()):

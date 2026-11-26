@@ -5,8 +5,8 @@ would like to see followed, a model the tool does not recognise, a correction to
 charter or to the good-practice page.
 
 ```bash
-git clone https://github.com/cedricbonhomme/ai-disclosure.git
-cd ai-disclosure/
+git clone https://github.com/cedricbonhomme/SayWhichAI.git
+cd SayWhichAI/
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e . pytest
 pytest
@@ -57,7 +57,7 @@ to what the tool publishes.
 [AI_CHARTER.md](AI_CHARTER.md) is adopted by other projects. Adding a commitment
 raises the second number of its version; changing or removing one raises the first.
 Add a line to its table of versions with every change, and change its page on the
-site, `ai_disclosure/site/charter.html`, in the same way.
+site, `saywhichai/site/charter.html`, in the same way.
 
 
 ## Use of AI and LLM tools

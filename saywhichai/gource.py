@@ -161,7 +161,7 @@ def _profile_picture(login: str, cache: Path) -> Path | None:
         return picture
     cache.mkdir(parents=True, exist_ok=True)
     request = urllib.request.Request(
-        f"https://github.com/{login}.png?size=128", headers={"User-Agent": "ai-disclosure"}
+        f"https://github.com/{login}.png?size=128", headers={"User-Agent": "saywhichai"}
     )
     try:
         with urllib.request.urlopen(request, timeout=20) as response:

@@ -1,4 +1,4 @@
-/* AI disclosure: draws the report of a project from data/<slug>.json.
+/* Say which AI: draws the report of a project from data/<slug>.json.
    Plain browser JavaScript, no dependency. Every text coming from the data is
    inserted with textContent. */
 (function () {

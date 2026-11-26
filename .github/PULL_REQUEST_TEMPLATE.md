@@ -1,6 +1,6 @@
-## Generic requirements in order to contribute to AI disclosure:
+## Generic requirements in order to contribute to Say which AI:
 
-* Read the [contribution guide](https://github.com/cedricbonhomme/ai-disclosure/blob/main/CONTRIBUTING.md), including the rules on AI-assisted contributions
+* Read the [contribution guide](https://github.com/cedricbonhomme/SayWhichAI/blob/main/CONTRIBUTING.md), including the rules on AI-assisted contributions
 * One Pull Request per fix/feature/change/...
 * Keep the amount of commits per PR as small as possible
 * Please make sure to not break the tests (`pytest`)

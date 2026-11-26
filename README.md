@@ -1,4 +1,4 @@
-# AI disclosure
+# Say which AI
 
 AI transparency for Open Source projects: **<https://www.saywhichai.org>**
 
@@ -41,12 +41,12 @@ is declared without ranking anyone.
   wrote a file.
 
 The site also has a **Good practice** page
-([ai_disclosure/site/good-practice.html](ai_disclosure/site/good-practice.html)): why
+([saywhichai/site/good-practice.html](saywhichai/site/good-practice.html)): why
 declaring matters, the `Co-Authored-By` trailer, and the four files (`CONTRIBUTING.md`,
 `AGENTS.md`, `CLAUDE.md`, the pull request template) that make it a habit.
 
 A **Policies** page
-([ai_disclosure/site/policies.html](ai_disclosure/site/policies.html)) compares the
+([saywhichai/site/policies.html](saywhichai/site/policies.html)) compares the
 rules of other projects, and drafts a short statement a project could make about
 what it accepts.
 
@@ -126,8 +126,8 @@ projects = ["vulnerability-lookup", "misp", "newspipe"]
 ```
 
 A project file that is not listed is neither read nor published. Another site, with
-another selection, has its own file: `ai-disclosure build --site other-site.toml`
-(and the same option for `ai-disclosure video`). Without any site file, every
+another selection, has its own file: `saywhichai build --site other-site.toml`
+(and the same option for `saywhichai video`). Without any site file, every
 project of `projects/` is published.
 
 With several projects, the site opens on an overview of the projects, and each
@@ -167,7 +167,7 @@ Python 3.11 or later and git; no other dependency.
 
 ```bash
 pip install .
-ai-disclosure build            # reads projects/, writes _site/
+saywhichai build            # reads projects/, writes _site/
 python3 -m http.server -d _site  # then open http://localhost:8000
 ```
 
@@ -186,10 +186,10 @@ that a later build only asks for the new commits.
 Optional, and needs `gource` and `ffmpeg`:
 
 ```bash
-ai-disclosure video                 # every project, into .cache/video/
-ai-disclosure video misp --max-age 7  # one project, unless its video is under a week old
-ai-disclosure video --max-age 7 --due # only list the projects whose video would be rendered
-ai-disclosure build                 # publishes the videos it finds in .cache/video/
+saywhichai video                 # every project, into .cache/video/
+saywhichai video misp --max-age 7  # one project, unless its video is under a week old
+saywhichai video --max-age 7 --due # only list the projects whose video would be rendered
+saywhichai build                 # publishes the videos it finds in .cache/video/
 ```
 
 Gource draws with OpenGL and needs a display. On a server, run it under
@@ -212,7 +212,7 @@ pytest
 
 ## License
 
-The code of [AI disclosure](https://github.com/cedricbonhomme/ai-disclosure) is licensed
+The code of [Say which AI](https://github.com/cedricbonhomme/SayWhichAI) is licensed
 under the [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html),
 version 3 or any later version.
 

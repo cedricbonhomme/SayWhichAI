@@ -1,6 +1,6 @@
 import pytest
 
-from ai_disclosure.models import Model, co_authors, identify
+from saywhichai.models import Model, co_authors, identify
 
 
 @pytest.mark.parametrize(

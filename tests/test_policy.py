@@ -1,6 +1,6 @@
 import pytest
 
-from ai_disclosure.policy import PolicyError, link, read_policy
+from saywhichai.policy import PolicyError, link, read_policy
 
 POLICY = """\
 version: 1

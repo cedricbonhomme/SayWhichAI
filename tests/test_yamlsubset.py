@@ -1,6 +1,6 @@
 import pytest
 
-from ai_disclosure.yamlsubset import YamlError, load
+from saywhichai.yamlsubset import YamlError, load
 
 
 def test_mappings_lists_and_scalars():

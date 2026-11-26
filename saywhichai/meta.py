@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from html import escape
 from urllib.parse import quote
 
-# Where a page of ai_disclosure/site/ receives the tags that need the address of the site.
+# Where a page of saywhichai/site/ receives the tags that need the address of the site.
 MARK = "<!-- site meta -->"
 NAME = "AI transparency for Open Source projects"
 IMAGE = "og.png"

@@ -27,7 +27,7 @@ class AdvisoryError(RuntimeError):
 
 
 def _fetch(url: str) -> dict:
-    request = urllib.request.Request(url, headers={"User-Agent": "ai-disclosure", "Accept": "application/json"})
+    request = urllib.request.Request(url, headers={"User-Agent": "saywhichai", "Accept": "application/json"})
     for attempt in range(3):
         try:
             with urllib.request.urlopen(request, timeout=60) as response:

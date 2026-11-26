@@ -1,7 +1,7 @@
-from ai_disclosure.config import Project
-from ai_disclosure.gitlog import Commit
-from ai_disclosure.report import build_report
-from ai_disclosure.stats import build_stats
+from saywhichai.config import Project
+from saywhichai.gitlog import Commit
+from saywhichai.report import build_report
+from saywhichai.stats import build_stats
 
 OPUS = "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"
 SONNET = "\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n"

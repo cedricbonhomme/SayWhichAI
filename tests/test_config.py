@@ -1,6 +1,6 @@
 import pytest
 
-from ai_disclosure.config import ConfigError, load_projects
+from saywhichai.config import ConfigError, load_projects
 
 
 def project(directory, name):

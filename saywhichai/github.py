@@ -41,7 +41,7 @@ class GitHub:
             headers={
                 "Authorization": f"bearer {self.token}",
                 "Content-Type": "application/json",
-                "User-Agent": "ai-disclosure",
+                "User-Agent": "saywhichai",
             },
         )
         for attempt in range(4):

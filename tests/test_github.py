@@ -1,4 +1,4 @@
-from ai_disclosure.github import GitHub
+from saywhichai.github import GitHub
 
 
 class Answering(GitHub):

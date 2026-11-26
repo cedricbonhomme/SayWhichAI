@@ -97,7 +97,7 @@ def build(args: argparse.Namespace) -> int:
     output: Path = args.output
     data = output / "data"
     data.mkdir(parents=True, exist_ok=True)
-    site = resources.files("ai_disclosure") / "site"
+    site = resources.files("saywhichai") / "site"
     url, contact = load_address(site_file) if site_file else ("", {})
     pages = []
     for entry in site.iterdir():
@@ -171,7 +171,7 @@ def build(args: argparse.Namespace) -> int:
         report = build_report(project, commits, logins, pulls, lines, releases, advisories)
         reports.append(report)
         report["stated"] = stated
-        # A video rendered earlier by "ai-disclosure video" is published with the page.
+        # A video rendered earlier by "saywhichai video" is published with the page.
         video = args.cache / "video" / f"{project.slug}.mp4"
         if video.exists():
             (output / "video").mkdir(exist_ok=True)
@@ -277,7 +277,7 @@ def video(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="ai-disclosure", description=__doc__)
+    parser = argparse.ArgumentParser(prog="saywhichai", description=__doc__)
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
 

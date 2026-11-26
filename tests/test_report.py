@@ -1,6 +1,6 @@
-from ai_disclosure.config import Checkbox, Project
-from ai_disclosure.gitlog import Commit, Release
-from ai_disclosure.report import build_report, checkbox_state, recent_months
+from saywhichai.config import Checkbox, Project
+from saywhichai.gitlog import Commit, Release
+from saywhichai.report import build_report, checkbox_state, recent_months
 
 AI = Checkbox("ai", "AI-generated", ("generated with an ai tool",), "2026-11-04")
 HUMAN = Checkbox("human", "Read and tested", ("read, understood and tested",), "2026-11-04")
@@ -152,11 +152,11 @@ def test_a_project_without_a_tag_has_no_releases():
 def test_kinds_and_scopes_of_commits(monkeypatch):
     import re
 
-    from ai_disclosure.config import Subjects
+    from saywhichai.config import Subjects
 
     subjects = Subjects(re.compile(r"^(?P<kind>[a-z]+):\s*(?:\[(?P<scope>[^\]]+)\])?", re.I), {"docs": "doc"})
     project = Project(slug="demo", name="Demo", repository="demo/demo", subjects=subjects)
-    monkeypatch.setattr("ai_disclosure.report.SUBJECT_MIN", 1)
+    monkeypatch.setattr("saywhichai.report.SUBJECT_MIN", 1)
     commits = [
         # Before the first commit naming a model: not counted.
         commit("a", "Ada", "ada@example.org", "2026-10-01", "fix: [security] old"),
@@ -179,7 +179,7 @@ def test_kinds_and_scopes_of_commits(monkeypatch):
 def test_a_kind_with_few_commits_is_added_up_with_the_others():
     import re
 
-    from ai_disclosure.config import Subjects
+    from saywhichai.config import Subjects
 
     project = Project(slug="demo", name="Demo", repository="demo/demo",
                       subjects=Subjects(re.compile(r"^(?P<kind>[a-z]+):", re.I)))
@@ -195,7 +195,7 @@ def test_a_kind_with_few_commits_is_added_up_with_the_others():
 def test_commits_cited_by_vulnerability_records():
     import re
 
-    from ai_disclosure.config import Subjects
+    from saywhichai.config import Subjects
 
     subjects = Subjects(re.compile(r"^(?P<kind>[a-z]+):\s*(?:\[(?P<scope>[^\]]+)\])?", re.I))
     project = Project(slug="demo", name="Demo", repository="demo/demo", subjects=subjects)

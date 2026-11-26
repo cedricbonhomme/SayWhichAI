@@ -1,6 +1,6 @@
-from ai_disclosure.config import Project
-from ai_disclosure.gitlog import Commit
-from ai_disclosure.gource import build_story, disc
+from saywhichai.config import Project
+from saywhichai.gitlog import Commit
+from saywhichai.gource import build_story, disc
 
 PROJECT = Project(slug="demo", name="Demo", repository="example/demo", trailer_since="2026-01-02")
 

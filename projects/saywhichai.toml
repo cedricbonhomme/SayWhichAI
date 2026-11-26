@@ -1,9 +1,9 @@
 [project]
-name = "AI disclosure"
-repository = "cedricbonhomme/ai-disclosure"
+name = "Say which AI"
+repository = "cedricbonhomme/SayWhichAI"
 
 [policy]
-url = "https://github.com/cedricbonhomme/ai-disclosure/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
+url = "https://github.com/cedricbonhomme/SayWhichAI/blob/main/CONTRIBUTING.md#use-of-ai-and-llm-tools"
 # The first commits of the project were written with an AI tool and carry no
 # trailer: the rule applies from this date only.
 trailer_since = "2026-11-18"

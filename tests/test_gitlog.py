@@ -1,6 +1,6 @@
 import subprocess
 
-from ai_disclosure.gitlog import read_commits, read_releases
+from saywhichai.gitlog import read_commits, read_releases
 
 
 def git(repository, *args, date="2026-11-01T10:00:00"):

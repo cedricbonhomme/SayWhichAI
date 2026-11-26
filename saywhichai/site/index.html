@@ -35,7 +35,7 @@
   <div class="intro">
     <h1>Say which AI wrote it</h1>
     <p>A simple practice for Open Source projects that accept contributions written with AI tools. Each commit names the model that wrote it, and a person answers for the change. Nothing more is needed to start: one line at the end of a commit, and a few sentences in the files a project already has.</p>
-    <div class="links"><a class="button" href="good-practice.html#adopt">Adopt it in three steps</a><a href="good-practice.html">Read the good practice</a><a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">The charter</a></div>
+    <div class="links"><a class="button" href="good-practice.html#adopt">Adopt it in three steps</a><a href="good-practice.html">Read the good practice</a><a href="https://github.com/cedricbonhomme/SayWhichAI/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">The charter</a></div>
   </div>
 
   <section>
@@ -65,7 +65,7 @@
       <li><a href="good-practice.html#agents"><code>AGENTS.md</code></a>, for AI agents, which then write the trailer themselves;</li>
       <li>two boxes in the <a href="good-practice.html#template">pull request template</a>.</li>
     </ul>
-    <p>The same commitments exist as a short, versioned text, the <a href="https://github.com/cedricbonhomme/ai-disclosure/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">AI transparency charter</a>, that a project can adopt by name.</p>
+    <p>The same commitments exist as a short, versioned text, the <a href="https://github.com/cedricbonhomme/SayWhichAI/blob/main/AI_CHARTER.md" target="_blank" rel="noreferrer">AI transparency charter</a>, that a project can adopt by name.</p>
   </section>
 
   <section>
@@ -79,9 +79,9 @@
   <section>
     <h2>Run it for your own projects</h2>
     <p>The tool that builds these pages is free software, written in Python with the standard library only. It reads a list of repositories and writes a static site, which any web server can publish.</p>
-<pre><code>pip install git+https://github.com/cedricbonhomme/ai-disclosure
-ai-disclosure build        # reads projects/, writes _site/</code></pre>
-    <p>One small file per project says where the repository is and from which date its rule applies. <a href="https://github.com/cedricbonhomme/ai-disclosure#readme" target="_blank" rel="noreferrer">The README explains the rest.</a></p>
+<pre><code>pip install git+https://github.com/cedricbonhomme/SayWhichAI
+saywhichai build        # reads projects/, writes _site/</code></pre>
+    <p>One small file per project says where the repository is and from which date its rule applies. <a href="https://github.com/cedricbonhomme/SayWhichAI#readme" target="_blank" rel="noreferrer">The README explains the rest.</a></p>
   </section>
 
   <section>
@@ -94,7 +94,7 @@ ai-disclosure build        # reads projects/, writes _site/</code></pre>
   <p class="loading" id="status">Loading the report…</p>
 </main>
 
-<footer class="wrap footer"><span id="footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/ai-disclosure" target="_blank" rel="noreferrer">Source code</a>. The text of this page is under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>.</span></footer>
+<footer class="wrap footer"><span id="footer">AI transparency for Open Source projects. <a href="https://github.com/cedricbonhomme/SayWhichAI" target="_blank" rel="noreferrer">Source code</a>. The text of this page is under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>.</span></footer>
 
 <div class="tooltip" id="tooltip" role="status" hidden></div>
 <script src="app.js"></script>
